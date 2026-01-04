@@ -1,17 +1,18 @@
-// js/dashboard.js
+// js/dashboard.js - FULL VERSION
 
 const AUTH_KEY = 'urochithi_dashboard_auth';
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 let messages = [];
 let filteredMessages = [];
 let lastActivity = Date.now();
 let staticPinValue = '';
 let currentLetter = null;
 
-// Load config (from config.js loaded before this script)
+// Load site URL from config.js (falls back to current origin)
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
 
+// Update UTC time display
 function updateUTCTime() {
   const now = new Date();
   const hours = String(now.getUTCHours()).padStart(2, '0');
@@ -22,6 +23,7 @@ function updateUTCTime() {
 setInterval(updateUTCTime, 1000);
 updateUTCTime();
 
+// Check if already authenticated
 function checkAuth() {
   const auth = localStorage.getItem(AUTH_KEY);
   if (auth) {
@@ -39,9 +41,9 @@ function checkAuth() {
   return false;
 }
 
+// Activity tracking for auto-logout
 document.addEventListener('click', () => lastActivity = Date.now());
 document.addEventListener('keypress', () => lastActivity = Date.now());
-
 setInterval(() => {
   if (Date.now() - lastActivity > SESSION_TIMEOUT) logout();
 }, 60000);
@@ -52,6 +54,7 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
   const staticPin = document.getElementById('staticPin').value;
   const errorDiv = document.getElementById('step1Error');
   const button = document.getElementById('step1Button');
+
   errorDiv.classList.remove('show');
   button.disabled = true;
   button.textContent = 'Verifying...';
@@ -63,6 +66,7 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
       body: JSON.stringify({ staticPin })
     });
     const data = await response.json();
+
     if (response.ok && data.valid) {
       staticPinValue = staticPin;
       document.getElementById('step1Container').style.display = 'none';
@@ -93,6 +97,7 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
   const timePin = document.getElementById('timePin').value;
   const errorDiv = document.getElementById('step2Error');
   const button = document.getElementById('step2Button');
+
   errorDiv.classList.remove('show');
   button.disabled = true;
   button.textContent = 'Authenticating...';
@@ -104,8 +109,12 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
       body: JSON.stringify({ staticPin: staticPinValue, timePin })
     });
     const data = await response.json();
+
     if (response.ok && data.authenticated) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify({ authenticated: true, timestamp: Date.now() }));
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        authenticated: true,
+        timestamp: Date.now()
+      }));
       showDashboard();
       loadMessages();
     } else {
@@ -133,27 +142,41 @@ function logout() {
 }
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
+// Load messages from server
 async function loadMessages() {
   const container = document.getElementById('messagesContainer');
-  container.innerHTML = '<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading messages...</div></div>';
+  container.innerHTML = `
+    <div class="loading-screen">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading messages...</div>
+    </div>`;
+
   try {
     const response = await fetch('/.netlify/functions/get-messages', {
-      headers: { 'Authorization': JSON.stringify(JSON.parse(localStorage.getItem(AUTH_KEY))) }
+      headers: {
+        'Authorization': JSON.stringify(JSON.parse(localStorage.getItem(AUTH_KEY)))
+      }
     });
+
     if (!response.ok) throw new Error('Failed to load');
     const data = await response.json();
     messages = data.messages || [];
     updateStats();
     filterAndDisplayMessages();
   } catch (error) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Error loading messages. Please refresh.</div></div>';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-text">Error loading messages. Please refresh.</div>
+      </div>`;
   }
 }
 
+// Update stats cards
 function updateStats() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
   const todayCount = messages.filter(m => new Date(m.timestamp) >= today).length;
   const weekCount = messages.filter(m => new Date(m.timestamp) >= weekAgo).length;
   const uniqueSessions = new Set(messages.map(m => m.sessionId)).size;
@@ -164,15 +187,22 @@ function updateStats() {
   document.getElementById('weekMessages').textContent = weekCount;
 }
 
+// Filter and sort messages
 function filterAndDisplayMessages() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   const sortBy = document.getElementById('sortSelect').value;
   const filterBy = document.getElementById('filterSelect').value;
 
   filteredMessages = messages.filter(msg => {
-    if (searchTerm && !msg.message.toLowerCase().includes(searchTerm) && !msg.sessionId.toLowerCase().includes(searchTerm)) return false;
+    if (searchTerm &&
+        !msg.message.toLowerCase().includes(searchTerm) &&
+        !msg.sessionId.toLowerCase().includes(searchTerm)) {
+      return false;
+    }
+
     const msgDate = new Date(msg.timestamp);
     const now = new Date();
+
     if (filterBy === 'today') {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       if (msgDate < today) return false;
@@ -195,21 +225,28 @@ function filterAndDisplayMessages() {
   displayMessages();
 }
 
+// Display messages in table
 function displayMessages() {
   const container = document.getElementById('messagesContainer');
+
   if (filteredMessages.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-text">No messages found.</div></div>';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-text">No messages found.</div>
+      </div>`;
     return;
   }
 
   const table = `
     <table class="messages-table">
-      <thead><tr>
-        <th style="width: 160px">Timestamp</th>
-        <th>Preview</th>
-        <th style="width: 180px">Session ID</th>
-        <th style="width: 100px">Action</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th style="width: 160px">Timestamp</th>
+          <th>Preview</th>
+          <th style="width: 180px">Session ID</th>
+          <th style="width: 100px">Action</th>
+        </tr>
+      </thead>
       <tbody>
         ${filteredMessages.map((msg, idx) => `
           <tr>
@@ -221,8 +258,10 @@ function displayMessages() {
         `).join('')}
       </tbody>
     </table>`;
+
   container.innerHTML = table;
 
+  // Attach click handlers to View buttons
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const idx = parseInt(e.target.getAttribute('data-index'));
@@ -231,10 +270,11 @@ function displayMessages() {
   });
 }
 
+// Open letter modal
 function openLetter(index) {
   currentLetter = filteredMessages[index];
-  const contentEl = document.getElementById('modalLetterContent');
-  contentEl.innerHTML = currentLetter.message.replace(/\n/g, '<br>');
+  document.getElementById('modalLetterContent').innerHTML =
+    currentLetter.message.replace(/\n/g, '<br>');
   document.getElementById('modalSessionId').textContent = `Session: ${currentLetter.sessionId}`;
   document.getElementById('domainText').textContent = SITE_URL.replace(/^https?:\/\//, '');
   document.getElementById('letterModal').classList.add('show');
@@ -252,7 +292,7 @@ document.getElementById('letterModal').addEventListener('click', (e) => {
   if (e.target.id === 'letterModal') closeLetter();
 });
 
-// Copy Button
+// Copy button
 document.getElementById('copyBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
   try {
@@ -266,19 +306,37 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
   }
 });
 
-// Save as Image Button
+// Save as Image – Full long letter + gridlines preserved
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
+
   const card = document.getElementById('letterCard');
+  const wrapper = document.querySelector('.letter-content-wrapper');
+
+  // Backup original styles
+  const origWrapperStyle = wrapper.style.cssText;
+  const origCardStyle = card.style.cssText;
+  const origBodyOverflow = document.body.style.overflow;
+
+  // Prepare for full capture
   card.classList.add('capture-mode');
+  wrapper.style.overflow = 'visible';
+  wrapper.style.maxHeight = 'none';
+  wrapper.style.height = 'auto';
+  card.style.maxHeight = 'none';
+  card.style.height = 'auto';
+  document.body.style.overflow = 'visible';
 
   try {
     const canvas = await html2canvas(card, {
       backgroundColor: '#faf8f3',
       scale: 2,
       useCORS: true,
-      logging: false
+      logging: false,
+      height: card.scrollHeight,
+      windowHeight: card.scrollHeight
     });
+
     canvas.toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -293,28 +351,41 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     btn.innerHTML = '<span>✓</span> <span>Saved!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
   } catch (err) {
-    alert('Save failed');
+    console.error('Save error:', err);
+    alert('Failed to save image. Please try again.');
   } finally {
+    // Restore original state
     card.classList.remove('capture-mode');
+    wrapper.style.cssText = origWrapperStyle;
+    card.style.cssText = origCardStyle;
+    document.body.style.overflow = origBodyOverflow;
   }
 });
 
-// Share Button
+// Share button with native + fallback
 document.getElementById('shareBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
-  const excerpt = currentLetter.message.length > 150 ? currentLetter.message.substring(0, 150) + '...' : currentLetter.message;
+
+  const excerpt = currentLetter.message.length > 150
+    ? currentLetter.message.substring(0, 150) + '...'
+    : currentLetter.message;
+
   const shareText = `📮 Anonymous Letter from Urochithi\n\n"${excerpt}"\n\nCreate your own: ${SITE_URL}`;
 
   if (navigator.share) {
     try {
-      await navigator.share({ title: 'Urochithi Anonymous Letter', text: shareText, url: SITE_URL });
+      await navigator.share({
+        title: 'Urochithi Anonymous Letter',
+        text: shareText,
+        url: SITE_URL
+      });
       return;
     } catch (err) {
-      // ignore abort
+      // User aborted or not supported
     }
   }
 
-  // Fallback social share dialog
+  // Fallback dialog
   const dialog = document.createElement('div');
   dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem;';
   dialog.innerHTML = `
@@ -329,6 +400,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
       </div>
       <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:1rem;background:#f0f0f0;border:none;font-weight:600;">Close</button>
     </div>`;
+
   document.body.appendChild(dialog);
 
   document.getElementById('copyFallback').addEventListener('click', () => {
@@ -338,27 +410,31 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
   });
 });
 
+// Helper: format timestamp
 function formatDate(dateString) {
   const date = new Date(dateString);
   const now = new Date();
   const diff = now - date;
+
   if (diff < 60000) return 'Just now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+// Helper: escape HTML
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Filters & Refresh
+// Event listeners for filters and refresh
 document.getElementById('searchInput').addEventListener('input', filterAndDisplayMessages);
 document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 
-// Initial check
+// Initial auth check
 checkAuth();
