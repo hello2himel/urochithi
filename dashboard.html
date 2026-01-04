@@ -105,7 +105,7 @@
     </div>
   </div>
 
-  <!-- Letter Modal -->
+  <!-- Letter Modal - Fixed for long content -->
   <div id="letterModal" class="modal-overlay">
     <div class="letter-modal" id="letterCard">
       <div class="stain stain1"></div>
@@ -120,7 +120,10 @@
         <div class="letter-session" id="modalSessionId"></div>
       </div>
 
-      <div class="letter-content" id="modalLetterContent"></div>
+      <!-- Scrollable content area -->
+      <div class="letter-content-scrollable">
+        <div class="letter-content" id="modalLetterContent"></div>
+      </div>
 
       <div class="letter-footer" id="letterFooter">
         Send your anonymous letter at <span id="domainText">urochithi.netlify.app</span>
@@ -134,7 +137,6 @@
     </div>
   </div>
 
-  <!-- Load config first, then dashboard script -->
   <script src="js/config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="js/dashboard.js"></script>

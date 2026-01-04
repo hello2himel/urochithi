@@ -105,8 +105,66 @@ body {
   width: 100%;
   padding: 3rem 2.5rem;
   position: relative;
+    max-height: 90vh;
+  max-height: 90dvh; /* Better support for mobile */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.6);
   clip-path: polygon(0% 0%, 95% 0%, 100% 8%, 98% 15%, 100% 22%, 96% 30%, 100% 38%, 97% 45%, 100% 55%, 95% 62%, 100% 70%, 98% 78%, 100% 85%, 97% 92%, 100% 100%, 0% 100%);
+}
+
+.letter-content-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  margin: 140px 20px 20px 85px;
+  padding: 1.5rem 1rem;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 35px,
+    rgba(139, 69, 19, 0.15) 35px,
+    rgba(139, 69, 19, 0.15) 36px
+  );
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.letter-content {
+  margin: 0;
+  min-height: auto;
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: #4a4a4a;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Ensure footer and actions stay at bottom */
+.letter-footer {
+  margin: 1.5rem 0 0.5rem 85px;
+  flex-shrink: 0;
+}
+
+.letter-actions {
+  margin: 1rem 0 1.5rem 85px;
+  flex-shrink: 0;
+}
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+  .letter-content-scrollable {
+    margin: 1rem 0;
+    padding: 1.2rem;
+  }
+  .letter-footer,
+  .letter-actions {
+    margin-left: 0;
+    text-align: center;
+    justify-content: center;
+  }
+  .letter-actions {
+    margin-bottom: 1rem;
+  }
 }
 
 .letter-modal::before {
