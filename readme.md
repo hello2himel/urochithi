@@ -66,9 +66,9 @@ Click the "Fork" button at the top right of this page to create your own copy.
 In Netlify, go to **Site configuration → Environment variables** and add:
 
 ```
-DASHBOARD_PIN = yourSecretPassword123
-TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
-GSCRIPT_URL = https://script.google.com/macros/s/.../exec
+DASHBOARD_PIN
+TIME_PIN_ALGORITHM (See examples below)
+GSCRIPT_URL
 ```
 
 ### 5. Customize Your Site
@@ -234,17 +234,17 @@ You can customize the formula by changing the `TIME_PIN_ALGORITHM` environment v
 
 **Simple:**
 ```
-TIME_PIN_ALGORITHM = (hour + minute)
+(hour + minute)
 ```
 
 **Medium (default):**
 ```
-TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
+(hour * 7) + (minute % 10)
 ```
 
 **Complex:**
 ```
-TIME_PIN_ALGORITHM = (hour * hour) + (minute * 3)
+(hour * hour) + (minute * 3)
 ```
 
 **Variables available:**
