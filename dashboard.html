@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Urochithi</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+body {
+  background: #faf8f3;
+  background-image: 
+    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Auth Screens */
+.auth-container {
+  max-width: 450px;
+  margin: 8rem auto;
+  background: #faf8f3;
+  padding: 3rem 2.5rem;
+  border: 2px solid rgba(139, 69, 19, 0.2);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.auth-title {
+  font-size: 2.2rem;
+  color: #5d4037;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  color: #8d6e63;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.form-label {
+  font-size: 1rem;
+  color: #5d4037;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form-input {
+  padding: 1.2rem;
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  background: #fff;
+  font-family: 'Special Elite', monospace;
+  font-size: 1.5rem;
+  color: #5d4037;
+  outline: none;
+  transition: all 0.3s ease;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.form-input:focus {
+  border-color: #8d6e63;
+  box-shadow: 0 0 0 3px rgba(141, 110, 99, 0.1);
+}
+
+.time-display {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(139, 69, 19, 0.05);
+  border: 2px dashed rgba(139, 69, 19, 0.3);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.time-label {
+  font-size: 0.9rem;
+  color: #8d6e63;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.time-value {
+  font-size: 4rem;
+  color: #5d4037;
+  font-weight: 700;
+  letter-spacing: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.time-hint {
+  font-size: 0.85rem;
+  color: #8d6e63;
+  text-align: center;
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.auth-button {
+  padding: 1.2rem;
+  background: #8d6e63;
+  color: #faf8f3;
+  border: none;
+  font-family: 'Special Elite', monospace;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(141, 110, 99, 0.3);
+}
+
+.auth-button:hover:not(:disabled) {
+  background: #6d4c41;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(141, 110, 99, 0.4);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-error {
+  background: rgba(244, 67, 54, 0.1);
+  color: #c62828;
+  padding: 1rem;
+  border-left: 4px solid #f44336;
+  font-size: 0.9rem;
+  display: none;
+  text-align: center;
+}
+
+.auth-error.show {
+  display: block;
+}
+
+.back-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #8d6e63;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.back-link:hover {
+  color: #5d4037;
+}
+
+/* Dashboard */
+.dashboard-container {
+  display: none;
+}
+
+.dashboard-container.show {
+  display: block;
+}
+
+.dashboard-nav {
+  background: rgba(139, 69, 19, 0.08);
+  border-bottom: 2px solid rgba(139, 69, 19, 0.2);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.nav-brand {
+  font-size: 1.5rem;
+  color: #5d4037;
+  font-weight: 700;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  color: #5d4037;
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-btn:hover {
+  background: rgba(139, 69, 19, 0.1);
+  border-color: #8d6e63;
+}
+
+.nav-btn.primary {
+  background: #8d6e63;
+  color: #faf8f3;
+  border-color: #8d6e63;
+}
+
+.nav-btn.primary:hover {
+  background: #6d4c41;
+}
+
+.dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 1.5rem;
+  border: 2px solid rgba(139, 69, 19, 0.15);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: #8d6e63;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #8d6e63;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  color: #5d4037;
+  font-weight: 700;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid rgba(139, 69, 19, 0.2);
+  background: #fff;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.9rem;
+  color: #5d4037;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #8d6e63;
+}
+
+.filter-select {
+  padding: 0.9rem 1.2rem;
+  border: 2px solid rgba(139, 69, 19, 0.2);
+  background: #fff;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.9rem;
+  color: #5d4037;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #8d6e63;
+}
+
+.messages-table {
+  width: 100%;
+  background: #fff;
+  border: 2px solid rgba(139, 69, 19, 0.2);
+  border-collapse: collapse;
+}
+
+.messages-table th {
+  background: rgba(139, 69, 19, 0.08);
+  padding: 1.2rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #5d4037;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(139, 69, 19, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.messages-table td {
+  padding: 1.2rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+  color: #6d4c41;
+  font-size: 0.9rem;
+  vertical-align: top;
+}
+
+.messages-table tr:hover {
+  background: rgba(139, 69, 19, 0.02);
+}
+
+.message-text {
+  max-width: 500px;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+.session-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #8d6e63;
+}
+
+.timestamp {
+  font-size: 0.85rem;
+  color: #8d6e63;
+  white-space: nowrap;
+}
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(139, 69, 19, 0.1);
+  border-top-color: #8d6e63;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  color: #8d6e63;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #8d6e63;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 3rem 1rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .time-value {
+    font-size: 3rem;
+  }
+  
+  .dashboard-nav {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .nav-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .nav-btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .dashboard-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .controls {
+    flex-direction: column;
+  }
+  
+  .search-input,
+  .filter-select {
+    width: 100%;
+  }
+  
+  .messages-table {
+    font-size: 0.8rem;
+  }
+  
+  .messages-table th,
+  .messages-table td {
+    padding: 0.8rem 0.5rem;
+  }
+  
+  .message-text {
+    max-width: 200px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Step 1: Static PIN -->
+<div id="step1Container" class="auth-container">
+  <h1 class="auth-title">🔐 Dashboard Login</h1>
+  <p class="auth-subtitle">Enter your PIN to continue</p>
+  
+  <form id="step1Form" class="auth-form">
+    <div class="form-group">
+      <label class="form-label">PIN</label>
+      <input 
+        type="password" 
+        id="staticPin" 
+        class="form-input" 
+        placeholder="••••" 
+        autocomplete="off"
+        required
+      >
+    </div>
+    
+    <div id="step1Error" class="auth-error"></div>
+    
+    <button type="submit" class="auth-button" id="step1Button">
+      Continue
+    </button>
+  </form>
+</div>
+
+<!-- Step 2: Time-based PIN -->
+<div id="step2Container" class="auth-container" style="display: none;">
+  <h1 class="auth-title">⏰ Time Verification</h1>
+  <p class="auth-subtitle">Calculate and enter the time-based code</p>
+  
+  <div class="time-display">
+    <div class="time-label">Current UTC Time</div>
+    <div class="time-value" id="utcTime">--:--</div>
+  </div>
+  
+  <form id="step2Form" class="auth-form">
+    <div class="form-group">
+      <label class="form-label">Time-based Code</label>
+      <input 
+        type="number" 
+        id="timePin" 
+        class="form-input" 
+        placeholder="000" 
+        autocomplete="off"
+        required
+      >
+      <div class="time-hint">
+        Use the formula with current UTC time shown above
+      </div>
+    </div>
+    
+    <div id="step2Error" class="auth-error"></div>
+    
+    <button type="submit" class="auth-button" id="step2Button">
+      Authenticate
+    </button>
+  </form>
+  
+  <div class="back-link" id="backToStep1">← Back</div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboardContainer" class="dashboard-container">
+  <!-- Navigation Bar -->
+  <nav class="dashboard-nav">
+    <div class="nav-brand">📊 Dashboard</div>
+    <div class="nav-actions">
+      <button class="nav-btn" id="refreshBtn">↻ Refresh</button>
+      <a href="/" class="nav-btn">Home</a>
+      <button class="nav-btn primary" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+  
+  <!-- Content -->
+  <div class="dashboard-content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-value" id="totalMessages">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="todayMessages">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Sessions</div>
+        <div class="stat-value" id="uniqueSessions">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">This Week</div>
+        <div class="stat-value" id="weekMessages">0</div>
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+      <input 
+        type="text" 
+        id="searchInput" 
+        class="search-input" 
+        placeholder="🔍 Search messages or session IDs..."
+      >
+      <select id="sortSelect" class="filter-select">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+      <select id="filterSelect" class="filter-select">
+        <option value="all">All Messages</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+    
+    <!-- Messages -->
+    <div id="messagesContainer">
+      <div class="loading-screen">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading messages...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const AUTH_KEY = 'urochithi_dashboard_auth';
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+let messages = [];
+let filteredMessages = [];
+let lastActivity = Date.now();
+let staticPinValue = '';
+
+// Update UTC time display
+function updateUTCTime() {
+  const now = new Date();
+  const hours = String(now.getUTCHours()).padStart(2, '0');
+  const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+  
+  const timeEl = document.getElementById('utcTime');
+  if (timeEl) {
+    timeEl.textContent = `${hours}:${minutes}`;
+  }
+}
+
+setInterval(updateUTCTime, 1000);
+updateUTCTime();
+
+// Check if already authenticated
+function checkAuth() {
+  const auth = localStorage.getItem(AUTH_KEY);
+  if (auth) {
+    const authData = JSON.parse(auth);
+    const now = Date.now();
+    
+    if (now - authData.timestamp < SESSION_TIMEOUT) {
+      lastActivity = now;
+      showDashboard();
+      loadMessages();
+      return true;
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+    }
+  }
+  return false;
+}
+
+// Track activity for auto-logout
+document.addEventListener('click', () => lastActivity = Date.now());
+document.addEventListener('keypress', () => lastActivity = Date.now());
+
+setInterval(() => {
+  if (Date.now() - lastActivity > SESSION_TIMEOUT) {
+    logout();
+  }
+}, 60000);
+
+// Step 1: Static PIN
+document.getElementById('step1Form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const staticPin = document.getElementById('staticPin').value;
+  const errorDiv = document.getElementById('step1Error');
+  const button = document.getElementById('step1Button');
+  
+  errorDiv.classList.remove('show');
+  button.disabled = true;
+  button.textContent = 'Verifying...';
+  
+  try {
+    const response = await fetch('/.netlify/functions/verify-static-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staticPin })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.valid) {
+      staticPinValue = staticPin;
+      document.getElementById('step1Container').style.display = 'none';
+      document.getElementById('step2Container').style.display = 'block';
+    } else {
+      errorDiv.textContent = data.error || 'Invalid PIN';
+      errorDiv.classList.add('show');
+    }
+  } catch (error) {
+    errorDiv.textContent = 'Connection error. Please try again.';
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Continue';
+  }
+});
+
+// Back to step 1
+document.getElementById('backToStep1').addEventListener('click', () => {
+  document.getElementById('step2Container').style.display = 'none';
+  document.getElementById('step1Container').style.display = 'block';
+  document.getElementById('staticPin').value = '';
+  staticPinValue = '';
+});
+
+// Step 2: Time-based PIN
+document.getElementById('step2Form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const timePin = document.getElementById('timePin').value;
+  const errorDiv = document.getElementById('step2Error');
+  const button = document.getElementById('step2Button');
+  
+  errorDiv.classList.remove('show');
+  button.disabled = true;
+  button.textContent = 'Authenticating...';
+  
+  try {
+    const response = await fetch('/.netlify/functions/verify-time-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staticPin: staticPinValue, timePin })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.authenticated) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        authenticated: true,
+        timestamp: Date.now()
+      }));
+      showDashboard();
+      loadMessages();
+    } else {
+      errorDiv.textContent = data.error || 'Invalid code';
+      errorDiv.classList.add('show');
+    }
+  } catch (error) {
+    errorDiv.textContent = 'Connection error. Please try again.';
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Authenticate';
+  }
+});
+
+// Show dashboard
+function showDashboard() {
+  document.getElementById('step1Container').style.display = 'none';
+  document.getElementById('step2Container').style.display = 'none';
+  document.getElementById('dashboardContainer').classList.add('show');
+}
+
+// Logout
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// Load messages
+async function loadMessages() {
+  const container = document.getElementById('messagesContainer');
+  container.innerHTML = '<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading messages...</div></div>';
+  
+  try {
+    const response = await fetch('/.netlify/functions/get-messages', {
+      headers: {
+        'Authorization': JSON.stringify(JSON.parse(localStorage.getItem(AUTH_KEY)))
+      }
+    });
+    
+    if (!response.ok) throw new Error('Failed to load');
+    
+    const data = await response.json();
+    messages = data.messages || [];
+    
+    updateStats();
+    filterAndDisplayMessages();
+  } catch (error) {
+    container.innerHTML = '<div class="empty-state">Error loading messages. Please refresh.</div>';
+  }
+}
+
+// Update statistics
+function updateStats() {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
+  const todayCount = messages.filter(m => new Date(m.timestamp) >= today).length;
+  const weekCount = messages.filter(m => new Date(m.timestamp) >= weekAgo).length;
+  const uniqueSessions = new Set(messages.map(m => m.sessionId)).size;
+  
+  document.getElementById('totalMessages').textContent = messages.length;
+  document.getElementById('todayMessages').textContent = todayCount;
+  document.getElementById('uniqueSessions').textContent = uniqueSessions;
+  document.getElementById('weekMessages').textContent = weekCount;
+}
+
+// Filter and display
+function filterAndDisplayMessages() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const sortBy = document.getElementById('sortSelect').value;
+  const filterBy = document.getElementById('filterSelect').value;
+  
+  filteredMessages = messages.filter(msg => {
+    if (searchTerm && !msg.message.toLowerCase().includes(searchTerm) && 
+        !msg.sessionId.toLowerCase().includes(searchTerm)) {
+      return false;
+    }
+    
+    const msgDate = new Date(msg.timestamp);
+    const now = new Date();
+    
+    if (filterBy === 'today') {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (msgDate < today) return false;
+    } else if (filterBy === 'week') {
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      if (msgDate < weekAgo) return false;
+    } else if (filterBy === 'month') {
+      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      if (msgDate < monthAgo) return false;
+    }
+    
+    return true;
+  });
+  
+  filteredMessages.sort((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+  });
+  
+  displayMessages();
+}
+
+// Display messages
+function displayMessages() {
+  const container = document.getElementById('messagesContainer');
+  
+  if (filteredMessages.length === 0) {
+    container.innerHTML = '<div class="empty-state">No messages found.</div>';
+    return;
+  }
+  
+  const table = `
+    <table class="messages-table">
+      <thead>
+        <tr>
+          <th style="width: 180px">Timestamp</th>
+          <th>Message</th>
+          <th style="width: 200px">Session ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredMessages.map(msg => `
+          <tr>
+            <td class="timestamp">${formatDate(msg.timestamp)}</td>
+            <td class="message-text">${escapeHtml(msg.message)}</td>
+            <td class="session-id">${msg.sessionId}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  
+  container.innerHTML = table;
+}
+
+// Format date
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now - date;
+  
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+// Escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Event listeners
+document.getElementById('searchInput').addEventListener('input', filterAndDisplayMessages);
+document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
+document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
+document.getElementById('refreshBtn').addEventListener('click', loadMessages);
+
+// Initialize
+checkAuth();
+</script>
+</body>
+</html>
