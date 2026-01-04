@@ -212,6 +212,20 @@ body {
   display: block;
 }
 
+.back-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: var(--color-text);
+}
+
 /* Dashboard */
 .dashboard-container {
   display: none;
@@ -745,7 +759,7 @@ body {
   box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
-/* === Capture mode for saving images === */
+/* Capture mode for saving images */
 .letter-modal.capture-mode .letter-actions,
 .letter-modal.capture-mode .close-modal {
   display: none !important;
@@ -763,7 +777,109 @@ body {
   height: auto !important;
 }
 
-/* Responsive adjustments */
+/* === Custom Share Modal - Matches Urochithi Aesthetic === */
+.share-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.share-modal-paper {
+  background: #faf8f3;
+  background-image:
+    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  padding: 3rem 2.5rem;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.share-modal-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 80px;
+  right: 0;
+  height: 100%;
+  border-left: 2px solid rgba(255, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.share-header {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  text-align: end;
+  border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+}
+
+.share-options {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 140px 20px 20px 85px;
+  padding: 1rem 0;
+}
+
+.share-btn {
+  padding: 1rem 1.5rem;
+  border: 2px solid #8d6e63;
+  background: #f5f5dc;
+  background-image: linear-gradient(145deg, #f8f6f0 0%, #f0ede5 100%);
+  color: #5d4037;
+  font-family: 'Special Elite', monospace;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.share-btn:hover {
+  background: #f0ede5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.share-btn span:first-child {
+  font-size: 1.5rem;
+}
+
+.share-btn.twitter { border-color: #1DA1F2; }
+.share-btn.whatsapp { border-color: #25D366; }
+.share-btn.facebook { border-color: #1877F2; }
+.share-btn.telegram { border-color: #0088cc; }
+.share-btn.copy { border-color: #8d6e63; }
+
+.share-footer {
+  margin: 2rem 0 0.5rem 85px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: #8d6e63;
+  text-align: center;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .dashboard-nav {
     flex-direction: column;
@@ -797,7 +913,6 @@ body {
   .letter-modal {
     clip-path: none;
     padding: 2rem 1.5rem;
-    max-height: 90vh;
   }
 
   .letter-modal::before {
@@ -833,6 +948,29 @@ body {
     left: 20px;
     width: 36px;
     height: 36px;
+  }
+
+  .share-modal-paper {
+    padding: 2rem 1.5rem;
+  }
+
+  .share-modal-paper::before {
+    left: 30px;
+  }
+
+  .share-header {
+    position: static;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: none;
+  }
+
+  .share-options {
+    margin: 1rem 0;
+  }
+
+  .share-footer {
+    margin-left: 0;
   }
 }
 

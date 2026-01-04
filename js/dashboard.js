@@ -1,4 +1,4 @@
-// js/dashboard.js - FULL VERSION
+// js/dashboard.js
 
 const AUTH_KEY = 'urochithi_dashboard_auth';
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -362,7 +362,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   }
 });
 
-// Share button with native + fallback
+// Share button – Beautiful on-brand modal
 document.getElementById('shareBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
@@ -372,6 +372,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
   const shareText = `📮 Anonymous Letter from Urochithi\n\n"${excerpt}"\n\nCreate your own: ${SITE_URL}`;
 
+  // Native share if available
   if (navigator.share) {
     try {
       await navigator.share({
@@ -381,32 +382,77 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
       });
       return;
     } catch (err) {
-      // User aborted or not supported
+      // Ignore if user cancels
     }
   }
 
-  // Fallback dialog
-  const dialog = document.createElement('div');
-  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem;';
-  dialog.innerHTML = `
-    <div style="background:white;max-width:320px;width:100%;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);">
-      <div style="padding:1.5rem 1rem 1rem;text-align:center;font-family:sans-serif;">
-        <p style="margin-bottom:1rem;font-weight:600;">Share via</p>
-        <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" style="display:block;padding:0.9rem;margin:0.5rem 0;background:#1DA1F2;color:white;border-radius:6px;text-decoration:none;font-weight:500;">Twitter / X</a>
-        <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}" target="_blank" style="display:block;padding:0.9rem;margin:0.5rem 0;background:#25D366;color:white;border-radius:6px;text-decoration:none;font-weight:500;">WhatsApp</a>
-        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}&quote=${encodeURIComponent(excerpt)}" target="_blank" style="display:block;padding:0.9rem;margin:0.5rem 0;background:#1877F2;color:white;border-radius:6px;text-decoration:none;font-weight:500;">Facebook</a>
-        <a href="https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(shareText)}" target="_blank" style="display:block;padding:0.9rem;margin:0.5rem 0;background:#0088cc;color:white;border-radius:6px;text-decoration:none;font-weight:500;">Telegram</a>
-        <button id="copyFallback" style="width:100%;padding:0.9rem;margin:0.5rem 0;background:#666;color:white;border:none;border-radius:6px;font-weight:500;">Copy Text</button>
+  // Custom beautiful share modal
+  const modalHtml = `
+    <div class="share-modal-overlay" id="customShareModal">
+      <div class="share-modal-paper">
+        <div class="stain stain1"></div>
+        <div class="stain stain2"></div>
+        <div class="stain stain3"></div>
+
+        <button class="close-modal" id="closeShareModal">×</button>
+
+        <div class="share-header">
+          <div class="letter-title">Share This Letter</div>
+          <div class="letter-subtitle">Choose a platform</div>
+        </div>
+
+        <div class="share-options">
+          <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn twitter">
+            <span>𝕏</span> <span>Twitter / X</span>
+          </a>
+          <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn whatsapp">
+            <span>💬</span> <span>WhatsApp</span>
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}&quote=${encodeURIComponent(excerpt)}" target="_blank" class="share-btn facebook">
+            <span>📘</span> <span>Facebook</span>
+          </a>
+          <a href="https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn telegram">
+            <span>✈️</span> <span>Telegram</span>
+          </a>
+          <button id="copyShareText" class="share-btn copy">
+            <span>📋</span> <span>Copy Text</span>
+          </button>
+        </div>
+
+        <div class="share-footer">
+          Shared with love from <strong>Urochithi</strong>
+        </div>
       </div>
-      <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:1rem;background:#f0f0f0;border:none;font-weight:600;">Close</button>
     </div>`;
 
-  document.body.appendChild(dialog);
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-  document.getElementById('copyFallback').addEventListener('click', () => {
-    navigator.clipboard.writeText(shareText).then(() => {
-      document.getElementById('copyFallback').textContent = 'Copied!';
-    });
+  // Close handlers
+  document.getElementById('closeShareModal').addEventListener('click', () => {
+    document.getElementById('customShareModal').remove();
+  });
+
+  document.getElementById('customShareModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('customShareModal')) {
+      document.getElementById('customShareModal').remove();
+    }
+  });
+
+  // Copy button feedback
+  document.getElementById('copyShareText').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      const btn = document.getElementById('copyShareText');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span>✓</span> <span>Copied!</span>';
+      btn.style.background = '#e8f5e9';
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+      }, 2000);
+    } catch (err) {
+      alert('Copy failed');
+    }
   });
 });
 
