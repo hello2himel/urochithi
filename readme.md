@@ -234,17 +234,17 @@ You can customize the formula by changing the `TIME_PIN_ALGORITHM` environment v
 
 **Simple:**
 ```
-TIME_PIN_ALGORITHM = (hour + minute)
+(hour + minute)
 ```
 
 **Medium (default):**
 ```
-TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
+(hour * 7) + (minute % 10)
 ```
 
 **Complex:**
 ```
-TIME_PIN_ALGORITHM = (hour * hour) + (minute * 3)
+(hour * hour) + (minute * 3)
 ```
 
 **Variables available:**
