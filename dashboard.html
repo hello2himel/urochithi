@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - Urochithi</title>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --color-bg: #faf8f3;
@@ -532,14 +532,16 @@ body {
   padding: 1.125rem 1.25rem;
   color: var(--color-text);
   font-size: 0.875rem;
-  vertical-align: top;
+  vertical-align: middle;
   line-height: 1.6;
 }
 
-.message-text {
-  max-width: 600px;
-  word-wrap: break-word;
-  color: var(--color-text);
+.message-preview {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
 }
 
 .session-id {
@@ -557,6 +559,27 @@ body {
   color: var(--color-text-muted);
   white-space: nowrap;
   font-weight: 500;
+}
+
+.view-btn {
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-paper);
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border-radius: var(--radius);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.view-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .loading-screen,
@@ -588,6 +611,255 @@ body {
   font-size: 0.95rem;
   color: var(--color-text-muted);
   font-weight: 500;
+}
+
+/* Letter Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  padding: 2rem;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.letter-modal {
+  background: #faf8f3;
+  background-image: 
+    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  max-width: 700px;
+  width: 100%;
+  padding: 3rem 2.5rem;
+  position: relative;
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  clip-path: polygon(
+    0% 0%, 
+    95% 0%, 
+    100% 8%, 
+    98% 15%, 
+    100% 22%, 
+    96% 30%, 
+    100% 38%, 
+    97% 45%, 
+    100% 55%, 
+    95% 62%, 
+    100% 70%, 
+    98% 78%, 
+    100% 85%, 
+    97% 92%, 
+    100% 100%, 
+    0% 100%
+  );
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.letter-modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 80px;
+  right: 0;
+  height: 100%;
+  border-left: 2px solid rgba(255, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.letter-modal::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  border: 1px solid rgba(139, 69, 19, 0.05);
+  pointer-events: none;
+}
+
+.letter-header {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  text-align: end;
+  border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.letter-title {
+  font-family: 'Special Elite', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #5d4037;
+  letter-spacing: 3px;
+}
+
+.letter-subtitle {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  color: #5d4037;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.letter-session {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  color: #5d4037;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  margin-top: 0.1rem;
+  opacity: 0.8;
+}
+
+.close-modal {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  background: rgba(139, 69, 19, 0.1);
+  border: 2px solid rgba(139, 69, 19, 0.2);
+  color: var(--color-text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1.5rem;
+  font-weight: 300;
+  z-index: 10;
+}
+
+.close-modal:hover {
+  background: rgba(139, 69, 19, 0.2);
+  transform: rotate(90deg);
+}
+
+.letter-content {
+  margin-top: 140px;
+  margin-left: 85px;
+  margin-right: 20px;
+  padding: 1.5rem 1rem;
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: #4a4a4a;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 35px,
+    rgba(139, 69, 19, 0.15) 35px,
+    rgba(139, 69, 19, 0.15) 36px
+  );
+}
+
+.letter-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  margin-left: 85px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #8d6e63;
+  background: #f5f5dc;
+  background-image: linear-gradient(145deg, #f8f6f0 0%, #f0ede5 100%);
+  color: #5d4037;
+  font-size: 0.9rem;
+  font-family: 'Special Elite', monospace;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-btn:hover {
+  background: #f0ede5;
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 8px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn.success {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+}
+
+.stain {
+  position: absolute;
+  background: rgba(139, 69, 19, 0.03);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.stain1 {
+  width: 40px;
+  height: 35px;
+  top: 15%;
+  right: 10%;
+  transform: rotate(45deg);
+}
+
+.stain2 {
+  width: 25px;
+  height: 30px;
+  bottom: 20%;
+  left: 8%;
+  transform: rotate(-30deg);
+}
+
+.stain3 {
+  width: 35px;
+  height: 25px;
+  top: 60%;
+  right: 15%;
+  transform: rotate(15deg);
 }
 
 @media (max-width: 768px) {
@@ -622,16 +894,66 @@ body {
   
   .messages-table th,
   .messages-table td {
-    padding: 0.875rem;
+    padding: 0.875rem 0.5rem;
     font-size: 0.8rem;
   }
   
-  .message-text {
-    max-width: 100%;
+  .message-preview {
+    max-width: 150px;
   }
   
   .stat-value {
     font-size: 2rem;
+  }
+
+  .modal-overlay {
+    padding: 1rem;
+  }
+  
+  .letter-modal {
+    padding: 2rem 1.5rem;
+    clip-path: none;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .letter-modal::before {
+    left: 30px;
+  }
+  
+  .letter-header {
+    position: static;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: none;
+  }
+  
+  .letter-title {
+    font-size: 1.4rem;
+  }
+  
+  .close-modal {
+    top: 20px;
+    left: 20px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .letter-content {
+    margin: 1rem 0;
+    font-size: 1.3rem;
+    max-height: 300px;
+  }
+  
+  .letter-actions {
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  .action-btn {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
   }
 }
 
@@ -642,6 +964,14 @@ body {
   
   .time-value {
     font-size: 2.5rem;
+  }
+  
+  .messages-table th:nth-child(3) {
+    display: none;
+  }
+  
+  .messages-table td:nth-child(3) {
+    display: none;
   }
 }
 </style>
@@ -722,7 +1052,6 @@ body {
 
 <!-- Dashboard -->
 <div id="dashboardContainer" class="dashboard-container">
-  <!-- Navigation Bar -->
   <nav class="dashboard-nav">
     <div class="nav-brand">
       <span>📊</span>
@@ -738,9 +1067,7 @@ body {
     </div>
   </nav>
   
-  <!-- Content -->
   <div class="dashboard-content">
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Total Messages</div>
@@ -760,7 +1087,6 @@ body {
       </div>
     </div>
     
-    <!-- Controls -->
     <div class="controls-section">
       <div class="controls">
         <div class="search-wrapper">
@@ -785,7 +1111,6 @@ body {
       </div>
     </div>
     
-    <!-- Messages -->
     <div class="messages-wrapper">
       <div id="messagesContainer">
         <div class="loading-screen">
@@ -793,6 +1118,40 @@ body {
           <div class="loading-text">Loading messages...</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Letter Modal -->
+<div id="letterModal" class="modal-overlay">
+  <div class="letter-modal" id="letterCard">
+    <div class="stain stain1"></div>
+    <div class="stain stain2"></div>
+    <div class="stain stain3"></div>
+    
+    <button class="close-modal" id="closeModal">×</button>
+    
+    <div class="letter-header">
+      <div class="letter-title">UROCHITHI</div>
+      <div class="letter-subtitle">Anonymous Letter</div>
+      <div class="letter-session" id="modalSessionId"></div>
+    </div>
+    
+    <div class="letter-content" id="modalLetterContent"></div>
+    
+    <div class="letter-actions">
+      <button class="action-btn" id="copyBtn">
+        <span>📋</span>
+        <span>Copy</span>
+      </button>
+      <button class="action-btn" id="saveBtn">
+        <span>💾</span>
+        <span>Save</span>
+      </button>
+      <button class="action-btn" id="shareBtn">
+        <span>🔗</span>
+        <span>Share</span>
+      </button>
     </div>
   </div>
 </div>
@@ -805,6 +1164,7 @@ let messages = [];
 let filteredMessages = [];
 let lastActivity = Date.now();
 let staticPinValue = '';
+let currentLetter = null;
 
 function updateUTCTime() {
   const now = new Date();
@@ -1031,17 +1391,19 @@ function displayMessages() {
     <table class="messages-table">
       <thead>
         <tr>
-          <th style="width: 180px">Timestamp</th>
-          <th>Message</th>
-          <th style="width: 200px">Session ID</th>
+          <th style="width: 160px">Timestamp</th>
+          <th>Preview</th>
+          <th style="width: 180px">Session ID</th>
+          <th style="width: 100px">Action</th>
         </tr>
       </thead>
       <tbody>
-        ${filteredMessages.map(msg => `
+        ${filteredMessages.map((msg, idx) => `
           <tr>
             <td class="timestamp">${formatDate(msg.timestamp)}</td>
-            <td class="message-text">${escapeHtml(msg.message)}</td>
+            <td><div class="message-preview">${escapeHtml(msg.message)}</div></td>
             <td><span class="session-id">${msg.sessionId}</span></td>
+            <td><button class="view-btn" onclick="openLetter(${idx})">View</button></td>
           </tr>
         `).join('')}
       </tbody>
@@ -1049,6 +1411,115 @@ function displayMessages() {
   `;
   
   container.innerHTML = table;
+}
+
+function openLetter(index) {
+  currentLetter = filteredMessages[index];
+  document.getElementById('modalLetterContent').textContent = currentLetter.message;
+  document.getElementById('modalSessionId').textContent = `Session: ${currentLetter.sessionId}`;
+  document.getElementById('letterModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLetter() {
+  document.getElementById('letterModal').classList.remove('show');
+  document.body.style.overflow = '';
+  currentLetter = null;
+}
+
+document.getElementById('closeModal').addEventListener('click', closeLetter);
+document.getElementById('letterModal').addEventListener('click', (e) => {
+  if (e.target.id === 'letterModal') closeLetter();
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  if (!currentLetter) return;
+  
+  try {
+    await navigator.clipboard.writeText(currentLetter.message);
+    const btn = document.getElementById('copyBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span>✓</span><span>Copied!</span>';
+    btn.classList.add('success');
+    
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove('success');
+    }, 2000);
+  } catch (error) {
+    alert('Failed to copy text');
+  }
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  if (!currentLetter) return;
+  
+  try {
+    const canvas = await html2canvas(document.getElementById('letterCard'), {
+      backgroundColor: '#faf8f3',
+      scale: 2
+    });
+    
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `urochithi-letter-${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      const btn = document.getElementById('saveBtn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span>✓</span><span>Saved!</span>';
+      btn.classList.add('success');
+      
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('success');
+      }, 2000);
+    });
+  } catch (error) {
+    alert('Failed to save image. Make sure html2canvas library is loaded.');
+  }
+});
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  if (!currentLetter) return;
+  
+  const shareText = `📮 Anonymous Letter from Urochithi
+
+"${currentLetter.message.substring(0, 100)}${currentLetter.message.length > 100 ? '...' : ''}"
+
+Create your own: ${window.location.origin}`;
+  
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Urochithi - Anonymous Letter',
+        text: shareText
+      });
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        copyShareText(shareText);
+      }
+    }
+  } else {
+    copyShareText(shareText);
+  }
+});
+
+function copyShareText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('shareBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span>✓</span><span>Link Copied!</span>';
+    btn.classList.add('success');
+    
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove('success');
+    }, 2000);
+  });
 }
 
 function formatDate(dateString) {
@@ -1076,5 +1547,9 @@ document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 
 checkAuth();
 </script>
+
+<!-- html2canvas for saving images -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 </body>
 </html>
