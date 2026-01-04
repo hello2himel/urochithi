@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Urochithi - Setup Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400;500&family=Caveat:wght@300;400;500&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+/* Override container for full-width doc style */
+body {
+  background: #faf8f3;
+  background-image: 
+    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.doc-container {
+  max-width: 100%;
+  padding: 3rem 4rem;
+  min-height: 100vh;
+}
+
+.doc-header {
+  border-bottom: 3px solid rgba(139, 69, 19, 0.3);
+  padding-bottom: 2rem;
+  margin-bottom: 3rem;
+}
+
+.doc-title {
+  font-size: 2.8rem;
+  color: #5d4037;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.doc-subtitle {
+  font-size: 1.1rem;
+  color: #6d4c41;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+.doc-nav {
+  background: rgba(139, 69, 19, 0.04);
+  border: 1px solid rgba(139, 69, 19, 0.15);
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  border-radius: 4px;
+}
+
+.doc-nav-title {
+  font-size: 1rem;
+  color: #5d4037;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.doc-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5rem;
+}
+
+.doc-nav-list li {
+  margin: 0;
+}
+
+.doc-nav-list a {
+  color: #8d6e63;
+  text-decoration: none;
+  font-size: 0.95rem;
+  display: block;
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.doc-nav-list a:hover {
+  background: rgba(139, 69, 19, 0.08);
+  border-left-color: #8d6e63;
+  padding-left: 1rem;
+}
+
+.doc-section {
+  margin-bottom: 4rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.15);
+}
+
+.doc-section:last-child {
+  border-bottom: none;
+}
+
+.section-number {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background: #8d6e63;
+  color: #faf8f3;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 40px;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: #5d4037;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.section-content {
+  font-size: 1rem;
+  color: #6d4c41;
+  line-height: 1.8;
+  max-width: 900px;
+}
+
+.section-content p {
+  margin-bottom: 1rem;
+}
+
+.section-content ol,
+.section-content ul {
+  margin: 1rem 0 1rem 1.5rem;
+  line-height: 1.9;
+}
+
+.section-content li {
+  margin-bottom: 0.5rem;
+}
+
+.code-block {
+  background: rgba(139, 69, 19, 0.06);
+  padding: 1.5rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #5d4037;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.inline-code {
+  background: rgba(139, 69, 19, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #5d4037;
+}
+
+.note-box {
+  background: rgba(255, 193, 7, 0.08);
+  padding: 1.2rem;
+  border-left: 4px solid #ffc107;
+  font-size: 0.95rem;
+  color: #6d4c41;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.note-box strong {
+  color: #5d4037;
+}
+
+.info-box {
+  background: rgba(76, 175, 80, 0.08);
+  padding: 1.2rem;
+  border-left: 4px solid #4caf50;
+  font-size: 0.95rem;
+  color: #6d4c41;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.warning-box {
+  background: rgba(244, 67, 54, 0.08);
+  padding: 1.2rem;
+  border-left: 4px solid #f44336;
+  font-size: 0.95rem;
+  color: #6d4c41;
+  margin: 1.5rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.doc-link {
+  color: #8d6e63;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid #8d6e63;
+  transition: all 0.2s ease;
+}
+
+.doc-link:hover {
+  color: #5d4037;
+  border-bottom-color: #5d4037;
+}
+
+.action-button {
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  background: #8d6e63;
+  color: #faf8f3;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(93, 64, 55, 0.2);
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.action-button:hover {
+  background: #6d4c41;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(93, 64, 55, 0.3);
+}
+
+.action-button.secondary {
+  background: transparent;
+  color: #8d6e63;
+  border: 2px solid #8d6e63;
+}
+
+.action-button.secondary:hover {
+  background: #8d6e63;
+  color: #faf8f3;
+}
+
+.doc-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 3px solid rgba(139, 69, 19, 0.3);
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 1rem;
+  color: #6d4c41;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .doc-container {
+    padding: 2rem 1.5rem;
+  }
+  
+  .doc-title {
+    font-size: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+  }
+  
+  .code-block {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+  
+  .doc-nav-list {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+<div class="doc-container">
+  <!-- Header -->
+  <div class="doc-header">
+    <h1 class="doc-title">Urochithi Setup Guide</h1>
+    <p class="doc-subtitle">
+      Complete documentation to deploy your own anonymous letter platform. 
+      Follow these steps to set up Urochithi on Netlify, GitHub, and Google Sheets in under 15 minutes.
+    </p>
+  </div>
+
+  <!-- Quick Navigation -->
+  <nav class="doc-nav">
+    <div class="doc-nav-title">Quick Navigation</div>
+    <ul class="doc-nav-list">
+      <li><a href="#prerequisites">Prerequisites</a></li>
+      <li><a href="#step1">1. Fork Repository</a></li>
+      <li><a href="#step2">2. Create Google Sheet</a></li>
+      <li><a href="#step3">3. Deploy Apps Script</a></li>
+      <li><a href="#step4">4. Customize Config</a></li>
+      <li><a href="#step5">5. Deploy to Netlify</a></li>
+      <li><a href="#step6">6. Environment Variables</a></li>
+      <li><a href="#step7">7. Test & Launch</a></li>
+    </ul>
+  </nav>
+
+  <!-- Prerequisites -->
+  <section id="prerequisites" class="doc-section">
+    <div class="section-number">📋</div>
+    <h2 class="section-title">Prerequisites</h2>
+    <div class="section-content">
+      <p>Before you begin, make sure you have:</p>
+      <ul>
+        <li>A <strong>GitHub account</strong> (free)</li>
+        <li>A <strong>Google account</strong> for Google Sheets</li>
+        <li>A <strong>Netlify account</strong> (free, can sign up with GitHub)</li>
+        <li>Basic understanding of copy-pasting and following instructions</li>
+      </ul>
+      <div class="note-box">
+        <strong>💡 Note:</strong> No coding experience required! Just follow the steps carefully.
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 1: Fork Repository -->
+  <section id="step1" class="doc-section">
+    <div class="section-number">1</div>
+    <h2 class="section-title">Fork the Repository</h2>
+    <div class="section-content">
+      <p>Start by creating your own copy of the Urochithi project on GitHub.</p>
+      <ol>
+        <li>Visit the <a href="https://github.com/hello2himel/urochithi" target="_blank" class="doc-link">Urochithi GitHub Repository</a></li>
+        <li>Click the <strong>"Fork"</strong> button in the top-right corner</li>
+        <li>Select your account as the destination</li>
+        <li>Wait for GitHub to create your fork (takes ~10 seconds)</li>
+      </ol>
+      <div class="info-box">
+        <strong>✓ Success:</strong> You now have your own copy at <span class="inline-code">github.com/YOUR_USERNAME/urochithi</span>
+      </div>
+      <a href="https://github.com/hello2himel/urochithi/fork" target="_blank" class="action-button">Fork on GitHub →</a>
+    </div>
+  </section>
+
+  <!-- Step 2: Create Google Sheet -->
+  <section id="step2" class="doc-section">
+    <div class="section-number">2</div>
+    <h2 class="section-title">Create Google Sheet</h2>
+    <div class="section-content">
+      <p>Set up a Google Sheet to store all incoming anonymous messages.</p>
+      <ol>
+        <li>Go to <a href="https://sheets.google.com" target="_blank" class="doc-link">Google Sheets</a></li>
+        <li>Click <strong>"Blank"</strong> to create a new spreadsheet</li>
+        <li>Name it something like "Urochithi Messages" or "Anonymous Letters"</li>
+        <li>Leave the sheet completely blank - don't add any headers yet</li>
+      </ol>
+      <div class="note-box">
+        <strong>💡 Important:</strong> The Apps Script will automatically create column headers (Timestamp, Message, Session ID) when the first message arrives. Keep the sheet empty!
+      </div>
+      <a href="https://sheets.google.com/create" target="_blank" class="action-button">Create New Sheet →</a>
+    </div>
+  </section>
+
+  <!-- Step 3: Deploy Apps Script -->
+  <section id="step3" class="doc-section">
+    <div class="section-number">3</div>
+    <h2 class="section-title">Set Up & Deploy Apps Script</h2>
+    <div class="section-content">
+      <p>Configure the Google Apps Script to receive and store messages from your website.</p>
+      
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.1 Open Apps Script Editor</h3>
+      <ol>
+        <li>In your Google Sheet, click <strong>Extensions → Apps Script</strong></li>
+        <li>A new tab will open with the Apps Script editor</li>
+        <li>Delete any existing code in the editor</li>
+      </ol>
+
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.2 Paste the Script</h3>
+      <p>Copy and paste this entire code into the Apps Script editor:</p>
+      
+      <div class="code-block">function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSheet();
+    
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["Timestamp", "Message", "Session ID"]);
+      const headerRange = sheet.getRange(1, 1, 1, 3);
+      headerRange.setFontWeight("bold");
+      headerRange.setBackground("#f0ede5");
+      headerRange.setHorizontalAlignment("center");
+      sheet.setColumnWidth(1, 180);
+      sheet.setColumnWidth(2, 400);
+      sheet.setColumnWidth(3, 200);
+    }
+    
+    const row = [
+      data.timestamp || new Date().toISOString(),
+      data.message || "",
+      data.sessionId || "N/A"
+    ];
+    
+    sheet.appendRow(row);
+    
+    const lastRow = sheet.getLastRow();
+    sheet.getRange(lastRow, 2).setWrap(true);
+    
+    if (lastRow % 2 === 0) {
+      sheet.getRange(lastRow, 1, 1, 3).setBackground("#faf8f3");
+    }
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</div>
+
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.3 Deploy as Web App</h3>
+      <ol>
+        <li>Click the <strong>💾 Save</strong> icon (or Ctrl+S / Cmd+S)</li>
+        <li>Click <strong>Deploy → New deployment</strong></li>
+        <li>Click the gear icon ⚙️ next to "Select type"</li>
+        <li>Choose <strong>Web app</strong></li>
+        <li>Configure settings:
+          <ul>
+            <li><strong>Description:</strong> "Urochithi message receiver" (or anything)</li>
+            <li><strong>Execute as:</strong> Select <strong>"Me"</strong></li>
+            <li><strong>Who has access:</strong> Select <strong>"Anyone"</strong></li>
+          </ul>
+        </li>
+        <li>Click <strong>Deploy</strong></li>
+        <li>You may need to authorize the script - click <strong>Authorize access</strong></li>
+        <li>Choose your Google account and click <strong>Allow</strong></li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>⚠️ CRITICAL:</strong> Copy the <strong>Web app URL</strong> that appears after deployment. 
+        It looks like: <span class="inline-code">https://script.google.com/macros/s/ABC.../exec</span>
+        <br><br>
+        You'll need this URL in Step 6!
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 4: Customize Config -->
+  <section id="step4" class="doc-section">
+    <div class="section-number">4</div>
+    <h2 class="section-title">Customize Your Site</h2>
+    <div class="section-content">
+      <p>Edit the configuration file to personalize your Urochithi instance.</p>
+      
+      <ol>
+        <li>Go to your forked repository on GitHub</li>
+        <li>Navigate to <span class="inline-code">js/config.js</span></li>
+        <li>Click the pencil icon ✏️ to edit</li>
+        <li>Update these values:</li>
+      </ol>
+
+      <div class="code-block">const CONFIG = {
+  username: "your_username",        // Your username or handle
+  siteName: "YOUR SITE NAME",       // Name of your letter site
+  siteTagline: "Your custom tagline", // Tagline below name
+  maxMessageLength: 2000,           // Maximum characters (keep as-is)
+  onboardingUrl: "/onboard.html"    // Keep as-is
+};</div>
+
+      <p>Example configuration:</p>
+      <div class="code-block">const CONFIG = {
+  username: "john_doe",
+  siteName: "JOHN'S INBOX",
+  siteTagline: "Send me your thoughts",
+  maxMessageLength: 2000,
+  onboardingUrl: "/onboard.html"
+};</div>
+
+      <ol start="5">
+        <li>Scroll down and click <strong>Commit changes</strong></li>
+        <li>Add a commit message like "Customize site config"</li>
+        <li>Click <strong>Commit changes</strong> again</li>
+      </ol>
+
+      <div class="info-box">
+        <strong>✓ Done:</strong> Your site is now personalized with your information!
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 5: Deploy to Netlify -->
+  <section id="step5" class="doc-section">
+    <div class="section-number">5</div>
+    <h2 class="section-title">Deploy to Netlify</h2>
+    <div class="section-content">
+      <p>Connect your GitHub repository to Netlify for automatic deployment.</p>
+      
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">5.1 Create Netlify Account (if needed)</h3>
+      <ol>
+        <li>Go to <a href="https://app.netlify.com" target="_blank" class="doc-link">Netlify</a></li>
+        <li>Click <strong>Sign up</strong> and choose <strong>Sign up with GitHub</strong></li>
+        <li>Authorize Netlify to access your GitHub account</li>
+      </ol>
+
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">5.2 Import Your Repository</h3>
+      <ol>
+        <li>On the Netlify dashboard, click <strong>Add new site → Import an existing project</strong></li>
+        <li>Click <strong>Deploy with GitHub</strong></li>
+        <li>Find and select your <span class="inline-code">urochithi</span> repository</li>
+        <li>Leave all build settings as default (empty)</li>
+        <li>Click <strong>Deploy [your-site-name]</strong></li>
+      </ol>
+
+      <p>Netlify will start deploying your site. This takes 1-2 minutes.</p>
+
+      <div class="info-box">
+        <strong>✓ Success:</strong> Your site will be live at <span class="inline-code">https://random-name-123.netlify.app</span>
+        <br>You can customize this URL later in Netlify settings.
+      </div>
+
+      <a href="https://app.netlify.com/start" target="_blank" class="action-button">Deploy on Netlify →</a>
+    </div>
+  </section>
+
+  <!-- Step 6: Environment Variables -->
+  <section id="step6" class="doc-section">
+    <div class="section-number">6</div>
+    <h2 class="section-title">Configure Environment Variables</h2>
+    <div class="section-content">
+      <p>Connect your site to the Google Apps Script by adding the deployment URL as an environment variable.</p>
+      
+      <ol>
+        <li>In your Netlify site dashboard, go to <strong>Site configuration</strong></li>
+        <li>Click <strong>Environment variables</strong> in the left sidebar</li>
+        <li>Click <strong>Add a variable → Add a single variable</strong></li>
+        <li>Fill in:
+          <ul>
+            <li><strong>Key:</strong> <span class="inline-code">GSCRIPT_URL</span> (exactly as written, case-sensitive!)</li>
+            <li><strong>Value:</strong> Your Google Apps Script Web App URL from Step 3</li>
+          </ul>
+        </li>
+        <li>Click <strong>Create variable</strong></li>
+      </ol>
+
+      <div class="warning-box">
+        <strong>⚠️ Important:</strong> After adding the environment variable, you MUST redeploy:
+        <ol style="margin-top: 0.5rem;">
+          <li>Go to <strong>Deploys</strong> tab</li>
+          <li>Click <strong>Trigger deploy → Deploy site</strong></li>
+          <li>Wait for the new deployment to finish (~1 minute)</li>
+        </ol>
+      </div>
+
+      <div class="note-box">
+        <strong>💡 Troubleshooting:</strong> If you get errors later, double-check:
+        <ul style="margin-top: 0.5rem;">
+          <li>Variable name is exactly <span class="inline-code">GSCRIPT_URL</span> (all caps)</li>
+          <li>URL is the complete Apps Script deployment URL</li>
+          <li>You redeployed after adding the variable</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 7: Test & Launch -->
+  <section id="step7" class="doc-section">
+    <div class="section-number">7</div>
+    <h2 class="section-title">Test & Launch</h2>
+    <div class="section-content">
+      <p>Time to test your anonymous letter platform!</p>
+      
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.1 Send a Test Message</h3>
+      <ol>
+        <li>Visit your Netlify site URL</li>
+        <li>You should see your customized site name and username</li>
+        <li>Type a test message in the textarea</li>
+        <li>Click <strong>Send Letter</strong></li>
+        <li>You should see: "Your letter has been sent successfully!"</li>
+      </ol>
+
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.2 Verify in Google Sheet</h3>
+      <ol>
+        <li>Go back to your Google Sheet</li>
+        <li>Refresh the page</li>
+        <li>You should see:
+          <ul>
+            <li>Column headers: Timestamp, Message, Session ID</li>
+            <li>Your test message in row 2</li>
+          </ul>
+        </li>
+      </ol>
+
+      <div class="info-box">
+        <strong>🎉 Congratulations!</strong> Your anonymous letter platform is live and working!
+      </div>
+
+      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.3 Share Your Site</h3>
+      <p>Share your Netlify URL with friends, add it to your social media bio, or wherever you want to receive anonymous messages!</p>
+
+      <div class="note-box">
+        <strong>💡 Pro Tips:</strong>
+        <ul style="margin-top: 0.5rem;">
+          <li>Customize your Netlify domain: Site settings → Domain management → Options → Edit site name</li>
+          <li>Add a custom domain if you have one</li>
+          <li>Check your Google Sheet regularly for new messages</li>
+          <li>Session IDs help you identify messages from the same person</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <p class="footer-text">
+      Need help? Found a bug? Want to contribute?
+    </p>
+    <a href="https://github.com/hello2himel/urochithi" target="_blank" class="action-button">View on GitHub</a>
+    <a href="/" class="action-button secondary">← Back to Home</a>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+</body>
+</html>
