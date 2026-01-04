@@ -1,6 +1,6 @@
 # Netlify
 .netlify/
-
+netlify.toml
 
 # Environment variables
 .env
