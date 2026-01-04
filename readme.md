@@ -66,9 +66,9 @@ Click the "Fork" button at the top right of this page to create your own copy.
 In Netlify, go to **Site configuration → Environment variables** and add:
 
 ```
-DASHBOARD_PIN
-TIME_PIN_ALGORITHM (See examples below)
-GSCRIPT_URL
+DASHBOARD_PIN = <your_static_pin>
+TIME_PIN_ALGORITHM = <your_time_formula>
+GSCRIPT_URL = <google_apps_script_url>
 ```
 
 ### 5. Customize Your Site
@@ -234,17 +234,17 @@ You can customize the formula by changing the `TIME_PIN_ALGORITHM` environment v
 
 **Simple:**
 ```
-(hour + minute)
+TIME_PIN_ALGORITHM = (hour + minute)
 ```
 
 **Medium (default):**
 ```
-(hour * 7) + (minute % 10)
+TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
 ```
 
 **Complex:**
 ```
-(hour * hour) + (minute * 3)
+TIME_PIN_ALGORITHM = (hour * hour) + (minute * 3)
 ```
 
 **Variables available:**
