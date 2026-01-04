@@ -1,5 +1,0 @@
-[build]
-  environment = { }
-
-[secrets_scan]
-  omit_paths = ["README.md"]
