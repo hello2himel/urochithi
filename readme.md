@@ -219,7 +219,7 @@ Example: `mySecretPassword123`
 ### Step 2: Time-based PIN
 A code that changes every minute, calculated from the current UTC time.
 
-**Default Formula:** `(hour × 7) + (minute % 10)`
+**Example Formula:** `(hour × 7) + (minute % 10)`
 
 **Example at 14:42 UTC:**
 ```
