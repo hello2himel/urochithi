@@ -8,48 +8,11 @@ let lastActivity = Date.now();
 let staticPinValue = '';
 let currentLetter = null;
 
-// reCAPTCHA Site Key pulled from Netlify environment variable (set in Netlify dashboard)
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || 'YOUR_FALLBACK_SITE_KEY_IF_NEEDED';
-
+// Load site URL from config.js (falls back to current origin)
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
 
-// === BRUTE FORCE PROTECTION (client-side) ===
-let loginAttempts = parseInt(localStorage.getItem('urochithi_login_attempts') || '0');
-let lockoutUntil = parseInt(localStorage.getItem('urochithi_lockout_until') || '0');
-
-function isLockedOut() {
-  if (lockoutUntil > Date.now()) {
-    const minutesLeft = Math.ceil((lockoutUntil - Date.now()) / 60000);
-    return { locked: true, minutes: minutesLeft };
-  }
-  return { locked: false };
-}
-
-function recordFailedAttempt() {
-  loginAttempts++;
-  localStorage.setItem('urochithi_login_attempts', loginAttempts);
-  if (loginAttempts >= 5) {
-    lockoutUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lockout
-    localStorage.setItem('urochithi_lockout_until', lockoutUntil);
-    loginAttempts = 0;
-    localStorage.setItem('urochithi_login_attempts', '0');
-  }
-}
-
-function resetLoginAttempts() {
-  loginAttempts = 0;
-  lockoutUntil = 0;
-  localStorage.removeItem('urochithi_login_attempts');
-  localStorage.removeItem('urochithi_lockout_until');
-}
-
-function showAuthError(errorDiv, message) {
-  errorDiv.textContent = message;
-  errorDiv.classList.add('show');
-}
-
-// UTC Time Display
+// Update UTC time display
 function updateUTCTime() {
   const now = new Date();
   const hours = String(now.getUTCHours()).padStart(2, '0');
@@ -60,7 +23,7 @@ function updateUTCTime() {
 setInterval(updateUTCTime, 1000);
 updateUTCTime();
 
-// Initial Auth Check
+// Check if already authenticated
 function checkAuth() {
   const auth = localStorage.getItem(AUTH_KEY);
   if (auth) {
@@ -78,7 +41,7 @@ function checkAuth() {
   return false;
 }
 
-// Activity tracking for session timeout
+// Activity tracking for auto-logout
 document.addEventListener('click', () => lastActivity = Date.now());
 document.addEventListener('keypress', () => lastActivity = Date.now());
 setInterval(() => {
@@ -88,55 +51,37 @@ setInterval(() => {
 // Step 1: Static PIN
 document.getElementById('step1Form').addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  const lockout = isLockedOut();
-  if (lockout.locked) {
-    showAuthError(document.getElementById('step1Error'), `Too many attempts. Try again in ${lockout.minutes} minute${lockout.minutes > 1 ? 's' : ''}.`);
-    return;
-  }
-
-  const staticPin = document.getElementById('staticPin').value.trim();
+  const staticPin = document.getElementById('staticPin').value;
   const errorDiv = document.getElementById('step1Error');
   const button = document.getElementById('step1Button');
-
-  if (!staticPin) return;
 
   errorDiv.classList.remove('show');
   button.disabled = true;
   button.textContent = 'Verifying...';
 
-  grecaptcha.ready(async () => {
-    try {
-      const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'login_step1' });
+  try {
+    const response = await fetch('/.netlify/functions/verify-static-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staticPin })
+    });
+    const data = await response.json();
 
-      const response = await fetch('/.netlify/functions/verify-static-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ staticPin, recaptchaToken: token })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.valid) {
-        staticPinValue = staticPin;
-        resetLoginAttempts();
-        document.getElementById('step1Container').style.display = 'none';
-        document.getElementById('step2Container').style.display = 'block';
-      } else {
-        recordFailedAttempt();
-        const remaining = 5 - loginAttempts;
-        showAuthError(errorDiv, remaining > 0
-          ? 'Invalid credentials'
-          : 'Too many failed attempts. Account locked for 15 minutes.');
-      }
-    } catch (error) {
-      recordFailedAttempt();
-      showAuthError(errorDiv, 'Network error. Please try again.');
-    } finally {
-      button.disabled = false;
-      button.textContent = 'Continue';
+    if (response.ok && data.valid) {
+      staticPinValue = staticPin;
+      document.getElementById('step1Container').style.display = 'none';
+      document.getElementById('step2Container').style.display = 'block';
+    } else {
+      errorDiv.textContent = data.error || 'Invalid PIN';
+      errorDiv.classList.add('show');
     }
-  });
+  } catch (error) {
+    errorDiv.textContent = 'Connection error. Please try again.';
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Continue';
+  }
 });
 
 document.getElementById('backToStep1').addEventListener('click', () => {
@@ -149,58 +94,40 @@ document.getElementById('backToStep1').addEventListener('click', () => {
 // Step 2: Time-based PIN
 document.getElementById('step2Form').addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  const lockout = isLockedOut();
-  if (lockout.locked) {
-    showAuthError(document.getElementById('step2Error'), `Too many attempts. Try again in ${lockout.minutes} minute${lockout.minutes > 1 ? 's' : ''}.`);
-    return;
-  }
-
-  const timePin = document.getElementById('timePin').value.trim();
+  const timePin = document.getElementById('timePin').value;
   const errorDiv = document.getElementById('step2Error');
   const button = document.getElementById('step2Button');
-
-  if (!timePin) return;
 
   errorDiv.classList.remove('show');
   button.disabled = true;
   button.textContent = 'Authenticating...';
 
-  grecaptcha.ready(async () => {
-    try {
-      const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'login_step2' });
+  try {
+    const response = await fetch('/.netlify/functions/verify-time-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staticPin: staticPinValue, timePin })
+    });
+    const data = await response.json();
 
-      const response = await fetch('/.netlify/functions/verify-time-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ staticPin: staticPinValue, timePin, recaptchaToken: token })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.authenticated) {
-        localStorage.setItem(AUTH_KEY, JSON.stringify({
-          authenticated: true,
-          timestamp: Date.now()
-        }));
-        resetLoginAttempts();
-        showDashboard();
-        loadMessages();
-      } else {
-        recordFailedAttempt();
-        const remaining = 5 - loginAttempts;
-        showAuthError(errorDiv, remaining > 0
-          ? 'Invalid credentials'
-          : 'Too many failed attempts. Account locked for 15 minutes.');
-      }
-    } catch (error) {
-      recordFailedAttempt();
-      showAuthError(errorDiv, 'Network error. Please try again.');
-    } finally {
-      button.disabled = false;
-      button.textContent = 'Authenticate';
+    if (response.ok && data.authenticated) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        authenticated: true,
+        timestamp: Date.now()
+      }));
+      showDashboard();
+      loadMessages();
+    } else {
+      errorDiv.textContent = data.error || 'Invalid code';
+      errorDiv.classList.add('show');
     }
-  });
+  } catch (error) {
+    errorDiv.textContent = 'Connection error. Please try again.';
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Authenticate';
+  }
 });
 
 function showDashboard() {
@@ -215,7 +142,7 @@ function logout() {
 }
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
-// Load messages
+// Load messages from server
 async function loadMessages() {
   const container = document.getElementById('messagesContainer');
   container.innerHTML = `
@@ -244,7 +171,7 @@ async function loadMessages() {
   }
 }
 
-// Update stats
+// Update stats cards
 function updateStats() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -260,7 +187,7 @@ function updateStats() {
   document.getElementById('weekMessages').textContent = weekCount;
 }
 
-// Filter & sort
+// Filter and sort messages
 function filterAndDisplayMessages() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   const sortBy = document.getElementById('sortSelect').value;
@@ -298,7 +225,7 @@ function filterAndDisplayMessages() {
   displayMessages();
 }
 
-// Display table
+// Display messages in table
 function displayMessages() {
   const container = document.getElementById('messagesContainer');
 
@@ -334,6 +261,7 @@ function displayMessages() {
 
   container.innerHTML = table;
 
+  // Attach click handlers to View buttons
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const idx = parseInt(e.target.getAttribute('data-index'));
@@ -342,7 +270,7 @@ function displayMessages() {
   });
 }
 
-// Modal functions
+// Open letter modal
 function openLetter(index) {
   currentLetter = filteredMessages[index];
   document.getElementById('modalLetterContent').innerHTML =
@@ -364,7 +292,7 @@ document.getElementById('letterModal').addEventListener('click', (e) => {
   if (e.target.id === 'letterModal') closeLetter();
 });
 
-// Copy
+// Copy button
 document.getElementById('copyBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
   try {
@@ -378,17 +306,19 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
   }
 });
 
-// Save as Image
+// Save as Image – Full long letter + gridlines preserved
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
   const card = document.getElementById('letterCard');
   const wrapper = document.querySelector('.letter-content-wrapper');
 
+  // Backup original styles
   const origWrapperStyle = wrapper.style.cssText;
   const origCardStyle = card.style.cssText;
   const origBodyOverflow = document.body.style.overflow;
 
+  // Prepare for full capture
   card.classList.add('capture-mode');
   wrapper.style.overflow = 'visible';
   wrapper.style.maxHeight = 'none';
@@ -424,6 +354,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     console.error('Save error:', err);
     alert('Failed to save image. Please try again.');
   } finally {
+    // Restore original state
     card.classList.remove('capture-mode');
     wrapper.style.cssText = origWrapperStyle;
     card.style.cssText = origCardStyle;
@@ -431,7 +362,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   }
 });
 
-// Share – Beautiful on-brand modal
+// Share button – Beautiful on-brand modal
 document.getElementById('shareBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
@@ -441,6 +372,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
   const shareText = `📮 Anonymous Letter from Urochithi\n\n"${excerpt}"\n\nCreate your own: ${SITE_URL}`;
 
+  // Native share if available
   if (navigator.share) {
     try {
       await navigator.share({
@@ -449,9 +381,12 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
         url: SITE_URL
       });
       return;
-    } catch (err) {}
+    } catch (err) {
+      // Ignore if user cancels
+    }
   }
 
+  // Custom beautiful share modal
   const modalHtml = `
     <div class="share-modal-overlay" id="customShareModal">
       <div class="share-modal-paper">
@@ -492,6 +427,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+  // Close handlers
   document.getElementById('closeShareModal').addEventListener('click', () => {
     document.getElementById('customShareModal').remove();
   });
@@ -502,6 +438,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
     }
   });
 
+  // Copy button feedback
   document.getElementById('copyShareText').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(shareText);
@@ -519,7 +456,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
   });
 });
 
-// Helpers
+// Helper: format timestamp
 function formatDate(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -532,17 +469,18 @@ function formatDate(dateString) {
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+// Helper: escape HTML
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Filters & refresh
+// Event listeners for filters and refresh
 document.getElementById('searchInput').addEventListener('input', filterAndDisplayMessages);
 document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 
-// Start
+// Initial auth check
 checkAuth();

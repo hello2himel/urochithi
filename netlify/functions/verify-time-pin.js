@@ -90,14 +90,12 @@ export async function handler(event) {
     if (timePinNum !== correctTimePin && timePinNum !== prevTimePin && timePinNum !== nextTimePin) {
       console.log('Invalid time-based PIN');
       console.log('UTC time:', hour + ':' + minute);
-      console.log('Expected:', correctTimePin, 'or', prevTimePin, 'or', nextTimePin);
       console.log('Got:', timePinNum);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           authenticated: false,
-          error: `Invalid code. Expected: ${correctTimePin}` 
         })
       };
     }
