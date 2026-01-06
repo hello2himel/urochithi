@@ -1,4 +1,4 @@
-// js/dashboard.js
+// js/dashboard.js - COMPLETE VERSION WITH RECAPTCHA V3
 
 const AUTH_KEY = 'urochithi_dashboard_auth';
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -11,6 +11,50 @@ let currentLetter = null;
 // Load site URL from config.js (falls back to current origin)
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
+
+// ============================================
+// LOAD RECAPTCHA V3 DYNAMICALLY FROM CONFIG
+// ============================================
+(function loadRecaptcha() {
+  const siteKey = AppConfig.recaptchaSiteKey;
+  
+  if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
+    console.warn('⚠️ reCAPTCHA site key not configured in config.js');
+    return;
+  }
+  
+  const script = document.createElement('script');
+  script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+  script.async = true;
+  script.defer = true;
+  script.onload = () => console.log('✅ reCAPTCHA loaded');
+  script.onerror = () => console.error('❌ Failed to load reCAPTCHA');
+  document.head.appendChild(script);
+})();
+
+// ============================================
+// RECAPTCHA V3 HELPER
+// ============================================
+async function executeRecaptcha(action) {
+  const siteKey = AppConfig.recaptchaSiteKey;
+  
+  if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
+    throw new Error('reCAPTCHA not configured. Please add your site key to config.js');
+  }
+  
+  if (!window.grecaptcha) {
+    throw new Error('reCAPTCHA not loaded. Please refresh the page.');
+  }
+
+  try {
+    const token = await window.grecaptcha.execute(siteKey, { action });
+    console.log('✅ reCAPTCHA token generated');
+    return token;
+  } catch (error) {
+    console.error('❌ reCAPTCHA execution error:', error);
+    throw new Error('Security verification failed. Please refresh and try again.');
+  }
+}
 
 // Update UTC time display
 function updateUTCTime() {
@@ -48,7 +92,9 @@ setInterval(() => {
   if (Date.now() - lastActivity > SESSION_TIMEOUT) logout();
 }, 60000);
 
-// Step 1: Static PIN
+// ============================================
+// STEP 1: STATIC PIN WITH RECAPTCHA
+// ============================================
 document.getElementById('step1Form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const staticPin = document.getElementById('staticPin').value;
@@ -60,27 +106,72 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
   button.textContent = 'Verifying...';
 
   try {
+    // Execute reCAPTCHA v3
+    let recaptchaToken;
+    try {
+      recaptchaToken = await executeRecaptcha('dashboard_login');
+    } catch (error) {
+      errorDiv.textContent = error.message;
+      errorDiv.classList.add('show');
+      button.disabled = false;
+      button.textContent = 'Continue';
+      return;
+    }
+
+    // Submit with reCAPTCHA token
     const response = await fetch('/.netlify/functions/verify-static-pin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staticPin })
+      body: JSON.stringify({ 
+        staticPin,
+        recaptchaToken
+      })
     });
+    
     const data = await response.json();
 
-    if (response.ok && data.valid) {
-      staticPinValue = staticPin;
-      document.getElementById('step1Container').style.display = 'none';
-      document.getElementById('step2Container').style.display = 'block';
-    } else {
-      errorDiv.textContent = data.error || 'Invalid PIN';
+    // Handle rate limiting
+    if (response.status === 429) {
+      const minutes = Math.ceil((data.retryAfter || 1800) / 60);
+      errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
       errorDiv.classList.add('show');
+      button.disabled = true;
+      button.textContent = `Locked (${minutes}m)`;
+      
+      // Re-enable after cooldown
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = 'Continue';
+      }, data.retryAfter * 1000);
+      return;
     }
+
+    // Handle other errors
+    if (!response.ok || !data.valid) {
+      let errorMsg = data.error || 'Invalid PIN';
+      if (data.attemptsLeft !== undefined) {
+        errorMsg += ` (${data.attemptsLeft} attempts left)`;
+      }
+      errorDiv.textContent = errorMsg;
+      errorDiv.classList.add('show');
+      button.disabled = false;
+      button.textContent = 'Continue';
+      return;
+    }
+
+    // Success - proceed to Step 2
+    staticPinValue = staticPin;
+    document.getElementById('step1Container').style.display = 'none';
+    document.getElementById('step2Container').style.display = 'block';
+    
   } catch (error) {
+    console.error('Step 1 error:', error);
     errorDiv.textContent = 'Connection error. Please try again.';
     errorDiv.classList.add('show');
   } finally {
-    button.disabled = false;
-    button.textContent = 'Continue';
+    if (button.disabled === false) {
+      button.textContent = 'Continue';
+    }
   }
 });
 
@@ -91,7 +182,9 @@ document.getElementById('backToStep1').addEventListener('click', () => {
   staticPinValue = '';
 });
 
-// Step 2: Time-based PIN
+// ============================================
+// STEP 2: TIME-BASED PIN WITH RATE LIMITING
+// ============================================
 document.getElementById('step2Form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const timePin = document.getElementById('timePin').value;
@@ -108,25 +201,54 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ staticPin: staticPinValue, timePin })
     });
+    
     const data = await response.json();
 
-    if (response.ok && data.authenticated) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify({
-        authenticated: true,
-        timestamp: Date.now()
-      }));
-      showDashboard();
-      loadMessages();
-    } else {
-      errorDiv.textContent = data.error || 'Invalid code';
+    // Handle rate limiting
+    if (response.status === 429) {
+      const minutes = Math.ceil((data.retryAfter || 1800) / 60);
+      errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
       errorDiv.classList.add('show');
+      button.disabled = true;
+      button.textContent = `Locked (${minutes}m)`;
+      
+      // Re-enable after cooldown
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = 'Authenticate';
+      }, data.retryAfter * 1000);
+      return;
     }
+
+    // Handle other errors
+    if (!response.ok || !data.authenticated) {
+      let errorMsg = data.error || 'Invalid code';
+      if (data.attemptsLeft !== undefined) {
+        errorMsg += ` (${data.attemptsLeft} attempts left)`;
+      }
+      errorDiv.textContent = errorMsg;
+      errorDiv.classList.add('show');
+      button.disabled = false;
+      button.textContent = 'Authenticate';
+      return;
+    }
+
+    // Success - store auth and show dashboard
+    localStorage.setItem(AUTH_KEY, JSON.stringify({
+      authenticated: true,
+      timestamp: Date.now()
+    }));
+    showDashboard();
+    loadMessages();
+    
   } catch (error) {
+    console.error('Step 2 error:', error);
     errorDiv.textContent = 'Connection error. Please try again.';
     errorDiv.classList.add('show');
   } finally {
-    button.disabled = false;
-    button.textContent = 'Authenticate';
+    if (button.disabled === false) {
+      button.textContent = 'Authenticate';
+    }
   }
 });
 
@@ -261,7 +383,6 @@ function displayMessages() {
 
   container.innerHTML = table;
 
-  // Attach click handlers to View buttons
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const idx = parseInt(e.target.getAttribute('data-index'));
@@ -306,19 +427,17 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
   }
 });
 
-// Save as Image – Full long letter + gridlines preserved
+// Save button
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
   const card = document.getElementById('letterCard');
   const wrapper = document.querySelector('.letter-content-wrapper');
 
-  // Backup original styles
   const origWrapperStyle = wrapper.style.cssText;
   const origCardStyle = card.style.cssText;
   const origBodyOverflow = document.body.style.overflow;
 
-  // Prepare for full capture
   card.classList.add('capture-mode');
   wrapper.style.overflow = 'visible';
   wrapper.style.maxHeight = 'none';
@@ -354,7 +473,6 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     console.error('Save error:', err);
     alert('Failed to save image. Please try again.');
   } finally {
-    // Restore original state
     card.classList.remove('capture-mode');
     wrapper.style.cssText = origWrapperStyle;
     card.style.cssText = origCardStyle;
@@ -362,7 +480,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   }
 });
 
-// Share button – Beautiful on-brand modal
+// Share button
 document.getElementById('shareBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
@@ -372,7 +490,6 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
   const shareText = `📮 Anonymous Letter from Urochithi\n\n"${excerpt}"\n\nCreate your own: ${SITE_URL}`;
 
-  // Native share if available
   if (navigator.share) {
     try {
       await navigator.share({
@@ -381,12 +498,9 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
         url: SITE_URL
       });
       return;
-    } catch (err) {
-      // Ignore if user cancels
-    }
+    } catch (err) {}
   }
 
-  // Custom beautiful share modal
   const modalHtml = `
     <div class="share-modal-overlay" id="customShareModal">
       <div class="share-modal-paper">
@@ -427,7 +541,6 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-  // Close handlers
   document.getElementById('closeShareModal').addEventListener('click', () => {
     document.getElementById('customShareModal').remove();
   });
@@ -438,7 +551,6 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
     }
   });
 
-  // Copy button feedback
   document.getElementById('copyShareText').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(shareText);
@@ -456,7 +568,6 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
   });
 });
 
-// Helper: format timestamp
 function formatDate(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -469,18 +580,15 @@ function formatDate(dateString) {
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// Helper: escape HTML
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Event listeners for filters and refresh
 document.getElementById('searchInput').addEventListener('input', filterAndDisplayMessages);
 document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 
-// Initial auth check
 checkAuth();
