@@ -1,6 +1,9 @@
 // ============================================
 // NETLIFY FUNCTION - VERIFY TIME PIN (Step 2)
+// With Rate Limiting
 // ============================================
+
+import { checkRateLimit, getClientIP, resetRateLimit } from './rate-limiter.js';
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
@@ -11,8 +14,32 @@ export async function handler(event) {
     };
   }
 
+  const clientIP = getClientIP(event);
+  console.log('Time PIN verification from IP:', clientIP);
+
   try {
     const { staticPin, timePin } = JSON.parse(event.body);
+
+    // ============================================
+    // RATE LIMITING CHECK
+    // ============================================
+    const rateCheck = checkRateLimit(clientIP);
+    
+    if (!rateCheck.allowed) {
+      console.warn('Rate limit exceeded for IP:', clientIP);
+      return {
+        statusCode: 429,
+        headers: { 
+          "Content-Type": "application/json",
+          "Retry-After": rateCheck.retryAfter || 1800
+        },
+        body: JSON.stringify({ 
+          authenticated: false,
+          error: rateCheck.error,
+          retryAfter: rateCheck.retryAfter
+        })
+      };
+    }
 
     // ============================================
     // VERIFY STATIC PIN AGAIN (security)
@@ -29,6 +56,7 @@ export async function handler(event) {
     }
 
     if (staticPin !== correctStaticPin) {
+      console.warn('Static PIN mismatch in Step 2 from IP:', clientIP);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
@@ -88,26 +116,32 @@ export async function handler(event) {
     const timePinNum = parseInt(timePin, 10);
     
     if (timePinNum !== correctTimePin && timePinNum !== prevTimePin && timePinNum !== nextTimePin) {
-      console.log('Invalid time-based PIN');
+      console.warn('Invalid time-based PIN from IP:', clientIP);
       console.log('UTC time:', hour + ':' + minute);
-      console.log('Got:', timePinNum);
+      console.log('Expected:', correctTimePin, 'Got:', timePinNum);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           authenticated: false,
+          error: "Invalid time-based code",
+          attemptsLeft: rateCheck.attemptsLeft
         })
       };
     }
 
     // ============================================
-    // SUCCESS
+    // SUCCESS - RESET RATE LIMIT
     // ============================================
+    console.log('Successful login from IP:', clientIP);
+    resetRateLimit(clientIP);
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        authenticated: true
+        authenticated: true,
+        message: "Authentication successful"
       })
     };
 
