@@ -428,13 +428,15 @@ body {
   background: var(--color-paper);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow-x: auto;
   box-shadow: var(--shadow-sm);
+  position: relative;
 }
 
 .messages-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
 }
 
 .messages-table thead {
@@ -455,6 +457,15 @@ body {
   letter-spacing: 1px;
 }
 
+/* Sticky action column header */
+.messages-table th:last-child {
+  position: sticky;
+  right: 0;
+  background: var(--color-accent);
+  z-index: 12;
+  box-shadow: -2px 0 8px rgba(93, 64, 55, 0.08);
+}
+
 .messages-table tbody tr {
   border-bottom: 1px solid var(--color-border);
   transition: var(--transition);
@@ -470,6 +481,20 @@ body {
   font-size: 0.875rem;
   vertical-align: middle;
   line-height: 1.6;
+}
+
+/* Sticky action column cells */
+.messages-table td:last-child {
+  position: sticky;
+  right: 0;
+  background: var(--color-paper);
+  z-index: 11;
+  box-shadow: -2px 0 8px rgba(93, 64, 55, 0.08);
+}
+
+/* Maintain background on hover */
+.messages-table tbody tr:hover td:last-child {
+  background: rgba(139, 69, 19, 0.02);
 }
 
 .message-preview {
@@ -908,6 +933,28 @@ body {
   .search-wrapper,
   .filter-select {
     width: 100%;
+  }
+
+  /* Optimize table for mobile with sticky action column */
+  .messages-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .messages-table {
+    min-width: 700px;
+  }
+
+  .messages-table th,
+  .messages-table td {
+    padding: 0.875rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  /* Ensure action column stays visible on mobile */
+  .messages-table th:last-child,
+  .messages-table td:last-child {
+    min-width: 100px;
   }
 
   .letter-modal {
