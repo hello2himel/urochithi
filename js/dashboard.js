@@ -1,62 +1,50 @@
-// js/dashboard.js - COMPLETE VERSION WITH RECAPTCHA V3
+// ============================================
+// UROCHITHI DASHBOARD - LETTERBOX UX
+// ============================================
 
 const AUTH_KEY = 'urochithi_dashboard_auth';
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
 let messages = [];
 let filteredMessages = [];
 let lastActivity = Date.now();
 let staticPinValue = '';
 let currentLetter = null;
 
-// Load site URL from config.js (falls back to current origin)
+// Load site URL from config
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
 
 // ============================================
-// LOAD RECAPTCHA V3 DYNAMICALLY FROM CONFIG
+// RECAPTCHA V3 SETUP
 // ============================================
 (function loadRecaptcha() {
   const siteKey = AppConfig.recaptchaSiteKey;
-  
   if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
-    console.warn('⚠️ reCAPTCHA site key not configured in config.js');
+    console.warn('⚠️ reCAPTCHA not configured');
     return;
   }
-  
   const script = document.createElement('script');
   script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
   script.async = true;
   script.defer = true;
-  script.onload = () => console.log('✅ reCAPTCHA loaded');
-  script.onerror = () => console.error('❌ Failed to load reCAPTCHA');
   document.head.appendChild(script);
 })();
 
-// ============================================
-// RECAPTCHA V3 HELPER
-// ============================================
 async function executeRecaptcha(action) {
   const siteKey = AppConfig.recaptchaSiteKey;
-  
   if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
-    throw new Error('reCAPTCHA not configured. Please add your site key to config.js');
+    throw new Error('reCAPTCHA not configured');
   }
-  
   if (!window.grecaptcha) {
-    throw new Error('reCAPTCHA not loaded. Please refresh the page.');
+    throw new Error('reCAPTCHA not loaded');
   }
-
-  try {
-    const token = await window.grecaptcha.execute(siteKey, { action });
-    console.log('✅ reCAPTCHA token generated');
-    return token;
-  } catch (error) {
-    console.error('❌ reCAPTCHA execution error:', error);
-    throw new Error('Security verification failed. Please refresh and try again.');
-  }
+  return await window.grecaptcha.execute(siteKey, { action });
 }
 
-// Update UTC time display
+// ============================================
+// UTC TIME DISPLAY
+// ============================================
 function updateUTCTime() {
   const now = new Date();
   const hours = String(now.getUTCHours()).padStart(2, '0');
@@ -67,7 +55,9 @@ function updateUTCTime() {
 setInterval(updateUTCTime, 1000);
 updateUTCTime();
 
-// Check if already authenticated
+// ============================================
+// AUTH CHECK & SESSION MANAGEMENT
+// ============================================
 function checkAuth() {
   const auth = localStorage.getItem(AUTH_KEY);
   if (auth) {
@@ -85,7 +75,7 @@ function checkAuth() {
   return false;
 }
 
-// Activity tracking for auto-logout
+// Activity tracking
 document.addEventListener('click', () => lastActivity = Date.now());
 document.addEventListener('keypress', () => lastActivity = Date.now());
 setInterval(() => {
@@ -93,7 +83,7 @@ setInterval(() => {
 }, 60000);
 
 // ============================================
-// STEP 1: STATIC PIN WITH RECAPTCHA
+// STEP 1: STATIC PIN
 // ============================================
 document.getElementById('step1Form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -106,7 +96,6 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
   button.textContent = 'Verifying...';
 
   try {
-    // Execute reCAPTCHA v3
     let recaptchaToken;
     try {
       recaptchaToken = await executeRecaptcha('dashboard_login');
@@ -118,27 +107,20 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Submit with reCAPTCHA token
     const response = await fetch('/.netlify/functions/verify-static-pin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        staticPin,
-        recaptchaToken
-      })
+      body: JSON.stringify({ staticPin, recaptchaToken })
     });
     
     const data = await response.json();
 
-    // Handle rate limiting
     if (response.status === 429) {
       const minutes = Math.ceil((data.retryAfter || 1800) / 60);
       errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
       errorDiv.classList.add('show');
       button.disabled = true;
       button.textContent = `Locked (${minutes}m)`;
-      
-      // Re-enable after cooldown
       setTimeout(() => {
         button.disabled = false;
         button.textContent = 'Continue';
@@ -146,7 +128,6 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Handle other errors
     if (!response.ok || !data.valid) {
       let errorMsg = data.error || 'Invalid PIN';
       if (data.attemptsLeft !== undefined) {
@@ -159,22 +140,20 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Success - proceed to Step 2
+    // Success - go to step 2
     staticPinValue = staticPin;
     document.getElementById('step1Container').style.display = 'none';
     document.getElementById('step2Container').style.display = 'block';
     
   } catch (error) {
-    console.error('Step 1 error:', error);
     errorDiv.textContent = 'Connection error. Please try again.';
     errorDiv.classList.add('show');
-  } finally {
-    if (button.disabled === false) {
-      button.textContent = 'Continue';
-    }
+    button.disabled = false;
+    button.textContent = 'Continue';
   }
 });
 
+// Back to step 1
 document.getElementById('backToStep1').addEventListener('click', () => {
   document.getElementById('step2Container').style.display = 'none';
   document.getElementById('step1Container').style.display = 'block';
@@ -183,7 +162,7 @@ document.getElementById('backToStep1').addEventListener('click', () => {
 });
 
 // ============================================
-// STEP 2: TIME-BASED PIN WITH RATE LIMITING
+// STEP 2: TIME-BASED PIN
 // ============================================
 document.getElementById('step2Form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -204,15 +183,12 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     
     const data = await response.json();
 
-    // Handle rate limiting
     if (response.status === 429) {
       const minutes = Math.ceil((data.retryAfter || 1800) / 60);
       errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
       errorDiv.classList.add('show');
       button.disabled = true;
       button.textContent = `Locked (${minutes}m)`;
-      
-      // Re-enable after cooldown
       setTimeout(() => {
         button.disabled = false;
         button.textContent = 'Authenticate';
@@ -220,7 +196,6 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Handle other errors
     if (!response.ok || !data.authenticated) {
       let errorMsg = data.error || 'Invalid code';
       if (data.attemptsLeft !== undefined) {
@@ -233,7 +208,7 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Success - store auth and show dashboard
+    // Success
     localStorage.setItem(AUTH_KEY, JSON.stringify({
       authenticated: true,
       timestamp: Date.now()
@@ -242,16 +217,16 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     loadMessages();
     
   } catch (error) {
-    console.error('Step 2 error:', error);
     errorDiv.textContent = 'Connection error. Please try again.';
     errorDiv.classList.add('show');
-  } finally {
-    if (button.disabled === false) {
-      button.textContent = 'Authenticate';
-    }
+    button.disabled = false;
+    button.textContent = 'Authenticate';
   }
 });
 
+// ============================================
+// DASHBOARD DISPLAY
+// ============================================
 function showDashboard() {
   document.getElementById('step1Container').style.display = 'none';
   document.getElementById('step2Container').style.display = 'none';
@@ -262,15 +237,18 @@ function logout() {
   localStorage.removeItem(AUTH_KEY);
   location.reload();
 }
+
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
-// Load messages from server
+// ============================================
+// LOAD MESSAGES FROM SERVER
+// ============================================
 async function loadMessages() {
-  const container = document.getElementById('messagesContainer');
+  const container = document.getElementById('lettersContainer');
   container.innerHTML = `
     <div class="loading-screen">
       <div class="spinner"></div>
-      <div class="loading-text">Loading messages...</div>
+      <div class="loading-text">Opening your letterbox...</div>
     </div>`;
 
   try {
@@ -281,19 +259,27 @@ async function loadMessages() {
     });
 
     if (!response.ok) throw new Error('Failed to load');
+    
     const data = await response.json();
     messages = data.messages || [];
     updateStats();
     filterAndDisplayMessages();
+    
   } catch (error) {
     container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-text">Error loading messages. Please refresh.</div>
+      <div class="empty-letterbox">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">Connection Error</div>
+        <div class="empty-text">
+          Unable to load your letters. Please check your connection and try again.
+        </div>
       </div>`;
   }
 }
 
-// Update stats cards
+// ============================================
+// UPDATE STATS
+// ============================================
 function updateStats() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -309,12 +295,15 @@ function updateStats() {
   document.getElementById('weekMessages').textContent = weekCount;
 }
 
-// Filter and sort messages
+// ============================================
+// FILTER AND DISPLAY MESSAGES
+// ============================================
 function filterAndDisplayMessages() {
   const searchTerm = document.getElementById('searchInput').value.toLowerCase();
   const sortBy = document.getElementById('sortSelect').value;
   const filterBy = document.getElementById('filterSelect').value;
 
+  // Filter
   filteredMessages = messages.filter(msg => {
     if (searchTerm &&
         !msg.message.toLowerCase().includes(searchTerm) &&
@@ -338,80 +327,107 @@ function filterAndDisplayMessages() {
     return true;
   });
 
+  // Sort
   filteredMessages.sort((a, b) => {
     const dateA = new Date(a.timestamp);
     const dateB = new Date(b.timestamp);
     return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
   });
 
-  displayMessages();
+  displayLetterCards();
 }
 
-// Display messages in table
-function displayMessages() {
-  const container = document.getElementById('messagesContainer');
+// ============================================
+// DISPLAY LETTERS AS CARDS
+// ============================================
+function displayLetterCards() {
+  const container = document.getElementById('lettersContainer');
 
   if (filteredMessages.length === 0) {
     container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-text">No messages found.</div>
+      <div class="empty-letterbox">
+        <div class="empty-icon">📬</div>
+        <div class="empty-title">Your Letterbox is Empty</div>
+        <div class="empty-text">
+          ${messages.length === 0 
+            ? 'No letters have arrived yet. Share your link to start receiving anonymous messages!' 
+            : 'No letters match your search or filter.'}
+        </div>
       </div>`;
     return;
   }
 
-  const table = `
-    <table class="messages-table">
-      <thead>
-        <tr>
-          <th style="width: 160px">Timestamp</th>
-          <th>Preview</th>
-          <th style="width: 180px">Session ID</th>
-          <th style="width: 100px">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filteredMessages.map((msg, idx) => `
-          <tr>
-            <td class="timestamp">${formatDate(msg.timestamp)}</td>
-            <td><div class="message-preview">${escapeHtml(msg.message)}</div></td>
-            <td><span class="session-id">${msg.sessionId}</span></td>
-            <td><button class="view-btn" data-index="${idx}">View</button></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>`;
+  const cardsHTML = filteredMessages.map((letter, index) => {
+    const preview = letter.message.length > 120 
+      ? letter.message.substring(0, 120) + '...' 
+      : letter.message;
+    
+    const wordCount = letter.message.split(/\s+/).length;
+    
+    return `
+      <div class="letter-card" data-index="${index}">
+        <div class="letter-header">
+          <div class="letter-meta">
+            <div class="letter-date">${formatDate(letter.timestamp)}</div>
+            <div class="letter-session">${letter.sessionId}</div>
+          </div>
+          <div class="letter-icon">✉️</div>
+        </div>
+        <div class="letter-preview">${escapeHtml(preview)}</div>
+        <div class="letter-footer">
+          <div class="letter-length">${wordCount} words • ${letter.message.length} chars</div>
+          <div class="read-btn">Read Letter →</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 
-  container.innerHTML = table;
+  container.innerHTML = `<div class="letters-grid">${cardsHTML}</div>`;
 
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.getAttribute('data-index'));
-      openLetter(idx);
+  // Add click handlers
+  document.querySelectorAll('.letter-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const index = parseInt(card.getAttribute('data-index'));
+      openLetterModal(index);
     });
   });
 }
 
-// Open letter modal
-function openLetter(index) {
+// ============================================
+// OPEN LETTER MODAL
+// ============================================
+function openLetterModal(index) {
   currentLetter = filteredMessages[index];
-  document.getElementById('modalLetterContent').innerHTML =
-    currentLetter.message.replace(/\n/g, '<br>');
-  document.getElementById('modalSessionId').textContent = `Session: ${currentLetter.sessionId}`;
-  document.getElementById('domainText').textContent = SITE_URL.replace(/^https?:\/\//, '');
+  
+  document.getElementById('modalLetterText').textContent = currentLetter.message;
+  document.getElementById('modalSession').textContent = `Session: ${currentLetter.sessionId}`;
+  document.getElementById('modalDomain').textContent = SITE_URL.replace(/^https?:\/\//, '');
+  
   document.getElementById('letterModal').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 
-function closeLetter() {
+function closeLetterModal() {
   document.getElementById('letterModal').classList.remove('show');
   document.body.style.overflow = '';
   currentLetter = null;
 }
 
-document.getElementById('closeModal').addEventListener('click', closeLetter);
+document.getElementById('closeModal').addEventListener('click', closeLetterModal);
 document.getElementById('letterModal').addEventListener('click', (e) => {
-  if (e.target.id === 'letterModal') closeLetter();
+  if (e.target.id === 'letterModal') closeLetterModal();
 });
+
+// ESC key to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('letterModal').classList.contains('show')) {
+    closeLetterModal();
+  }
+});
+
+// ============================================
+// MODAL ACTIONS
+// ============================================
 
 // Copy button
 document.getElementById('copyBtn').addEventListener('click', async () => {
@@ -423,28 +439,24 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     btn.innerHTML = '<span>✓</span> <span>Copied!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
   } catch (err) {
-    alert('Copy failed');
+    alert('Copy failed. Please try again.');
   }
 });
 
-// Save button
+// Save as image button
 document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!currentLetter) return;
 
   const card = document.getElementById('letterCard');
-  const wrapper = document.querySelector('.letter-content-wrapper');
-
+  const wrapper = card.querySelector('.modal-content');
+  
   const origWrapperStyle = wrapper.style.cssText;
   const origCardStyle = card.style.cssText;
-  const origBodyOverflow = document.body.style.overflow;
 
   card.classList.add('capture-mode');
   wrapper.style.overflow = 'visible';
   wrapper.style.maxHeight = 'none';
-  wrapper.style.height = 'auto';
   card.style.maxHeight = 'none';
-  card.style.height = 'auto';
-  document.body.style.overflow = 'visible';
 
   try {
     const canvas = await html2canvas(card, {
@@ -469,14 +481,13 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     const orig = btn.innerHTML;
     btn.innerHTML = '<span>✓</span> <span>Saved!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    
   } catch (err) {
-    console.error('Save error:', err);
-    alert('Failed to save image. Please try again.');
+    alert('Failed to save. Please try again.');
   } finally {
     card.classList.remove('capture-mode');
     wrapper.style.cssText = origWrapperStyle;
     card.style.cssText = origCardStyle;
-    document.body.style.overflow = origBodyOverflow;
   }
 });
 
@@ -493,81 +504,123 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: 'Urochithi Anonymous Letter',
+        title: 'Urochithi Letter',
         text: shareText,
         url: SITE_URL
       });
       return;
-    } catch (err) {}
+    } catch (err) {
+      // Fallback to custom modal
+    }
   }
 
-  const modalHtml = `
-    <div class="share-modal-overlay" id="customShareModal">
-      <div class="share-modal-paper">
-        <div class="stain stain1"></div>
-        <div class="stain stain2"></div>
-        <div class="stain stain3"></div>
-
-        <button class="close-modal" id="closeShareModal">×</button>
-
-        <div class="share-header">
-          <div class="letter-title">Share This Letter</div>
-          <div class="letter-subtitle">Choose a platform</div>
-        </div>
-
-        <div class="share-options">
-          <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn twitter">
-            <span>𝕏</span> <span>Twitter / X</span>
+  // Custom share modal
+  const shareHTML = `
+    <div class="share-modal-overlay" id="shareModal" style="
+      position: fixed;
+      inset: 0;
+      background: rgba(93, 64, 55, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1.5rem;
+    ">
+      <div style="
+        background: #faf8f3;
+        background-image: linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px), linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+        max-width: 480px;
+        width: 100%;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        border-radius: 8px;
+        text-align: center;
+      ">
+        <h2 style="font-size: 1.5rem; color: #5d4037; margin-bottom: 2rem; letter-spacing: 2px;">Share This Letter</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;">
+          <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}" target="_blank" style="
+            padding: 1rem 1.5rem;
+            border: 2px solid #8d6e63;
+            background: linear-gradient(145deg, #f8f6f0 0%, #f0ede5 100%);
+            color: #5d4037;
+            text-decoration: none;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+          ">
+            <span style="font-size: 1.5rem;">𝕏</span> <span>Share on Twitter</span>
           </a>
-          <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn whatsapp">
-            <span>💬</span> <span>WhatsApp</span>
+          <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}" target="_blank" style="
+            padding: 1rem 1.5rem;
+            border: 2px solid #8d6e63;
+            background: linear-gradient(145deg, #f8f6f0 0%, #f0ede5 100%);
+            color: #5d4037;
+            text-decoration: none;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+          ">
+            <span style="font-size: 1.5rem;">💬</span> <span>Share on WhatsApp</span>
           </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SITE_URL)}&quote=${encodeURIComponent(excerpt)}" target="_blank" class="share-btn facebook">
-            <span>📘</span> <span>Facebook</span>
-          </a>
-          <a href="https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(shareText)}" target="_blank" class="share-btn telegram">
-            <span>✈️</span> <span>Telegram</span>
-          </a>
-          <button id="copyShareText" class="share-btn copy">
-            <span>📋</span> <span>Copy Text</span>
+          <button id="copyShareText" style="
+            padding: 1rem 1.5rem;
+            border: 2px solid #8d6e63;
+            background: linear-gradient(145deg, #f8f6f0 0%, #f0ede5 100%);
+            color: #5d4037;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+          ">
+            <span style="font-size: 1.5rem;">📋</span> <span>Copy Text</span>
           </button>
         </div>
-
-        <div class="share-footer">
-          Shared with love from <strong>Urochithi</strong>
-        </div>
+        <button id="closeShareModal" style="
+          padding: 0.75rem 2rem;
+          border: 2px solid #8d6e63;
+          background: transparent;
+          color: #8d6e63;
+          font-family: 'Special Elite', monospace;
+          font-size: 0.85rem;
+          cursor: pointer;
+          letter-spacing: 1px;
+        ">Close</button>
       </div>
-    </div>`;
+    </div>
+  `;
 
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  document.body.insertAdjacentHTML('beforeend', shareHTML);
 
   document.getElementById('closeShareModal').addEventListener('click', () => {
-    document.getElementById('customShareModal').remove();
-  });
-
-  document.getElementById('customShareModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('customShareModal')) {
-      document.getElementById('customShareModal').remove();
-    }
+    document.getElementById('shareModal').remove();
   });
 
   document.getElementById('copyShareText').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(shareText);
       const btn = document.getElementById('copyShareText');
-      const orig = btn.innerHTML;
-      btn.innerHTML = '<span>✓</span> <span>Copied!</span>';
-      btn.style.background = '#e8f5e9';
+      btn.innerHTML = '<span style="font-size: 1.5rem;">✓</span> <span>Copied!</span>';
       setTimeout(() => {
-        btn.innerHTML = orig;
-        btn.style.background = '';
-      }, 2000);
+        document.getElementById('shareModal').remove();
+      }, 1500);
     } catch (err) {
       alert('Copy failed');
     }
   });
 });
 
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 function formatDate(dateString) {
   const date = new Date(dateString);
   const now = new Date();
@@ -576,8 +629,16 @@ function formatDate(dateString) {
   if (diff < 60000) return 'Just now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 172800000) return 'Yesterday';
 
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+  }) + ' at ' + date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
 }
 
 function escapeHtml(text) {
@@ -586,9 +647,15 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// ============================================
+// EVENT LISTENERS
+// ============================================
 document.getElementById('searchInput').addEventListener('input', filterAndDisplayMessages);
 document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 
+// ============================================
+// INITIALIZE
+// ============================================
 checkAuth();

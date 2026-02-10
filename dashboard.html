@@ -3,25 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Urochithi</title>
-  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Letterbox - Urochithi Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
-  
-  <!-- reCAPTCHA v3 will be loaded dynamically from config.js -->
-  
 </head>
 <body>
 
-  <!-- Step 1: Static PIN -->
+  <!-- ============================================ -->
+  <!--              STEP 1: STATIC PIN              -->
+  <!-- ============================================ -->
   <div id="step1Container" class="auth-container">
     <div class="auth-card">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
+      
       <div class="auth-header">
         <span class="auth-icon">🔐</span>
-        <h1 class="auth-title">Dashboard Login</h1>
-        <p class="auth-subtitle">Enter your PIN to continue</p>
+        <h1 class="auth-title">Letterbox Login</h1>
+        <p class="auth-subtitle">Enter your PIN to access your letters</p>
       </div>
+
       <form id="step1Form" class="auth-form">
         <div class="form-group">
           <label class="form-label">PIN</label>
@@ -30,119 +31,172 @@
         <div id="step1Error" class="auth-error"></div>
         <button type="submit" class="auth-button" id="step1Button">Continue</button>
       </form>
-      <!-- reCAPTCHA badge automatically appears when loaded from config.js -->
+
       <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: #8d6e63;">
         Protected by reCAPTCHA
       </div>
     </div>
   </div>
 
-  <!-- Step 2: Time-based PIN -->
+  <!-- ============================================ -->
+  <!--          STEP 2: TIME-BASED PIN              -->
+  <!-- ============================================ -->
   <div id="step2Container" class="auth-container" style="display: none;">
     <div class="auth-card">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
+      
       <div class="auth-header">
         <span class="auth-icon">⏰</span>
         <h1 class="auth-title">Time Verification</h1>
-        <p class="auth-subtitle">Calculate and enter the time-based code</p>
+        <p class="auth-subtitle">Calculate the code using current time</p>
       </div>
+
       <div class="time-display">
         <div class="time-label">Current UTC Time</div>
         <div class="time-value" id="utcTime">--:--</div>
       </div>
+
       <form id="step2Form" class="auth-form">
         <div class="form-group">
-          <label class="form-label">Time-based Code</label>
+          <label class="form-label">Time Code</label>
           <input type="number" id="timePin" class="form-input" placeholder="000" autocomplete="off" required>
           <div class="time-hint">Use the formula with current UTC time shown above</div>
         </div>
         <div id="step2Error" class="auth-error"></div>
         <button type="submit" class="auth-button" id="step2Button">Authenticate</button>
       </form>
+
       <div class="back-link" id="backToStep1">← Back to PIN</div>
     </div>
   </div>
 
-  <!-- Dashboard -->
+  <!-- ============================================ -->
+  <!--            DASHBOARD - LETTERBOX             -->
+  <!-- ============================================ -->
   <div id="dashboardContainer" class="dashboard-container">
-    <nav class="dashboard-nav">
-      <div class="nav-brand">
-        <span>📊</span>
-        <span>Dashboard</span>
+    
+    <!-- Header with Stats -->
+    <header class="dashboard-header">
+      <div class="header-top">
+        <div class="letterbox-brand">
+          <div class="letterbox-icon">📬</div>
+          <div class="letterbox-info">
+            <h1>YOUR LETTERBOX</h1>
+            <p>Anonymous letters delivered with care</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="action-btn" id="refreshBtn">
+            <span>↻</span> <span>Refresh</span>
+          </button>
+          <a href="/" class="action-btn">
+            <span>🏠</span> <span>Home</span>
+          </a>
+          <button class="action-btn primary" id="logoutBtn">
+            <span>🚪</span> <span>Logout</span>
+          </button>
+        </div>
       </div>
-      <div class="nav-actions">
-        <button class="nav-btn" id="refreshBtn"><span>↻</span> <span>Refresh</span></button>
-        <a href="/" class="nav-btn">Home</a>
-        <button class="nav-btn primary" id="logoutBtn">Logout</button>
-      </div>
-    </nav>
 
-    <div class="dashboard-content">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total Messages</div><div class="stat-value" id="totalMessages">0</div></div>
-        <div class="stat-card"><div class="stat-label">Today</div><div class="stat-value" id="todayMessages">0</div></div>
-        <div class="stat-card"><div class="stat-label">Unique Sessions</div><div class="stat-value" id="uniqueSessions">0</div></div>
-        <div class="stat-card"><div class="stat-label">This Week</div><div class="stat-value" id="weekMessages">0</div></div>
+      <!-- Stats as Postal Stamps -->
+      <div class="postal-stats">
+        <div class="postal-stamp">
+          <div class="stamp-value" id="totalMessages">0</div>
+          <div class="stamp-label">Total Letters</div>
+        </div>
+        <div class="postal-stamp">
+          <div class="stamp-value" id="todayMessages">0</div>
+          <div class="stamp-label">Today</div>
+        </div>
+        <div class="postal-stamp">
+          <div class="stamp-value" id="uniqueSessions">0</div>
+          <div class="stamp-label">Unique Writers</div>
+        </div>
+        <div class="postal-stamp">
+          <div class="stamp-value" id="weekMessages">0</div>
+          <div class="stamp-label">This Week</div>
+        </div>
       </div>
+    </header>
 
-      <div class="controls-section">
-        <div class="controls">
-          <div class="search-wrapper">
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      
+      <!-- Search & Filters -->
+      <div class="letterbox-controls">
+        <div class="controls-row">
+          <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search messages or session IDs...">
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="search-input" 
+              placeholder="Search through your letters..."
+            >
           </div>
-          <select id="sortSelect" class="filter-select">
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
-          <select id="filterSelect" class="filter-select">
-            <option value="all">All Messages</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-          </select>
+          <div class="filter-group">
+            <select id="sortSelect" class="filter-select">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+            <select id="filterSelect" class="filter-select">
+              <option value="all">All Letters</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="messages-wrapper">
-        <div id="messagesContainer">
-          <div class="loading-screen">
-            <div class="spinner"></div>
-            <div class="loading-text">Loading messages...</div>
-          </div>
+      <!-- Letters Grid -->
+      <div id="lettersContainer">
+        <!-- Loading state -->
+        <div class="loading-screen">
+          <div class="spinner"></div>
+          <div class="loading-text">Opening your letterbox...</div>
         </div>
       </div>
-    </div>
+
+    </main>
   </div>
 
-  <!-- Letter Modal -->
-  <div id="letterModal" class="modal-overlay">
+  <!-- ============================================ -->
+  <!--           LETTER READING MODAL               -->
+  <!-- ============================================ -->
+  <div id="letterModal" class="letter-modal-overlay">
     <div class="letter-modal" id="letterCard">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
       <div class="stain stain3"></div>
 
-      <button class="close-modal" id="closeModal">×</button>
+      <button class="modal-close" id="closeModal">×</button>
 
-      <div class="letter-header">
-        <div class="letter-title">UROCHITHI</div>
-        <div class="letter-subtitle">Anonymous Letter</div>
-        <div class="letter-session" id="modalSessionId"></div>
+      <div class="modal-header">
+        <div class="modal-title">UROCHITHI</div>
+        <div class="modal-subtitle">Anonymous Letter</div>
+        <div class="modal-session" id="modalSession"></div>
       </div>
 
-      <div class="letter-content-wrapper">
-        <div class="letter-content" id="modalLetterContent"></div>
+      <div class="modal-content">
+        <div class="modal-letter-text" id="modalLetterText"></div>
       </div>
 
-      <div class="letter-footer" id="letterFooter">
-        Send your anonymous letter at <span id="domainText">urochithi.netlify.app</span>
+      <div class="modal-footer">
+        Send your anonymous letter at <span id="modalDomain">urochithi.netlify.app</span>
       </div>
 
-      <div class="letter-actions">
-        <button class="action-btn" id="copyBtn"><span>📋</span> <span>Copy</span></button>
-        <button class="action-btn" id="saveBtn"><span>💾</span> <span>Save</span></button>
-        <button class="action-btn" id="shareBtn"><span>🔗</span> <span>Share</span></button>
+      <div class="modal-actions">
+        <button class="modal-action-btn" id="copyBtn">
+          <span>📋</span> <span>Copy</span>
+        </button>
+        <button class="modal-action-btn" id="saveBtn">
+          <span>💾</span> <span>Save as Image</span>
+        </button>
+        <button class="modal-action-btn" id="shareBtn">
+          <span>🔗</span> <span>Share</span>
+        </button>
       </div>
     </div>
   </div>
