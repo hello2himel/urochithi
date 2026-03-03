@@ -1,6 +1,6 @@
 # 📬 Urochithi - Anonymous Letters Platform
 
-A beautiful, privacy-focused anonymous letter platform with a vintage paper aesthetic. Built with vanilla HTML, CSS, JavaScript, and deployed on Netlify with Google Sheets as the backend.
+A beautiful, privacy-focused anonymous letter platform with a vintage paper aesthetic. Built with vanilla HTML, CSS, JavaScript, deployed on Netlify with Neon Auth (Better Auth) authentication, and Neon PostgreSQL for data storage. Supports multiple users.
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/hello2himel/urochithi)
 
@@ -9,32 +9,35 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 ## ✨ Features
 
 ### 📝 Anonymous Letters
-- **No login required** - Send messages completely anonymously
-- **Session tracking** - Unique session ID per device (no personal data)
-- **Character counter** - Real-time counter with warnings
-- **Auto-save drafts** - Messages saved to localStorage
-- **Spam protection** - Honeypot field catches bots
+- **No login required** to send — completely anonymous
+- **Session tracking** — unique session ID per device (no personal data)
+- **Character counter** — real-time counter with warnings
+- **Auto-save drafts** — messages saved to localStorage
+- **Spam protection** — honeypot field catches bots
 
-### 🎨 Beautiful Design
-- **Vintage paper aesthetic** - Torn edges, grid pattern, paper texture
-- **Fully responsive** - Works perfectly on mobile and desktop
-- **Minimal UI** - Clean, distraction-free interface
-- **Custom postage stamp** - Link to create your own instance
+### 👥 Multi-User Support
+- **Multiple users** can sign up and each gets their own letterbox
+- **Clean URLs** — share your letterbox at `yourdomain.com/username`
+- **Isolated data** — each user only sees their own messages
 
-### 🔐 Secure Dashboard
-- **Two-factor authentication**:
-  - Static PIN (set by you)
-  - Time-based PIN (changes every minute)
-- **Session management** - Auto-logout after 30 minutes
-- **Protected data access** - All API calls require authentication
+### 🔐 Neon Auth (Better Auth)
+- **Secure login** via Neon Auth with email/password sign-in
+- **Session verification** — server-side session validation
+- **No more PINs** — replaced the old static + time-based PIN system
 
 ### 📊 Dashboard Features
-- **Statistics** - Total messages, today's count, unique sessions, weekly stats
-- **Search & Filter** - Find messages by content or session ID
-- **Sort options** - Newest/oldest first
-- **Time filters** - Today, this week, this month, or all
-- **Real-time refresh** - Reload messages anytime
-- **Clean table view** - Easy to read and manage
+- **Statistics** — total messages, today's count, unique sessions, weekly stats
+- **Search & Filter** — find messages by content or session ID
+- **Sort options** — newest/oldest first
+- **Time filters** — today, this week, this month, or all
+- **Real-time refresh** — reload messages anytime
+- **CSV Import** — migrate data from the old Google Sheets version
+- **CSV Export** — download all your messages as CSV
+
+### 🎨 Beautiful Design
+- **Vintage paper aesthetic** — torn edges, grid pattern, paper texture
+- **Fully responsive** — works perfectly on mobile and desktop
+- **Minimal UI** — clean, distraction-free interface
 
 ---
 
@@ -42,36 +45,23 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 
 ### Prerequisites
 - GitHub account (free)
-- Google account (for Google Sheets)
-- Netlify account (free, can sign up with GitHub)
+- [Neon](https://neon.tech) account for PostgreSQL and authentication (free tier: 60,000 MAU)
+- [Netlify](https://netlify.com) account for hosting (free)
 
 ### 1. Fork This Repository
-Click the "Fork" button at the top right of this page to create your own copy.
+Click the "Fork" button at the top right of this page.
 
-### 2. Set Up Google Sheet
-1. Create a new [Google Sheet](https://sheets.google.com)
-2. Go to **Extensions → Apps Script**
-3. Delete any existing code
-4. Paste the code from `google-apps-script.js` (see below)
-5. Save and deploy as Web App (see detailed instructions below)
+### 2. Set Up Neon Database
+1. Create a new project at [Neon Console](https://console.neon.tech)
+2. Copy the **Connection String** (starts with `postgresql://...`)
+3. That's it — tables are created automatically!
 
-### 3. Deploy to Netlify
-1. Go to [Netlify](https://app.netlify.com)
-2. Click **Add new site → Import an existing project**
-3. Connect your GitHub account
-4. Select your forked repository
-5. Click **Deploy**
+### 3. Enable Neon Auth
+1. In your Neon project, navigate to the **Auth** tab
+2. Click **Enable Auth** and copy the **Auth URL**
+3. That's it — auth data lives in the same Neon database!
 
-### 4. Configure Environment Variables
-In Netlify, go to **Site configuration → Environment variables** and add:
-
-```
-DASHBOARD_PIN = <yourPassword>
-TIME_PIN_ALGORITHM = <See algorithm examples below>
-GSCRIPT_URL = <https://script.google.com/macros/s/.../exec>
-```
-
-### 5. Customize Your Site
+### 4. Customize Your Site
 Edit `js/config.js`:
 ```javascript
 const CONFIG = {
@@ -79,12 +69,28 @@ const CONFIG = {
   siteName: "YOUR SITE NAME",
   siteTagline: "Your tagline here",
   maxMessageLength: 2000,
-  onboardingUrl: "/onboard.html"
+  onboardingUrl: "/onboard.html",
+  siteUrl: "https://your-site.netlify.app",
+  neonAuthUrl: "https://your-project-id.auth.neon.tech"
 };
 ```
 
-### 6. Done! 🎉
-Your site is live! Share your URL and start receiving anonymous messages.
+### 5. Deploy to Netlify
+1. Go to [Netlify](https://app.netlify.com)
+2. Click **Add new site → Import an existing project**
+3. Select your forked repository
+4. Click **Deploy**
+
+### 6. Configure Environment Variables
+In Netlify, go to **Site configuration → Environment variables** and add:
+
+```
+DATABASE_URL = postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
+NEON_AUTH_URL = https://your-project-id.auth.neon.tech
+```
+
+### 7. Done! 🎉
+Visit your dashboard, sign in with email/password, pick a username, and share your letterbox URL!
 
 ---
 
@@ -93,164 +99,30 @@ Your site is live! Share your URL and start receiving anonymous messages.
 ```
 urochithi/
 ├── index.html                      # Main landing page
-├── dashboard.html                  # Protected admin dashboard
-├── onboard.html                   # Setup guide for new users
+├── dashboard.html                  # Auth-protected dashboard
+├── onboard.html                    # Setup guide for new users
+├── _redirects                      # Netlify rewrites for clean URLs
+├── package.json                    # Dependencies (Neon DB, jose)
 ├── css/
-│   └── styles.css                 # All styles (paper aesthetic)
+│   ├── styles.css                  # Main styles (paper aesthetic)
+│   └── dashboard.css               # Dashboard styles
 ├── js/
-│   ├── config.js                  # Configuration (EDIT THIS!)
-│   └── main.js                    # Main functionality
+│   ├── config.js                   # Configuration (EDIT THIS!)
+│   ├── main.js                     # Main form & submission logic
+│   └── dashboard.js                # Auth + dashboard logic
 ├── netlify/
 │   └── functions/
-│       ├── submit.js              # Submit messages
-│       ├── get-messages.js        # Fetch messages (auth required)
-│       ├── verify-static-pin.js   # Step 1 authentication
-│       └── verify-time-pin.js     # Step 2 authentication
-└── README.md                      # This file
+│       ├── submit.js               # Submit messages (public)
+│       ├── get-messages.js         # Fetch messages (auth required)
+│       ├── register.js             # Register username (auth required)
+│       ├── check-user.js           # Check user status (auth required)
+│       ├── import-csv.js           # Import CSV data (auth required)
+│       ├── export-csv.js           # Export CSV data (auth required)
+│       ├── db.js                   # Neon DB connection utility
+│       ├── auth.js                 # Neon Auth session verification utility
+│       └── rate-limiter.js         # Rate limiting utility
+└── readme.md                       # This file
 ```
-
----
-
-## 🔧 Detailed Setup
-
-### Google Apps Script Setup
-
-1. **Open Apps Script Editor**
-   - In your Google Sheet: **Extensions → Apps Script**
-
-2. **Paste This Code**
-
-```javascript
-function doGet(e) {
-  try {
-    const sheet = SpreadsheetApp.getActiveSheet();
-    const lastRow = sheet.getLastRow();
-    
-    if (lastRow <= 1) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ messages: [] }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-    
-    const range = sheet.getRange(2, 1, lastRow - 1, 3);
-    const values = range.getValues();
-    
-    const messages = values.map(row => ({
-      timestamp: row[0] ? new Date(row[0]).toISOString() : new Date().toISOString(),
-      message: row[1] || "",
-      sessionId: row[2] || "unknown"
-    }));
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({ messages: messages }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    Logger.log("Error in doGet: " + error.toString());
-    return ContentService
-      .createTextOutput(JSON.stringify({ messages: [], error: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSheet();
-    
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "Message", "Session ID"]);
-      const headerRange = sheet.getRange(1, 1, 1, 3);
-      headerRange.setFontWeight("bold");
-      headerRange.setBackground("#f0ede5");
-      headerRange.setHorizontalAlignment("center");
-      sheet.setColumnWidth(1, 180);
-      sheet.setColumnWidth(2, 400);
-      sheet.setColumnWidth(3, 200);
-    }
-    
-    const row = [
-      data.timestamp || new Date().toISOString(),
-      data.message || "",
-      data.sessionId || "N/A"
-    ];
-    
-    sheet.appendRow(row);
-    
-    const lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow, 2).setWrap(true);
-    
-    if (lastRow % 2 === 0) {
-      sheet.getRange(lastRow, 1, 1, 3).setBackground("#faf8f3");
-    }
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    Logger.log("Error in doPost: " + error.toString());
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-```
-
-3. **Deploy as Web App**
-   - Click **Deploy → New deployment**
-   - Type: **Web app**
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-   - Click **Deploy**
-   - **Copy the deployment URL** - you'll need this!
-
----
-
-## 🔐 Dashboard Authentication
-
-Your dashboard uses **two-factor authentication** for security:
-
-### Step 1: Static PIN
-A password you set in the `DASHBOARD_PIN` environment variable.
-
-Example: `mySecretPassword123`
-
-### Step 2: Time-based PIN
-A code that changes every minute, calculated from the current UTC time.
-
-**Example Formula:** `(hour × 7) + (minute % 10)`
-
-**Example at 14:42 UTC:**
-```
-(14 × 7) + (42 % 10)
-= 98 + 4
-= 102
-```
-
-### Custom Algorithms
-
-You can customize the formula by changing the `TIME_PIN_ALGORITHM` environment variable:
-
-**Simple:**
-```
-TIME_PIN_ALGORITHM = (hour + minute)
-```
-
-**Medium (default):**
-```
-TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
-```
-
-**Complex:**
-```
-TIME_PIN_ALGORITHM = (hour * hour) + (minute * 3)
-```
-
-**Variables available:**
-- `hour` - Current UTC hour (0-23)
-- `minute` - Current UTC minute (0-59)
-- Operators: `+`, `-`, `*`, `/`, `%`, `()`
 
 ---
 
@@ -260,33 +132,48 @@ Set these in **Netlify → Site configuration → Environment variables**:
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `DASHBOARD_PIN` | Yes | Static password for dashboard | `mySecretPass123` |
-| `TIME_PIN_ALGORITHM` | Yes | Formula for time-based code | `(hour * 7) + (minute % 10)` |
-| `GSCRIPT_URL` | Yes | Google Apps Script deployment URL | `https://script.google.com/...` |
+| `DATABASE_URL` | Yes | Neon PostgreSQL connection string | `postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require` |
+| `NEON_AUTH_URL` | Yes | Neon Auth URL from the Auth tab | `https://your-project-id.auth.neon.tech` |
+
+---
+
+## 🔄 Migrating from v1 (Google Sheets)
+
+If you were using the previous version with Google Sheets and time-based PINs:
+
+### Import Your Data
+1. Open your Google Sheet
+2. **File → Download → Comma-separated values (.csv)**
+3. Log into your new dashboard
+4. Click **📥 Import** → select your CSV → click **Import**
+5. All messages are imported with original timestamps!
+
+### Export Your Data
+Click **📤 Export** in the dashboard header to download all messages as CSV at any time.
+
+### Old Environment Variables
+These are no longer needed and can be removed:
+- `GSCRIPT_URL`
+- `DASHBOARD_PIN`
+- `TIME_PIN_ALGORITHM`
+- `RECAPTCHA_SECRET_KEY`
 
 ---
 
 ## 📊 Data Collection
 
 ### What We Collect
-- **Timestamp** - When the message was sent
-- **Message** - The actual letter content
-- **Session ID** - Unique identifier per device/browser (generated client-side)
+- **Timestamp** — when the message was sent
+- **Message** — the letter content
+- **Session ID** — unique identifier per device/browser (generated client-side)
 
 ### What We DON'T Collect
-- ❌ Names or emails
+- ❌ Names or emails (of senders)
 - ❌ IP addresses
 - ❌ GPS coordinates
 - ❌ Browser fingerprints
 - ❌ Tracking cookies
 - ❌ Any personal information
-
-### Session IDs
-- Generated once per device/browser
-- Stored in localStorage
-- Format: `timestamp-random` (e.g., `lq8x7k9m-a3b4c5d6e`)
-- Helps identify messages from the same sender
-- No way to trace back to actual identity
 
 ---
 
@@ -294,18 +181,13 @@ Set these in **Netlify → Site configuration → Environment variables**:
 
 ### Change Colors
 Edit `css/styles.css` and replace these hex codes:
-- `#5d4037` - Dark brown (primary text)
-- `#8d6e63` - Medium brown (buttons, borders)
-- `#f4f1e8` - Light beige (body background)
-- `#faf8f3` - Off-white (paper background)
+- `#5d4037` — dark brown (primary text)
+- `#8d6e63` — medium brown (buttons, borders)
+- `#f4f1e8` — light beige (body background)
+- `#faf8f3` — off-white (paper background)
 
 ### Change Fonts
-In `index.html`, update the Google Fonts link:
-```html
-<link href="https://fonts.googleapis.com/css2?family=YOUR_FONT&display=swap" rel="stylesheet">
-```
-
-Then update font-family in `css/styles.css`.
+In `index.html`, update the Google Fonts link, then update `font-family` in `css/styles.css`.
 
 ### Change Message Limit
 Edit `js/config.js`:
@@ -313,59 +195,18 @@ Edit `js/config.js`:
 maxMessageLength: 2000  // Change to your desired limit
 ```
 
-Also update in `netlify/functions/submit.js`:
-```javascript
-if (!data.message || data.message.length > 2000) {
-```
-
 ---
 
 ## 🔒 Security Features
 
-- ✅ Two-factor authentication for dashboard
-- ✅ Time-based PIN changes every minute
-- ✅ 3-minute window for clock sync issues
-- ✅ Session timeout (30 minutes of inactivity)
-- ✅ Server-side PIN verification
+- ✅ Neon Auth (Better Auth) for dashboard
+- ✅ Server-side session verification
+- ✅ Per-user data isolation
+- ✅ Rate limiting on submissions
 - ✅ Honeypot spam protection
 - ✅ Input validation and sanitization
 - ✅ HTTPS by default (Netlify)
-- ✅ No sensitive data in client-side code
-
----
-
-## 🐛 Troubleshooting
-
-### Messages not being saved
-
-**Check:**
-1. `GSCRIPT_URL` is set correctly in Netlify
-2. Apps Script is deployed with "Anyone" access
-3. Apps Script has both `doGet` and `doPost` functions
-4. Browser console for error messages (F12)
-
-**Fix:**
-- Redeploy Apps Script
-- Update `GSCRIPT_URL` in Netlify
-- Trigger new deployment in Netlify
-
-### Dashboard login fails
-
-**Static PIN error:**
-- Verify `DASHBOARD_PIN` matches exactly (case-sensitive)
-- Check environment variable is set in Netlify
-
-**Time-based PIN error:**
-- Use the **UTC time** shown on screen
-- Double-check your calculation
-- Make sure `TIME_PIN_ALGORITHM` is set correctly
-- Try the next minute's code (3-minute window)
-
-### Session expired quickly
-
-**Cause:** 30-minute inactivity timeout
-
-**Fix:** Just log in again with both PINs
+- ✅ Parameterized SQL queries (injection-safe)
 
 ---
 
@@ -375,14 +216,13 @@ Fully responsive design with:
 - Touch-friendly buttons and inputs
 - Optimized layouts for small screens
 - Readable fonts on mobile
-- Adjusted navigation for mobile
 - Full functionality on all devices
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how:
+Contributions are welcome!
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -390,29 +230,11 @@ Contributions are welcome! Here's how:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Setup
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/urochithi.git
-cd urochithi
-
-# Make changes
-# Test locally (use a local server for testing)
-python -m http.server 8000
-# or
-npx serve
-
-# Commit and push
-git add .
-git commit -m "Your changes"
-git push
-```
-
 ---
 
 ## 📄 License
 
-MIT License - feel free to use for personal or commercial projects!
+MIT License — feel free to use for personal or commercial projects!
 
 ```
 MIT License
@@ -445,7 +267,8 @@ SOFTWARE.
 - Inspired by anonymous messaging platforms like NGL and Tellonym
 - Font: [Special Elite](https://fonts.google.com/specimen/Special+Elite) by Google Fonts
 - Hosted on [Netlify](https://www.netlify.com/)
-- Data storage: [Google Sheets](https://www.google.com/sheets/about/)
+- Database: [Neon](https://neon.tech/)
+- Authentication: [Neon Auth](https://neon.tech/docs/guides/neon-auth) (Better Auth)
 
 ---
 
@@ -453,37 +276,9 @@ SOFTWARE.
 
 - 🐛 **Bug reports:** [Open an issue](https://github.com/hello2himel/urochithi/issues)
 - 💡 **Feature requests:** [Start a discussion](https://github.com/hello2himel/urochithi/discussions)
-- 📧 **Contact:** Create an issue or discussion
 - 📖 **Documentation:** See `/onboard.html` on your deployed site
 
 ---
-
-## 🗺️ Roadmap
-
-- [ ] Email notifications for new messages
-- [ ] Reply functionality (optional for senders)
-- [ ] Message categories/tags
-- [ ] Export messages as PDF
-- [ ] Custom domain support guide
-- [ ] Dark mode toggle
-- [ ] Multiple language support
-- [ ] Analytics dashboard enhancements
-- [ ] Message moderation tools
-- [ ] Batch operations in dashboard
-
----
-
-## ⭐ Show Your Support
-
-If you found this helpful:
-- ⭐ Star this repository
-- 🍴 Fork it for your own project
-- 📣 Share with friends
-- 🐛 Report bugs or suggest features
-- 💖 Consider sponsoring
-
----
-
 
 [Live Demo](https://urochithi.netlify.app) • [Report Bug](https://github.com/hello2himel/urochithi/issues) • [Request Feature](https://github.com/hello2himel/urochithi/issues)
 
