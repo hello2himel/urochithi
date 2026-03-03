@@ -4,131 +4,214 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Get Started - Urochithi</title>
-<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400;500&family=Caveat:wght@300;400;500&family=Special+Elite&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
-<link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Caveat:wght@300;400;500&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
-/* Override container for full-width doc style */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background: #faf8f3;
   background-image: 
-    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
-  padding: 0;
-  margin: 0;
+    linear-gradient(90deg, rgba(139, 69, 19, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: 'Special Elite', monospace;
+  color: #5d4037;
   min-height: 100vh;
 }
 
-.doc-container {
-  max-width: 100%;
-  padding: 3rem 4rem;
+/* ============================================ */
+/*        SIGN UP HERO (full viewport)          */
+/* ============================================ */
+
+.signup-hero {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+}
+
+.signup-card {
+  background: #faf8f3;
+  border: 1px solid rgba(139, 69, 19, 0.15);
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(93, 64, 55, 0.1);
+}
+
+.signup-emoji {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+.signup-title {
+  font-family: 'Special Elite', monospace;
+  font-size: 1.8rem;
+  color: #5d4037;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.signup-subtitle {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: #8d6e63;
+  margin-bottom: 1.5rem;
+}
+
+.signup-description {
+  font-size: 0.85rem;
+  color: #6d4c41;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.signup-btn {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  background: #8d6e63;
+  color: #faf8f3;
+  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.2);
+  margin-bottom: 1rem;
+}
+
+.signup-btn:hover {
+  background: #6d4c41;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+}
+
+.signup-note {
+  font-size: 0.75rem;
+  color: #8d6e63;
+  opacity: 0.7;
+}
+
+.signup-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 1.5rem;
+  color: #8d6e63;
+  opacity: 0.5;
+}
+
+/* ============================================ */
+/*         DOCUMENTATION SECTIONS               */
+/* ============================================ */
+
+.doc-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
 }
 
 .doc-header {
-  border-bottom: 3px solid rgba(139, 69, 19, 0.3);
-  padding-bottom: 2rem;
+  text-align: center;
   margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.15);
 }
 
 .doc-title {
-  font-size: 2.8rem;
+  font-family: 'Amatic SC', cursive;
+  font-size: 2.5rem;
   color: #5d4037;
   margin-bottom: 0.5rem;
   font-weight: 700;
-  letter-spacing: 1px;
 }
 
 .doc-subtitle {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   color: #6d4c41;
-  line-height: 1.6;
-  max-width: 800px;
+  line-height: 1.7;
 }
 
 .doc-nav {
-  background: rgba(139, 69, 19, 0.04);
-  border: 1px solid rgba(139, 69, 19, 0.15);
+  background: rgba(139, 69, 19, 0.03);
+  border: 1px solid rgba(139, 69, 19, 0.12);
   padding: 1.5rem;
   margin-bottom: 3rem;
-  border-radius: 4px;
+  border-radius: 16px;
 }
 
 .doc-nav-title {
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: #5d4037;
   font-weight: 700;
   margin-bottom: 1rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .doc-nav-list {
   list-style: none;
-  padding: 0;
-  margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 0.5rem;
-}
-
-.doc-nav-list li {
-  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.4rem;
 }
 
 .doc-nav-list a {
   color: #8d6e63;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   display: block;
-  padding: 0.5rem;
-  transition: all 0.2s ease;
-  border-left: 3px solid transparent;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .doc-nav-list a:hover {
-  background: rgba(139, 69, 19, 0.08);
-  border-left-color: #8d6e63;
-  padding-left: 1rem;
+  background: rgba(139, 69, 19, 0.06);
+  color: #5d4037;
 }
 
 .doc-section {
-  margin-bottom: 4rem;
-  padding-bottom: 3rem;
-  border-bottom: 1px solid rgba(139, 69, 19, 0.15);
+  margin-bottom: 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(139, 69, 19, 0.1);
 }
 
 .doc-section:last-child {
   border-bottom: none;
 }
 
-.section-number {
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  background: #8d6e63;
-  color: #faf8f3;
-  border-radius: 4px;
-  text-align: center;
-  line-height: 40px;
-  font-weight: 700;
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1rem;
-  font-size: 1.2rem;
+}
+
+.section-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: #5d4037;
-  margin-bottom: 1rem;
   font-weight: 600;
 }
 
 .section-content {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #6d4c41;
   line-height: 1.8;
-  max-width: 900px;
 }
 
 .section-content p {
@@ -146,68 +229,45 @@ body {
 }
 
 .code-block {
-  background: rgba(139, 69, 19, 0.06);
-  padding: 1.5rem;
-  border-radius: 4px;
+  background: rgba(139, 69, 19, 0.05);
+  padding: 1.25rem;
+  border-radius: 12px;
   font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #5d4037;
-  border: 1px solid rgba(139, 69, 19, 0.2);
+  border: 1px solid rgba(139, 69, 19, 0.12);
   overflow-x: auto;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   line-height: 1.6;
   white-space: pre;
 }
 
-.inline-code {
-  background: rgba(139, 69, 19, 0.1);
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #5d4037;
-}
-
 .note-box {
-  background: rgba(255, 193, 7, 0.08);
-  padding: 1.2rem;
-  border-left: 4px solid #ffc107;
-  font-size: 0.95rem;
+  background: rgba(255, 193, 7, 0.06);
+  padding: 1rem 1.25rem;
+  border-left: 3px solid #ffc107;
+  font-size: 0.85rem;
   color: #6d4c41;
-  margin: 1.5rem 0;
-  border-radius: 0 4px 4px 0;
-}
-
-.note-box strong {
-  color: #5d4037;
+  margin: 1rem 0;
+  border-radius: 0 12px 12px 0;
 }
 
 .info-box {
-  background: rgba(76, 175, 80, 0.08);
-  padding: 1.2rem;
-  border-left: 4px solid #4caf50;
-  font-size: 0.95rem;
+  background: rgba(76, 175, 80, 0.06);
+  padding: 1rem 1.25rem;
+  border-left: 3px solid #4caf50;
+  font-size: 0.85rem;
   color: #6d4c41;
-  margin: 1.5rem 0;
-  border-radius: 0 4px 4px 0;
-}
-
-.warning-box {
-  background: rgba(244, 67, 54, 0.08);
-  padding: 1.2rem;
-  border-left: 4px solid #f44336;
-  font-size: 0.95rem;
-  color: #6d4c41;
-  margin: 1.5rem 0;
-  border-radius: 0 4px 4px 0;
+  margin: 1rem 0;
+  border-radius: 0 12px 12px 0;
 }
 
 .doc-link {
   color: #8d6e63;
   text-decoration: none;
   font-weight: 600;
-  border-bottom: 2px solid #8d6e63;
-  transition: all 0.2s ease;
+  border-bottom: 1px solid #8d6e63;
+  transition: color 0.2s ease;
 }
 
 .doc-link:hover {
@@ -217,21 +277,21 @@ body {
 
 .action-button {
   display: inline-block;
-  padding: 0.8rem 2rem;
+  padding: 0.75rem 1.75rem;
   background: #8d6e63;
   color: #faf8f3;
   text-decoration: none;
   font-weight: 600;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  border-radius: 12px;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 6px rgba(93, 64, 55, 0.2);
   margin: 0.5rem 0.5rem 0.5rem 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-family: 'Special Elite', monospace;
 }
 
 .action-button:hover {
   background: #6d4c41;
-  transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(93, 64, 55, 0.3);
 }
 
@@ -246,37 +306,44 @@ body {
   color: #faf8f3;
 }
 
+/* Footer */
 .doc-footer {
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: 3px solid rgba(139, 69, 19, 0.3);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
   text-align: center;
+  border-top: 1px solid rgba(139, 69, 19, 0.15);
 }
 
 .footer-text {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #6d4c41;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
+/* Mobile */
 @media (max-width: 768px) {
-  .doc-container {
-    padding: 2rem 1.5rem;
+  .signup-card {
+    padding: 2.5rem 1.75rem;
   }
-  
+
+  .doc-container {
+    padding: 3rem 1.5rem;
+  }
+
   .doc-title {
     font-size: 2rem;
   }
-  
+
   .section-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
-  
+
   .code-block {
-    font-size: 0.8rem;
-    padding: 1rem;
+    font-size: 0.75rem;
+    padding: 0.75rem;
   }
-  
+
   .doc-nav-list {
     grid-template-columns: 1fr;
   }
@@ -284,13 +351,33 @@ body {
 </style>
 </head>
 <body>
+
+<!-- ============================================ -->
+<!--       SIGN UP HERO - Full Viewport           -->
+<!-- ============================================ -->
+<section class="signup-hero">
+  <div class="signup-card">
+    <div class="signup-emoji">✏️</div>
+    <h1 class="signup-title">Create Your Letterbox</h1>
+    <p class="signup-subtitle">It takes less than a minute</p>
+    <p class="signup-description">
+      Sign up, pick a unique username, and get your own letterbox URL to share with anyone.
+      No credit card needed — free forever.
+    </p>
+    <a href="/dashboard.html" class="signup-btn">📬 Sign Up Now</a>
+    <p class="signup-note">Already have an account? Sign in from the dashboard.</p>
+  </div>
+  <div class="signup-scroll-hint">↓ Learn more</div>
+</section>
+
+<!-- ============================================ -->
+<!--         DOCUMENTATION / GUIDE                -->
+<!-- ============================================ -->
 <div class="doc-container">
-  <!-- Header -->
   <div class="doc-header">
-    <h1 class="doc-title">Get Started with Urochithi</h1>
+    <h2 class="doc-title">How to Get Started</h2>
     <p class="doc-subtitle">
-      Create your own anonymous letterbox in under a minute. 
-      Sign up, pick a username, and start receiving anonymous letters from anyone.
+      Everything you need to know about setting up and using your anonymous letterbox.
     </p>
   </div>
 
@@ -299,18 +386,20 @@ body {
     <div class="doc-nav-title">Quick Navigation</div>
     <ul class="doc-nav-list">
       <li><a href="#step1">1. Sign Up</a></li>
-      <li><a href="#step2">2. Choose Your Username</a></li>
+      <li><a href="#step2">2. Choose Username</a></li>
       <li><a href="#step3">3. Share Your Link</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#import">Import from Google Sheets</a></li>
-      <li><a href="#selfhost">Self-Host Your Own</a></li>
+      <li><a href="#import">Import Data</a></li>
+      <li><a href="#selfhost">Self-Host</a></li>
     </ul>
   </nav>
 
-  <!-- Step 1: Sign Up -->
+  <!-- Step 1 -->
   <section id="step1" class="doc-section">
-    <div class="section-number">1</div>
-    <h2 class="section-title">Sign Up</h2>
+    <div class="section-header">
+      <span class="section-emoji">1️⃣</span>
+      <h2 class="section-title">Sign Up</h2>
+    </div>
     <div class="section-content">
       <p>Create an account to get your own anonymous letterbox.</p>
       <ol>
@@ -320,16 +409,18 @@ body {
         <li>That's it — you're in!</li>
       </ol>
       <div class="info-box">
-        <strong>✓ Free forever:</strong> No credit card required. Up to 60,000 monthly active users supported on the free tier.
+        <strong>✅ Free forever:</strong> No credit card required. Up to 60,000 monthly active users supported on the free tier.
       </div>
       <a href="/dashboard.html" class="action-button">Go to Dashboard →</a>
     </div>
   </section>
 
-  <!-- Step 2: Choose Username -->
+  <!-- Step 2 -->
   <section id="step2" class="doc-section">
-    <div class="section-number">2</div>
-    <h2 class="section-title">Choose Your Username</h2>
+    <div class="section-header">
+      <span class="section-emoji">2️⃣</span>
+      <h2 class="section-title">Choose Your Username</h2>
+    </div>
     <div class="section-content">
       <p>After signing up, you'll be asked to pick a unique username. This becomes your letterbox address.</p>
       <ul>
@@ -345,10 +436,12 @@ body {
     </div>
   </section>
 
-  <!-- Step 3: Share Your Link -->
+  <!-- Step 3 -->
   <section id="step3" class="doc-section">
-    <div class="section-number">3</div>
-    <h2 class="section-title">Share Your Link</h2>
+    <div class="section-header">
+      <span class="section-emoji">3️⃣</span>
+      <h2 class="section-title">Share Your Link</h2>
+    </div>
     <div class="section-content">
       <p>Once you have your username, share your letterbox URL anywhere:</p>
       <ul>
@@ -366,8 +459,10 @@ body {
 
   <!-- Features -->
   <section id="features" class="doc-section">
-    <div class="section-number"><i class="ri-sparkle-line"></i></div>
-    <h2 class="section-title">What You Get</h2>
+    <div class="section-header">
+      <span class="section-emoji">✨</span>
+      <h2 class="section-title">What You Get</h2>
+    </div>
     <div class="section-content">
       <ul>
         <li><strong>📬 Your own letterbox URL</strong> — clean, memorable link to share</li>
@@ -383,13 +478,14 @@ body {
     </div>
   </section>
 
-  <!-- Import from Google Sheets -->
+  <!-- Import -->
   <section id="import" class="doc-section">
-    <div class="section-number"><i class="ri-archive-line"></i></div>
-    <h2 class="section-title">Import from Google Sheets</h2>
+    <div class="section-header">
+      <span class="section-emoji">📥</span>
+      <h2 class="section-title">Import from Google Sheets</h2>
+    </div>
     <div class="section-content">
       <p>Coming from the old version? Bring your existing messages with you.</p>
-
       <ol>
         <li>Open your Google Sheet with the messages</li>
         <li>Go to <strong>File → Download → Comma-separated values (.csv)</strong></li>
@@ -397,37 +493,32 @@ body {
         <li>Click the <strong>📥 Import</strong> button</li>
         <li>Select your CSV file and click <strong>Import</strong></li>
       </ol>
-
       <div class="note-box">
         <strong>💡 CSV Format:</strong> The importer automatically detects columns named "Timestamp", "Message", and "Session ID" (case-insensitive). As long as your CSV has at least a "Message" column, the import will work.
       </div>
-
       <p>You can also export your data anytime using the <strong>📤 Export</strong> button in the dashboard.</p>
     </div>
   </section>
 
   <!-- Self-Host -->
   <section id="selfhost" class="doc-section">
-    <div class="section-number"><i class="ri-tools-line"></i></div>
-    <h2 class="section-title">Self-Host Your Own</h2>
+    <div class="section-header">
+      <span class="section-emoji">🛠️</span>
+      <h2 class="section-title">Self-Host Your Own</h2>
+    </div>
     <div class="section-content">
-      <p>Urochithi is fully open source and self-hostable. If you'd like to run your own instance with your own database and domain, you can deploy it for free on Netlify with a Neon database.</p>
-
-      <p>The GitHub repository has everything you need: source code, deployment instructions, and configuration guide.</p>
-
+      <p>Urochithi is fully open source and self-hostable. Deploy your own instance for free on Netlify with a Neon database.</p>
       <a href="https://github.com/hello2himel/urochithi" target="_blank" class="action-button">View on GitHub →</a>
       <a href="/selfhost.html" class="action-button secondary">Self-Hosting Guide →</a>
     </div>
   </section>
+</div>
 
-  <!-- Footer -->
-  <div class="doc-footer">
-    <p class="footer-text">
-      Ready to get started?
-    </p>
-    <a href="/dashboard.html" class="action-button">Create Your Letterbox →</a>
-    <a href="/" class="action-button secondary">← Back to Home</a>
-  </div>
+<!-- Footer -->
+<div class="doc-footer">
+  <p class="footer-text">Ready to get started?</p>
+  <a href="/dashboard.html" class="action-button">📬 Create Your Letterbox →</a>
+  <a href="/" class="action-button secondary">🏠 Back to Home</a>
 </div>
 
 <script src="js/config.js"></script>

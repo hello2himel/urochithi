@@ -70,10 +70,11 @@ const CONFIG = {
   siteTagline: "Your tagline here",
   maxMessageLength: 2000,
   onboardingUrl: "/onboard.html",
-  siteUrl: "https://your-site.netlify.app",
-  neonAuthUrl: "https://your-project-id.auth.neon.tech"
+  siteUrl: "https://your-site.netlify.app"
 };
 ```
+
+> **Note:** The Neon Auth URL is fetched automatically from the `NEON_AUTH_URL` Netlify environment variable — no need to set it in `config.js`.
 
 ### 5. Deploy to Netlify
 1. Go to [Netlify](https://app.netlify.com)

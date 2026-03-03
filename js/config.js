@@ -22,9 +22,9 @@ const CONFIG = {
   // Your live site URL (used for sharing, footer hook, etc.)
   siteUrl: "https://urochithi.netlify.app",
 
-  // Neon Auth URL (public - safe to expose)
-  // Get this from Neon Console after enabling Auth
-  neonAuthUrl: "YOUR_NEON_AUTH_URL"
+  // Neon Auth URL - fetched automatically from Netlify env vars (NEON_AUTH_URL)
+  // No need to set this manually
+  neonAuthUrl: ""
 };
 
 // ============================================

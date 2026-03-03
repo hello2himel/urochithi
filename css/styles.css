@@ -77,7 +77,6 @@ body {
   font-weight: 700;
   color: #5d4037;
   letter-spacing: 3px;
-  transform: rotate(0deg);
 }
 
 .urochithi-subtext {
@@ -86,7 +85,6 @@ body {
   color: #5d4037;
   font-weight: 400;
   letter-spacing: 1px;
-  transform: rotate(0deg);
 }
 
 .session-id {
@@ -124,7 +122,6 @@ body {
 }
 
 .postage-stamp:hover {
-  transform: translateY(-2px);
   filter: brightness(1.05);
 }
 
@@ -265,19 +262,17 @@ button {
     0 2px 4px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
   position: relative;
-  transform: rotate(-0.5deg);
+  border-radius: 10px;
 }
 
 button:hover {
   background: #f0ede5;
-  transform: rotate(0deg) translateY(-1px);
   box-shadow: 
     0 4px 8px rgba(0,0,0,0.15),
     inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 button:active {
-  transform: rotate(0deg) translateY(0);
   box-shadow: 
     0 1px 2px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
@@ -286,20 +281,13 @@ button:active {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: rotate(-0.5deg);
 }
 
 /* Button skeleton loading */
 .btn-skeleton {
   background: linear-gradient(90deg, #f0ede5 25%, #e8e4dc 50%, #f0ede5 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
   opacity: 0.8;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 /* Character counter */
@@ -323,7 +311,7 @@ button:disabled {
   font-size: 1.1rem;
   font-family: 'Special Elite', monospace;
   padding: 1.2rem;
-  border-radius: 4px;
+  border-radius: 12px;
   opacity: 0;
   transition: opacity 0.4s ease;
   font-weight: 500;
@@ -436,7 +424,6 @@ button:disabled {
   
   .urochithi-title {
     font-size: 1.4rem;
-    transform: rotate(0deg);
   }
   
   .postage-stamp {
@@ -503,7 +490,7 @@ button:disabled {
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
   border: 1px solid rgba(139, 69, 19, 0.2);
-  border-radius: 3px;
+  border-radius: 10px;
   transition: all 0.2s ease;
 }
 
@@ -517,91 +504,166 @@ button:disabled {
 /*         HOMEPAGE STYLES                      */
 /* ============================================ */
 
-.home-hero {
+.home-container {
+  width: 100%;
+  max-width: 100%;
+  background: #faf8f3;
+  background-image: 
+    linear-gradient(90deg, rgba(139, 69, 19, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(139, 69, 19, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Hero Section */
+.home-hero-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  margin: 2rem 0;
+  padding: 2rem;
+  position: relative;
 }
 
-.home-icon {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+.home-hero-content {
+  max-width: 640px;
 }
 
-.home-heading {
-  font-family: 'Amatic SC', cursive;
-  font-size: 2.2rem;
-  color: #5d4037;
-  margin-bottom: 0.75rem;
-  font-weight: 700;
+.home-logo {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  line-height: 1;
 }
 
-.home-description {
+.home-title {
   font-family: 'Special Elite', monospace;
-  color: #6d4c41;
-  font-size: 0.95rem;
-  line-height: 1.7;
-  max-width: 500px;
-  margin: 0 auto;
+  font-size: 3.5rem;
+  color: #5d4037;
+  letter-spacing: 6px;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  display: block;
 }
 
-.home-actions {
+.home-tagline {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  color: #8d6e63;
+  margin-bottom: 1.5rem;
+}
+
+.home-subtitle {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.95rem;
+  color: #6d4c41;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+.home-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 1.5rem;
+  color: #8d6e63;
+  opacity: 0.5;
+}
+
+.home-cta {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin: 2rem 0;
   flex-wrap: wrap;
 }
 
-.home-btn {
-  font-family: 'Special Elite', monospace;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
+/* Sections */
+.home-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.home-section-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2.5rem;
+  color: #5d4037;
   text-align: center;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
 }
 
-.home-btn.primary {
+/* How It Works Steps */
+.home-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.home-step {
+  background: rgba(139, 69, 19, 0.03);
+  border: 1px solid rgba(139, 69, 19, 0.12);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.step-number {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
   background: #8d6e63;
   color: #faf8f3;
-  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.2);
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Special Elite', monospace;
 }
 
-.home-btn.primary:hover {
-  background: #6d4c41;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+.step-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1;
 }
 
-.home-btn.secondary {
-  background: transparent;
+.step-title {
+  font-family: 'Special Elite', monospace;
+  color: #5d4037;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.step-text {
+  font-family: 'Special Elite', monospace;
   color: #8d6e63;
-  border: 2px solid #8d6e63;
+  font-size: 0.8rem;
+  line-height: 1.6;
 }
 
-.home-btn.secondary:hover {
-  background: #8d6e63;
-  color: #faf8f3;
-}
-
+/* Features Grid */
 .home-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.25rem;
-  margin: 2rem 0;
 }
 
 .home-feature {
   text-align: center;
-  padding: 1.25rem 0.75rem;
-  border: 1px solid rgba(139, 69, 19, 0.15);
-  border-radius: 4px;
+  padding: 1.5rem 1rem;
+  border: 1px solid rgba(139, 69, 19, 0.12);
+  border-radius: 16px;
   background: rgba(139, 69, 19, 0.02);
 }
 
 .feature-icon {
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -616,15 +678,83 @@ button:disabled {
 .feature-text {
   font-family: 'Special Elite', monospace;
   color: #8d6e63;
-  font-size: 0.78rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.6;
 }
 
+/* Bottom CTA */
+.home-bottom-cta {
+  padding-bottom: 2rem;
+}
+
+.home-cta-card {
+  background: rgba(139, 69, 19, 0.04);
+  border: 1px solid rgba(139, 69, 19, 0.15);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.home-cta-title {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2.2rem;
+  color: #5d4037;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.home-cta-text {
+  font-family: 'Special Elite', monospace;
+  color: #6d4c41;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+/* Buttons */
+.home-btn {
+  font-family: 'Special Elite', monospace;
+  padding: 0.85rem 1.75rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  display: inline-block;
+}
+
+.home-btn.primary {
+  background: #8d6e63;
+  color: #faf8f3;
+  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.2);
+}
+
+.home-btn.primary:hover {
+  background: #6d4c41;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+}
+
+.home-btn.secondary {
+  background: transparent;
+  color: #8d6e63;
+  border: 2px solid #8d6e63;
+}
+
+.home-btn.secondary:hover {
+  background: #8d6e63;
+  color: #faf8f3;
+}
+
+/* Footer */
 .home-footer {
   text-align: center;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed rgba(139, 69, 19, 0.2);
+  padding: 2rem;
+  border-top: 1px solid rgba(139, 69, 19, 0.12);
+}
+
+.home-footer-links {
+  margin-bottom: 0.75rem;
 }
 
 .home-link {
@@ -641,5 +771,39 @@ button:disabled {
 .home-dot {
   color: rgba(139, 69, 19, 0.3);
   margin: 0 0.5rem;
+}
+
+.home-footer-credit {
+  font-size: 0.75rem;
+  color: #8d6e63;
+  opacity: 0.7;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .home-title {
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+  }
+
+  .home-tagline {
+    font-size: 1.2rem;
+  }
+
+  .home-section {
+    padding: 3rem 1.5rem;
+  }
+
+  .home-section-title {
+    font-size: 2rem;
+  }
+
+  .home-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .home-features {
+    grid-template-columns: 1fr;
+  }
 }
 }
