@@ -40,7 +40,10 @@ async function initAuth() {
 }
 
 async function verifySession() {
-  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') return false;
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    console.warn('Neon Auth URL is not configured. Please set neonAuthUrl in js/config.js');
+    return false;
+  }
   try {
     const response = await fetch(`${NEON_AUTH_URL}/api/auth/get-session`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -483,7 +486,7 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     await navigator.clipboard.writeText(currentLetter.message);
     const btn = document.getElementById('copyBtn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<span>✓</span> <span>Copied!</span>';
+    btn.innerHTML = '<span><i class="ri-check-line"></i></span> <span>Copied!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
   } catch (err) {
     alert('Copy failed. Please try again.');
@@ -526,7 +529,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
     const btn = document.getElementById('saveBtn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<span>✓</span> <span>Saved!</span>';
+    btn.innerHTML = '<span><i class="ri-check-line"></i></span> <span>Saved!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
     
   } catch (err) {
@@ -655,7 +658,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(shareText);
       const btn = document.getElementById('copyShareText');
-      btn.innerHTML = '<span style="font-size: 1.5rem;">✓</span> <span>Copied!</span>';
+      btn.innerHTML = '<span style="font-size: 1.5rem;"><i class="ri-check-line"></i></span> <span>Copied!</span>';
       setTimeout(() => {
         document.getElementById('shareModal').remove();
       }, 1500);
@@ -770,7 +773,7 @@ function copyShareUrl() {
     navigator.clipboard.writeText(input.value).then(() => {
       const btn = document.getElementById('copyUrlBtn');
       const orig = btn.innerHTML;
-      btn.innerHTML = '✓ Copied!';
+      btn.innerHTML = '<i class="ri-check-line"></i> Copied!';
       setTimeout(() => { btn.innerHTML = orig; }, 2000);
     }).catch(() => {
       input.select();
