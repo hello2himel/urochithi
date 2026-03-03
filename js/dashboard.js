@@ -1,14 +1,13 @@
 // ============================================
-// UROCHITHI DASHBOARD - LETTERBOX UX
+// UROCHITHI DASHBOARD - AUTH0 + NEON DB
 // ============================================
 
-const AUTH_KEY = 'urochithi_dashboard_auth';
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-
+let auth0Client = null;
+let accessToken = null;
+let userProfile = null;
+let currentUsername = null;
 let messages = [];
 let filteredMessages = [];
-let lastActivity = Date.now();
-let staticPinValue = '';
 let currentLetter = null;
 
 // Load site URL from config
@@ -16,229 +15,165 @@ const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) ||
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
 
 // ============================================
-// RECAPTCHA V3 SETUP
+// AUTH0 INITIALIZATION
 // ============================================
-(function loadRecaptcha() {
-  const siteKey = AppConfig.recaptchaSiteKey;
-  if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
-    console.warn('⚠️ reCAPTCHA not configured');
-    return;
-  }
-  const script = document.createElement('script');
-  script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
-})();
+async function initAuth0() {
+  try {
+    auth0Client = await auth0.createAuth0Client({
+      domain: AppConfig.auth0Domain,
+      clientId: AppConfig.auth0ClientId,
+      authorizationParams: {
+        audience: AppConfig.auth0Audience,
+        redirect_uri: window.location.origin + '/dashboard.html'
+      },
+      cacheLocation: 'localstorage'
+    });
 
-async function executeRecaptcha(action) {
-  const siteKey = AppConfig.recaptchaSiteKey;
-  if (!siteKey || siteKey === 'YOUR_RECAPTCHA_SITE_KEY_HERE') {
-    throw new Error('reCAPTCHA not configured');
+    // Handle redirect callback
+    const query = window.location.search;
+    if (query.includes('code=') && query.includes('state=')) {
+      await auth0Client.handleRedirectCallback();
+      window.history.replaceState({}, document.title, '/dashboard.html');
+    }
+
+    const isAuthenticated = await auth0Client.isAuthenticated();
+
+    if (isAuthenticated) {
+      accessToken = await auth0Client.getTokenSilently();
+      userProfile = await auth0Client.getUser();
+      await checkUserRegistration();
+    } else {
+      showLoginScreen();
+    }
+  } catch (error) {
+    console.error('Auth0 init error:', error);
+    showLoginScreen();
   }
-  if (!window.grecaptcha) {
-    throw new Error('reCAPTCHA not loaded');
-  }
-  return await window.grecaptcha.execute(siteKey, { action });
 }
 
 // ============================================
-// UTC TIME DISPLAY
+// LOGIN / LOGOUT
 // ============================================
-function updateUTCTime() {
-  const now = new Date();
-  const hours = String(now.getUTCHours()).padStart(2, '0');
-  const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-  const timeEl = document.getElementById('utcTime');
-  if (timeEl) timeEl.textContent = `${hours}:${minutes}`;
+function showLoginScreen() {
+  document.getElementById('loginContainer').style.display = 'flex';
+  document.getElementById('registerContainer').style.display = 'none';
+  document.getElementById('dashboardContainer').classList.remove('show');
 }
-setInterval(updateUTCTime, 1000);
-updateUTCTime();
+
+async function login() {
+  await auth0Client.loginWithRedirect({
+    authorizationParams: {
+      redirect_uri: window.location.origin + '/dashboard.html'
+    }
+  });
+}
+
+async function logout() {
+  await auth0Client.logout({
+    logoutParams: {
+      returnTo: window.location.origin
+    }
+  });
+}
 
 // ============================================
-// AUTH CHECK & SESSION MANAGEMENT
+// USER REGISTRATION CHECK
 // ============================================
-function checkAuth() {
-  const auth = localStorage.getItem(AUTH_KEY);
-  if (auth) {
-    const authData = JSON.parse(auth);
-    const now = Date.now();
-    if (now - authData.timestamp < SESSION_TIMEOUT) {
-      lastActivity = now;
+async function checkUserRegistration() {
+  try {
+    const response = await fetch('/.netlify/functions/check-user', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    const data = await response.json();
+
+    if (data.registered) {
+      currentUsername = data.username;
       showDashboard();
       loadMessages();
-      return true;
     } else {
-      localStorage.removeItem(AUTH_KEY);
+      showRegistrationScreen();
     }
+  } catch (error) {
+    console.error('Check user error:', error);
+    showRegistrationScreen();
   }
-  return false;
 }
 
-// Activity tracking
-document.addEventListener('click', () => lastActivity = Date.now());
-document.addEventListener('keypress', () => lastActivity = Date.now());
-setInterval(() => {
-  if (Date.now() - lastActivity > SESSION_TIMEOUT) logout();
-}, 60000);
+function showRegistrationScreen() {
+  document.getElementById('loginContainer').style.display = 'none';
+  document.getElementById('registerContainer').style.display = 'flex';
+  document.getElementById('dashboardContainer').classList.remove('show');
 
-// ============================================
-// STEP 1: STATIC PIN
-// ============================================
-document.getElementById('step1Form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const staticPin = document.getElementById('staticPin').value;
-  const errorDiv = document.getElementById('step1Error');
-  const button = document.getElementById('step1Button');
-
-  errorDiv.classList.remove('show');
-  button.disabled = true;
-  button.textContent = 'Verifying...';
-
-  try {
-    let recaptchaToken;
-    try {
-      recaptchaToken = await executeRecaptcha('dashboard_login');
-    } catch (error) {
-      errorDiv.textContent = error.message;
-      errorDiv.classList.add('show');
-      button.disabled = false;
-      button.textContent = 'Continue';
-      return;
-    }
-
-    const response = await fetch('/.netlify/functions/verify-static-pin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staticPin, recaptchaToken })
-    });
-    
-    const data = await response.json();
-
-    if (response.status === 429) {
-      const minutes = Math.ceil((data.retryAfter || 1800) / 60);
-      errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
-      errorDiv.classList.add('show');
-      button.disabled = true;
-      button.textContent = `Locked (${minutes}m)`;
-      setTimeout(() => {
-        button.disabled = false;
-        button.textContent = 'Continue';
-      }, data.retryAfter * 1000);
-      return;
-    }
-
-    if (!response.ok || !data.valid) {
-      let errorMsg = data.error || 'Invalid PIN';
-      if (data.attemptsLeft !== undefined) {
-        errorMsg += ` (${data.attemptsLeft} attempts left)`;
-      }
-      errorDiv.textContent = errorMsg;
-      errorDiv.classList.add('show');
-      button.disabled = false;
-      button.textContent = 'Continue';
-      return;
-    }
-
-    // Success - go to step 2
-    staticPinValue = staticPin;
-    document.getElementById('step1Container').style.display = 'none';
-    document.getElementById('step2Container').style.display = 'block';
-    
-  } catch (error) {
-    errorDiv.textContent = 'Connection error. Please try again.';
-    errorDiv.classList.add('show');
-    button.disabled = false;
-    button.textContent = 'Continue';
+  // Pre-fill with Auth0 nickname if available
+  const input = document.getElementById('usernameInput');
+  if (userProfile && userProfile.nickname) {
+    input.value = userProfile.nickname.toLowerCase().replace(/[^a-z0-9_-]/g, '');
   }
-});
+}
 
-// Back to step 1
-document.getElementById('backToStep1').addEventListener('click', () => {
-  document.getElementById('step2Container').style.display = 'none';
-  document.getElementById('step1Container').style.display = 'block';
-  document.getElementById('staticPin').value = '';
-  staticPinValue = '';
-});
-
-// ============================================
-// STEP 2: TIME-BASED PIN
-// ============================================
-document.getElementById('step2Form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const timePin = document.getElementById('timePin').value;
-  const errorDiv = document.getElementById('step2Error');
-  const button = document.getElementById('step2Button');
+async function registerUsername() {
+  const input = document.getElementById('usernameInput');
+  const errorDiv = document.getElementById('registerError');
+  const button = document.getElementById('registerButton');
+  const username = input.value.trim().toLowerCase();
 
   errorDiv.classList.remove('show');
   button.disabled = true;
-  button.textContent = 'Authenticating...';
+  button.textContent = 'Registering...';
 
   try {
-    const response = await fetch('/.netlify/functions/verify-time-pin', {
+    const response = await fetch('/.netlify/functions/register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staticPin: staticPinValue, timePin })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ username })
     });
-    
+
     const data = await response.json();
 
-    if (response.status === 429) {
-      const minutes = Math.ceil((data.retryAfter || 1800) / 60);
-      errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
-      errorDiv.classList.add('show');
-      button.disabled = true;
-      button.textContent = `Locked (${minutes}m)`;
-      setTimeout(() => {
-        button.disabled = false;
-        button.textContent = 'Authenticate';
-      }, data.retryAfter * 1000);
-      return;
-    }
-
-    if (!response.ok || !data.authenticated) {
-      let errorMsg = data.error || 'Invalid code';
-      if (data.attemptsLeft !== undefined) {
-        errorMsg += ` (${data.attemptsLeft} attempts left)`;
-      }
-      errorDiv.textContent = errorMsg;
+    if (!response.ok) {
+      errorDiv.textContent = data.error || 'Registration failed';
       errorDiv.classList.add('show');
       button.disabled = false;
-      button.textContent = 'Authenticate';
+      button.textContent = 'Claim Username';
       return;
     }
 
-    // Success
-    localStorage.setItem(AUTH_KEY, JSON.stringify({
-      authenticated: true,
-      timestamp: Date.now()
-    }));
+    currentUsername = data.username;
     showDashboard();
     loadMessages();
-    
   } catch (error) {
     errorDiv.textContent = 'Connection error. Please try again.';
     errorDiv.classList.add('show');
     button.disabled = false;
-    button.textContent = 'Authenticate';
+    button.textContent = 'Claim Username';
   }
-});
+}
 
 // ============================================
 // DASHBOARD DISPLAY
 // ============================================
 function showDashboard() {
-  document.getElementById('step1Container').style.display = 'none';
-  document.getElementById('step2Container').style.display = 'none';
+  document.getElementById('loginContainer').style.display = 'none';
+  document.getElementById('registerContainer').style.display = 'none';
   document.getElementById('dashboardContainer').classList.add('show');
-}
 
-function logout() {
-  localStorage.removeItem(AUTH_KEY);
-  location.reload();
-}
+  // Show username and share URL
+  const shareUrl = `${SITE_URL}/${currentUsername}`;
+  const shareUrlEl = document.getElementById('shareUrl');
+  if (shareUrlEl) shareUrlEl.textContent = shareUrl;
+  const shareUrlInput = document.getElementById('shareUrlInput');
+  if (shareUrlInput) shareUrlInput.value = shareUrl;
 
-document.getElementById('logoutBtn').addEventListener('click', logout);
+  // Show user info
+  const userInfoEl = document.getElementById('userDisplayName');
+  if (userInfoEl && userProfile) {
+    userInfoEl.textContent = userProfile.name || userProfile.email || currentUsername;
+  }
+}
 
 // ============================================
 // LOAD MESSAGES FROM SERVER
@@ -253,18 +188,22 @@ async function loadMessages() {
 
   try {
     const response = await fetch('/.netlify/functions/get-messages', {
-      headers: {
-        'Authorization': JSON.stringify(JSON.parse(localStorage.getItem(AUTH_KEY)))
-      }
+      headers: { 'Authorization': `Bearer ${accessToken}` }
     });
 
     if (!response.ok) throw new Error('Failed to load');
-    
+
     const data = await response.json();
+
+    if (data.needsRegistration) {
+      showRegistrationScreen();
+      return;
+    }
+
     messages = data.messages || [];
     updateStats();
     filterAndDisplayMessages();
-    
+
   } catch (error) {
     container.innerHTML = `
       <div class="empty-letterbox">
@@ -369,7 +308,7 @@ function displayLetterCards() {
         <div class="letter-header">
           <div class="letter-meta">
             <div class="letter-date">${formatDate(letter.timestamp)}</div>
-            <div class="letter-session">${letter.sessionId}</div>
+            <div class="letter-session">${escapeHtml(letter.sessionId)}</div>
           </div>
           <div class="letter-icon">✉️</div>
         </div>
@@ -619,6 +558,120 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
 });
 
 // ============================================
+// CSV IMPORT / EXPORT
+// ============================================
+
+async function exportCSV() {
+  try {
+    const response = await fetch('/.netlify/functions/export-csv', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!response.ok) throw new Error('Export failed');
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `urochithi-${currentUsername}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    alert('Export failed. Please try again.');
+  }
+}
+
+function showImportModal() {
+  document.getElementById('importModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('show');
+  document.body.style.overflow = '';
+  document.getElementById('csvFileInput').value = '';
+  document.getElementById('importStatus').textContent = '';
+  document.getElementById('importStatus').className = 'import-status';
+}
+
+async function handleCSVImport() {
+  const fileInput = document.getElementById('csvFileInput');
+  const statusDiv = document.getElementById('importStatus');
+  const button = document.getElementById('importButton');
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    statusDiv.textContent = 'Please select a CSV file';
+    statusDiv.className = 'import-status error';
+    return;
+  }
+
+  const file = fileInput.files[0];
+  if (!file.name.endsWith('.csv')) {
+    statusDiv.textContent = 'Please select a .csv file';
+    statusDiv.className = 'import-status error';
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Importing...';
+  statusDiv.textContent = 'Reading file...';
+  statusDiv.className = 'import-status';
+
+  try {
+    const csv = await file.text();
+
+    const response = await fetch('/.netlify/functions/import-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ csv })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      statusDiv.textContent = data.error || 'Import failed';
+      statusDiv.className = 'import-status error';
+      return;
+    }
+
+    statusDiv.textContent = `Successfully imported ${data.imported} messages (${data.skipped} skipped)`;
+    statusDiv.className = 'import-status success';
+
+    // Reload messages
+    setTimeout(() => {
+      closeImportModal();
+      loadMessages();
+    }, 2000);
+
+  } catch (error) {
+    statusDiv.textContent = 'Import failed: ' + error.message;
+    statusDiv.className = 'import-status error';
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Import';
+  }
+}
+
+// Copy share URL
+function copyShareUrl() {
+  const input = document.getElementById('shareUrlInput');
+  if (input) {
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = document.getElementById('copyUrlBtn');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+    });
+  }
+}
+
+// ============================================
 // UTILITY FUNCTIONS
 // ============================================
 function formatDate(dateString) {
@@ -654,8 +707,22 @@ document.getElementById('searchInput').addEventListener('input', filterAndDispla
 document.getElementById('sortSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
+document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('registerForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  registerUsername();
+});
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+document.getElementById('importBtn').addEventListener('click', showImportModal);
+document.getElementById('closeImportModal').addEventListener('click', closeImportModal);
+document.getElementById('importButton').addEventListener('click', handleCSVImport);
+document.getElementById('copyUrlBtn').addEventListener('click', copyShareUrl);
+document.getElementById('importModal').addEventListener('click', (e) => {
+  if (e.target.id === 'importModal') closeImportModal();
+});
 
 // ============================================
 // INITIALIZE
 // ============================================
-checkAuth();
+initAuth0();

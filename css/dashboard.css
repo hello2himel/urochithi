@@ -975,3 +975,64 @@ body {
     font-size: 1.3rem;
   }
 }
+
+/* ============================================ */
+/*         SHARE URL BAR                        */
+/* ============================================ */
+
+.share-url-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-accent);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.share-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.share-url-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-paper);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.user-display {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+/* ============================================ */
+/*         IMPORT STATUS                        */
+/* ============================================ */
+
+.import-status {
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  border-radius: 3px;
+  min-height: 1.5rem;
+}
+
+.import-status.error {
+  color: #c62828;
+  background: rgba(244, 67, 54, 0.08);
+}
+
+.import-status.success {
+  color: #2e7d32;
+  background: rgba(76, 175, 80, 0.08);
+}

@@ -2,6 +2,9 @@
 // NETLIFY SERVERLESS FUNCTION - SUBMIT
 // ============================================
 
+import { getDB, ensureSchema } from './db.js';
+import { checkRateLimit, getClientIP } from './rate-limiter.js';
+
 export async function handler(event) {
   // Only accept POST requests
   if (event.httpMethod !== "POST") {
@@ -15,17 +18,27 @@ export async function handler(event) {
   try {
     const data = JSON.parse(event.body);
 
-    console.log('Received data:', data);
-
     // ============================================
     // HONEYPOT CHECK (Spam Prevention)
     // ============================================
     if (data.website) {
-      console.log('Bot detected via honeypot field');
       return {
         statusCode: 400,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ error: "Invalid request" })
+      };
+    }
+
+    // ============================================
+    // RATE LIMITING
+    // ============================================
+    const clientIP = getClientIP(event);
+    const rateCheck = checkRateLimit(clientIP);
+    if (!rateCheck.allowed) {
+      return {
+        statusCode: 429,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: rateCheck.error })
       };
     }
 
@@ -56,60 +69,33 @@ export async function handler(event) {
       };
     }
 
-    // ============================================
-    // CHECK ENVIRONMENT VARIABLE
-    // ============================================
-    if (!process.env.GSCRIPT_URL) {
-      console.error('GSCRIPT_URL environment variable not set');
+    if (!data.recipient) {
       return {
-        statusCode: 500,
+        statusCode: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Server configuration error - GSCRIPT_URL not set" })
+        body: JSON.stringify({ error: "Recipient is required" })
       };
     }
 
     // ============================================
-    // PREPARE PAYLOAD FOR GOOGLE SHEETS
+    // STORE IN NEON DB
     // ============================================
-    const payload = {
-      message: data.message.trim(),
-      timestamp: new Date().toISOString(),
-      sessionId: data.sessionId
-    };
+    const db = getDB();
+    await ensureSchema();
 
-    console.log('Sending to Google Sheets:', payload);
-    console.log('GSCRIPT_URL:', process.env.GSCRIPT_URL);
+    const recipient = data.recipient.trim().toLowerCase();
 
-    // ============================================
-    // SEND TO GOOGLE SHEETS
-    // ============================================
-    const response = await fetch(process.env.GSCRIPT_URL, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    console.log('Google Sheets response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Google Sheets error:', errorText);
-      throw new Error(`Google Sheets API returned ${response.status}: ${errorText}`);
-    }
-
-    const responseData = await response.json();
-    console.log('Google Sheets response data:', responseData);
+    await db`
+      INSERT INTO messages (recipient, message, session_id)
+      VALUES (${recipient}, ${data.message.trim()}, ${data.sessionId})
+    `;
 
     // ============================================
     // SUCCESS RESPONSE
     // ============================================
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         ok: true,
         message: "Letter delivered successfully"
@@ -117,15 +103,10 @@ export async function handler(event) {
     };
 
   } catch (error) {
-    // ============================================
-    // ERROR HANDLING
-    // ============================================
     console.error("Error processing submission:", error);
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         error: "Failed to deliver letter",
         details: error.message
