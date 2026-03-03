@@ -315,7 +315,7 @@ async function loadMessages() {
   } catch (error) {
     container.innerHTML = `
       <div class="empty-letterbox">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon"><i class="ri-inbox-line"></i></div>
         <div class="empty-title">Connection Error</div>
         <div class="empty-text">
           Unable to load your letters. Please check your connection and try again.
@@ -393,7 +393,7 @@ function displayLetterCards() {
   if (filteredMessages.length === 0) {
     container.innerHTML = `
       <div class="empty-letterbox">
-        <div class="empty-icon">📬</div>
+        <div class="empty-icon"><i class="ri-inbox-line"></i></div>
         <div class="empty-title">Your Letterbox is Empty</div>
         <div class="empty-text">
           ${messages.length === 0 
@@ -418,7 +418,7 @@ function displayLetterCards() {
             <div class="letter-date">${formatDate(letter.timestamp)}</div>
             <div class="letter-session">${escapeHtml(letter.sessionId)}</div>
           </div>
-          <div class="letter-icon">✉️</div>
+          <div class="letter-icon"><i class="ri-mail-line"></i></div>
         </div>
         <div class="letter-preview">${escapeHtml(preview)}</div>
         <div class="letter-footer">
@@ -614,7 +614,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
             align-items: center;
             gap: 1rem;
           ">
-            <span style="font-size: 1.5rem;">💬</span> <span>Share on WhatsApp</span>
+            <span style="font-size: 1.5rem;"><i class="ri-chat-3-line"></i></span> <span>Share on WhatsApp</span>
           </a>
           <button id="copyShareText" style="
             padding: 1rem 1.5rem;
@@ -628,7 +628,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
             gap: 1rem;
             cursor: pointer;
           ">
-            <span style="font-size: 1.5rem;">📋</span> <span>Copy Text</span>
+            <span style="font-size: 1.5rem;"><i class="ri-clipboard-line"></i></span> <span>Copy Text</span>
           </button>
         </div>
         <button id="closeShareModal" style="
@@ -769,9 +769,9 @@ function copyShareUrl() {
   if (input) {
     navigator.clipboard.writeText(input.value).then(() => {
       const btn = document.getElementById('copyUrlBtn');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
     }).catch(() => {
       input.select();
       document.execCommand('copy');
