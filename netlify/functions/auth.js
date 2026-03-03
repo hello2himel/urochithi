@@ -1,28 +1,27 @@
 // ============================================
-// AUTH0 JWT VERIFICATION UTILITY
+// NEON AUTH SESSION VERIFICATION UTILITY
 // ============================================
 
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-
-let jwks;
-
 export async function verifyToken(token) {
-  const domain = process.env.AUTH0_DOMAIN;
-  const audience = process.env.AUTH0_AUDIENCE;
+  const neonAuthUrl = process.env.NEON_AUTH_URL;
+  if (!neonAuthUrl) throw new Error('NEON_AUTH_URL environment variable not set');
 
-  if (!domain) throw new Error('AUTH0_DOMAIN environment variable not set');
-  if (!audience) throw new Error('AUTH0_AUDIENCE environment variable not set');
-
-  if (!jwks) {
-    jwks = createRemoteJWKSet(new URL(`https://${domain}/.well-known/jwks.json`));
-  }
-
-  const { payload } = await jwtVerify(token, jwks, {
-    issuer: `https://${domain}/`,
-    audience: audience,
+  const response = await fetch(`${neonAuthUrl}/api/auth/get-session`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   });
 
-  return payload;
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  if (!data.session || !data.user) return null;
+
+  return {
+    sub: data.user.id,
+    email: data.user.email,
+    name: data.user.name
+  };
 }
 
 export function extractToken(event) {

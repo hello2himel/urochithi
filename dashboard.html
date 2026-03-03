@@ -10,9 +10,9 @@
 <body>
 
   <!-- ============================================ -->
-  <!--              AUTH0 LOGIN SCREEN              -->
+  <!--          SIGN IN / SIGN UP SCREEN            -->
   <!-- ============================================ -->
-  <div id="loginContainer" class="auth-container" style="display: none;">
+  <div id="loginContainer" class="auth-container">
     <div class="auth-card">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
@@ -23,10 +23,50 @@
         <p class="auth-subtitle">Sign in to access your anonymous letters</p>
       </div>
 
-      <button class="auth-button" id="loginBtn">Sign In with Auth0</button>
+      <!-- Sign In Form -->
+      <div id="signInView">
+        <form id="signInForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="signInEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="signInPassword" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <div id="signInError" class="auth-error"></div>
+          <button type="submit" class="auth-button" id="signInButton">Sign In</button>
+        </form>
+        <div class="auth-switch">
+          Don't have an account? <a href="#" id="showSignUp">Sign Up</a>
+        </div>
+      </div>
+
+      <!-- Sign Up Form -->
+      <div id="signUpView" style="display: none;">
+        <form id="signUpForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" id="signUpName" class="form-input" placeholder="Your name" autocomplete="name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="signUpEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="signUpPassword" class="form-input" placeholder="Min 8 characters" autocomplete="new-password" required minlength="8">
+          </div>
+          <div id="signUpError" class="auth-error"></div>
+          <button type="submit" class="auth-button" id="signUpButton">Sign Up</button>
+        </form>
+        <div class="auth-switch">
+          Already have an account? <a href="#" id="showSignIn">Sign In</a>
+        </div>
+      </div>
 
       <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: #8d6e63;">
-        Secured by Auth0
+        Powered by Neon Auth
       </div>
     </div>
   </div>
@@ -236,7 +276,6 @@
   </div>
 
   <script src="js/config.js"></script>
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

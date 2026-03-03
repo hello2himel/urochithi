@@ -62,9 +62,9 @@ function getOrCreateSessionId() {
 
 // Update page with configuration values
 function updatePageConfig() {
-  const usernameElement = document.querySelector('.urochithi-subtext:last-child');
-  if (usernameElement) {
-    usernameElement.textContent = `to: @${recipient}`;
+  const recipientElement = document.querySelector('.urochithi-recipient');
+  if (recipientElement) {
+    recipientElement.textContent = `to: @${recipient}`;
   }
 
   const siteNameElement = document.querySelector('.urochithi-title');
@@ -81,6 +81,9 @@ function updatePageConfig() {
   if (stampLink) {
     stampLink.href = CONFIG.onboardingUrl;
   }
+
+  // Update page title with recipient
+  document.title = `Send to @${recipient} - ${CONFIG.siteName}`;
 }
 
 // Display session ID

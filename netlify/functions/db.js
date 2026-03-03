@@ -21,7 +21,7 @@ export async function ensureSchema() {
   await db`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
-      auth0_id VARCHAR(255) UNIQUE NOT NULL,
+      auth_user_id VARCHAR(255) UNIQUE NOT NULL,
       username VARCHAR(255) UNIQUE NOT NULL,
       email VARCHAR(255),
       created_at TIMESTAMPTZ DEFAULT NOW()
