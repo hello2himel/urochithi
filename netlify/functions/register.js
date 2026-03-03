@@ -15,7 +15,7 @@ export async function handler(event) {
   }
 
   try {
-    // Verify Auth0 token
+    // Verify auth token
     const token = extractToken(event);
     if (!token) {
       return {
