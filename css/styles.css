@@ -77,7 +77,6 @@ body {
   font-weight: 700;
   color: #5d4037;
   letter-spacing: 3px;
-  transform: rotate(0deg);
 }
 
 .urochithi-subtext {
@@ -86,7 +85,6 @@ body {
   color: #5d4037;
   font-weight: 400;
   letter-spacing: 1px;
-  transform: rotate(0deg);
 }
 
 .session-id {
@@ -124,7 +122,6 @@ body {
 }
 
 .postage-stamp:hover {
-  transform: translateY(-2px);
   filter: brightness(1.05);
 }
 
@@ -265,20 +262,17 @@ button {
     0 2px 4px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
   position: relative;
-  transform: rotate(-0.5deg);
   border-radius: 10px;
 }
 
 button:hover {
   background: #f0ede5;
-  transform: rotate(0deg) translateY(-1px);
   box-shadow: 
     0 4px 8px rgba(0,0,0,0.15),
     inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 button:active {
-  transform: rotate(0deg) translateY(0);
   box-shadow: 
     0 1px 2px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
@@ -287,20 +281,13 @@ button:active {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: rotate(-0.5deg);
 }
 
 /* Button skeleton loading */
 .btn-skeleton {
   background: linear-gradient(90deg, #f0ede5 25%, #e8e4dc 50%, #f0ede5 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
   opacity: 0.8;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 /* Character counter */
@@ -437,7 +424,6 @@ button:disabled {
   
   .urochithi-title {
     font-size: 1.4rem;
-    transform: rotate(0deg);
   }
   
   .postage-stamp {
@@ -571,7 +557,6 @@ button:disabled {
 
 .home-btn.primary:hover {
   background: #6d4c41;
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
 }
 

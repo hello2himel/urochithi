@@ -201,20 +201,17 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6);
   letter-spacing: 2px;
   text-transform: uppercase;
-  transform: rotate(-0.5deg);
   border-radius: 10px;
 }
 
 .auth-button:hover:not(:disabled) {
   background: #f0ede5;
-  transform: rotate(0deg) translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 .auth-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: rotate(-0.5deg);
 }
 
 .auth-error {
@@ -242,7 +239,6 @@ body {
 
 .back-link:hover {
   color: var(--color-text);
-  transform: translateX(-3px);
 }
 
 /* ============================================ */
@@ -331,7 +327,6 @@ body {
 }
 
 .action-btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
@@ -379,7 +374,6 @@ body {
 }
 
 .postal-stamp:hover {
-  transform: translateY(-3px) rotate(-1deg);
   box-shadow: var(--shadow-md);
 }
 
@@ -546,7 +540,6 @@ body {
 }
 
 .letter-card:hover {
-  transform: translateY(-4px) rotate(-0.5deg);
   box-shadow: var(--shadow-md);
   border-color: var(--color-primary);
 }
@@ -731,18 +724,6 @@ body {
   clip-path: polygon(0% 0%, 95% 0%, 100% 8%, 98% 15%, 100% 22%, 96% 30%, 100% 38%, 97% 45%, 100% 55%, 95% 62%, 100% 70%, 98% 78%, 100% 85%, 97% 92%, 100% 100%, 0% 100%);
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .letter-modal::before {
@@ -783,7 +764,6 @@ body {
 
 .modal-close:hover {
   background: rgba(139, 69, 19, 0.2);
-  transform: rotate(90deg) scale(1.05);
 }
 
 .modal-header {
@@ -868,7 +848,6 @@ body {
 }
 
 .modal-action-btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
