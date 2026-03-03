@@ -8,7 +8,65 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<div class="container">
+
+<!-- ============================================ -->
+<!--         HOMEPAGE (shown at root /)           -->
+<!-- ============================================ -->
+<div id="homePage" class="container" style="display: none;">
+  <div class="stain stain1"></div>
+  <div class="stain stain2"></div>
+  <div class="stain stain3"></div>
+
+  <div class="urochithi-header">
+    <div class="urochithi-title">UROCHITHI</div>
+    <div class="urochithi-subtext">Anonymous Letters from the Heart</div>
+  </div>
+
+  <div class="home-hero">
+    <div class="home-icon">📮</div>
+    <h1 class="home-heading">Send & Receive Anonymous Letters</h1>
+    <p class="home-description">
+      A beautiful, open-source platform for receiving anonymous messages.
+      Sign up, pick a username, share your link — and let the letters arrive.
+    </p>
+  </div>
+
+  <div class="home-actions">
+    <a href="/dashboard.html" class="home-btn primary">📬 Open Your Letterbox</a>
+    <a href="/onboard.html" class="home-btn secondary">✍️ Get Started</a>
+  </div>
+
+  <div class="home-features">
+    <div class="home-feature">
+      <div class="feature-icon">🔒</div>
+      <div class="feature-title">Fully Anonymous</div>
+      <div class="feature-text">Senders don't need an account. No names, no emails, no tracking.</div>
+    </div>
+    <div class="home-feature">
+      <div class="feature-icon">👥</div>
+      <div class="feature-title">Multi-User</div>
+      <div class="feature-text">Everyone gets their own letterbox at a clean URL like <em>site.com/username</em>.</div>
+    </div>
+    <div class="home-feature">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-title">Open Source</div>
+      <div class="feature-text">Free forever. Self-hostable. Built with vanilla HTML, CSS & JS.</div>
+    </div>
+  </div>
+
+  <div class="home-footer">
+    <a href="https://github.com/hello2himel/urochithi" target="_blank" class="home-link">GitHub</a>
+    <span class="home-dot">·</span>
+    <a href="/onboard.html" class="home-link">Get Started</a>
+    <span class="home-dot">·</span>
+    <a href="/dashboard.html" class="home-link">Dashboard</a>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!--    LETTER FORM (shown at /username)          -->
+<!-- ============================================ -->
+<div id="letterPage" class="container" style="display: none;">
   <div class="stain stain1"></div>
   <div class="stain stain2"></div>
   <div class="stain stain3"></div>
@@ -16,7 +74,7 @@
   <div class="urochithi-header">
     <div class="urochithi-title">UROCHITHI</div>
     <div class="urochithi-subtext">Send anonymous letters</div>
-    <div class="urochithi-subtext urochithi-recipient">to: @hello2himel</div>
+    <div class="urochithi-subtext urochithi-recipient">to: @username</div>
     <div class="session-id" id="sessionIdDisplay"></div>
   </div>
   
@@ -55,6 +113,7 @@
   <div id="response" class="response"></div>
 
   <div class="site-links">
+    <a href="/" class="site-link">🏠 Home</a>
     <a href="/dashboard.html" class="site-link">📬 Open Your Letterbox</a>
     <a href="/onboard.html" class="site-link">✍️ Create Your Own</a>
   </div>

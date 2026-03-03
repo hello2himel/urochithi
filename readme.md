@@ -100,7 +100,8 @@ Visit your dashboard, sign in with email/password, pick a username, and share yo
 urochithi/
 ├── index.html                      # Main landing page
 ├── dashboard.html                  # Auth-protected dashboard
-├── onboard.html                    # Setup guide for new users
+├── onboard.html                    # Getting started guide for users
+├── selfhost.html                   # Detailed self-hosting deployment guide
 ├── _redirects                      # Netlify rewrites for clean URLs
 ├── package.json                    # Dependencies (Neon DB, jose)
 ├── css/
