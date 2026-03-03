@@ -26,13 +26,13 @@ export async function handler(event) {
     }
 
     const payload = await verifyToken(token);
-    const auth0Id = payload.sub;
+    const authUserId = payload.sub;
 
     const db = getDB();
     await ensureSchema();
 
     // Check if user exists
-    const user = await db`SELECT username, email, created_at FROM users WHERE auth0_id = ${auth0Id}`;
+    const user = await db`SELECT username, email, created_at FROM users WHERE auth_user_id = ${authUserId}`;
 
     if (user.length === 0) {
       return {

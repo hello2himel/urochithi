@@ -22,11 +22,9 @@ const CONFIG = {
   // Your live site URL (used for sharing, footer hook, etc.)
   siteUrl: "https://urochithi.netlify.app",
 
-  // Auth0 Configuration (public keys - safe to expose)
-  // Get these from: https://manage.auth0.com
-  auth0Domain: "YOUR_AUTH0_DOMAIN",
-  auth0ClientId: "YOUR_AUTH0_CLIENT_ID",
-  auth0Audience: "YOUR_AUTH0_AUDIENCE"
+  // Neon Auth URL (public - safe to expose)
+  // Get this from Neon Console after enabling Auth
+  neonAuthUrl: "YOUR_NEON_AUTH_URL"
 };
 
 // ============================================

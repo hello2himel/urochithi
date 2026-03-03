@@ -26,7 +26,7 @@ export async function handler(event) {
     }
 
     const payload = await verifyToken(token);
-    const auth0Id = payload.sub;
+    const authUserId = payload.sub;
 
     const { username } = JSON.parse(event.body);
 
@@ -62,7 +62,7 @@ export async function handler(event) {
     }
 
     // Check if user already has a username
-    const existingUser = await db`SELECT username FROM users WHERE auth0_id = ${auth0Id}`;
+    const existingUser = await db`SELECT username FROM users WHERE auth_user_id = ${authUserId}`;
     if (existingUser.length > 0) {
       return {
         statusCode: 409,
@@ -73,8 +73,8 @@ export async function handler(event) {
 
     // Register username
     await db`
-      INSERT INTO users (auth0_id, username, email)
-      VALUES (${auth0Id}, ${cleanUsername}, ${payload.email || null})
+      INSERT INTO users (auth_user_id, username, email)
+      VALUES (${authUserId}, ${cleanUsername}, ${payload.email || null})
     `;
 
     return {

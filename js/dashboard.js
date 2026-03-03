@@ -1,8 +1,8 @@
 // ============================================
-// UROCHITHI DASHBOARD - AUTH0 + NEON DB
+// UROCHITHI DASHBOARD - NEON AUTH + NEON DB
 // ============================================
 
-let auth0Client = null;
+const SESSION_KEY = 'urochithi_session';
 let accessToken = null;
 let userProfile = null;
 let currentUsername = null;
@@ -13,68 +13,159 @@ let currentLetter = null;
 // Load site URL from config
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
+const NEON_AUTH_URL = AppConfig.neonAuthUrl;
 
 // ============================================
-// AUTH0 INITIALIZATION
+// NEON AUTH - SESSION MANAGEMENT
 // ============================================
-async function initAuth0() {
+async function initAuth() {
+  // Check for existing session
+  const stored = localStorage.getItem(SESSION_KEY);
+  if (stored) {
+    try {
+      const data = JSON.parse(stored);
+      accessToken = data.token;
+      userProfile = data.user;
+      // Verify token is still valid
+      const valid = await verifySession();
+      if (valid) {
+        await checkUserRegistration();
+        return;
+      }
+    } catch (e) {
+      localStorage.removeItem(SESSION_KEY);
+    }
+  }
+  showLoginScreen();
+}
+
+async function verifySession() {
   try {
-    auth0Client = await auth0.createAuth0Client({
-      domain: AppConfig.auth0Domain,
-      clientId: AppConfig.auth0ClientId,
-      authorizationParams: {
-        audience: AppConfig.auth0Audience,
-        redirect_uri: window.location.origin + '/dashboard.html'
-      },
-      cacheLocation: 'localstorage'
+    const response = await fetch(`${NEON_AUTH_URL}/api/auth/get-session`, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-
-    // Handle redirect callback
-    const query = window.location.search;
-    if (query.includes('code=') && query.includes('state=')) {
-      await auth0Client.handleRedirectCallback();
-      window.history.replaceState({}, document.title, '/dashboard.html');
-    }
-
-    const isAuthenticated = await auth0Client.isAuthenticated();
-
-    if (isAuthenticated) {
-      accessToken = await auth0Client.getTokenSilently();
-      userProfile = await auth0Client.getUser();
-      await checkUserRegistration();
-    } else {
-      showLoginScreen();
-    }
-  } catch (error) {
-    console.error('Auth0 init error:', error);
-    showLoginScreen();
+    if (!response.ok) return false;
+    const data = await response.json();
+    if (!data.session || !data.user) return false;
+    userProfile = data.user;
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 
+async function signIn(email, password) {
+  const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-in/email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Invalid email or password');
+  accessToken = data.session?.token || data.token;
+  userProfile = data.user;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ token: accessToken, user: userProfile }));
+  return data;
+}
+
+async function signUp(name, email, password) {
+  const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-up/email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Sign up failed');
+  accessToken = data.session?.token || data.token;
+  userProfile = data.user;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ token: accessToken, user: userProfile }));
+  return data;
+}
+
 // ============================================
-// LOGIN / LOGOUT
+// LOGIN / LOGOUT UI
 // ============================================
 function showLoginScreen() {
-  document.getElementById('loginContainer').style.display = 'flex';
+  document.getElementById('loginContainer').style.display = '';
   document.getElementById('registerContainer').style.display = 'none';
   document.getElementById('dashboardContainer').classList.remove('show');
 }
 
-async function login() {
-  await auth0Client.loginWithRedirect({
-    authorizationParams: {
-      redirect_uri: window.location.origin + '/dashboard.html'
-    }
-  });
+async function logout() {
+  try {
+    await fetch(`${NEON_AUTH_URL}/api/auth/sign-out`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+  } catch (e) { /* ignore */ }
+  localStorage.removeItem(SESSION_KEY);
+  accessToken = null;
+  userProfile = null;
+  currentUsername = null;
+  showLoginScreen();
 }
 
-async function logout() {
-  await auth0Client.logout({
-    logoutParams: {
-      returnTo: window.location.origin
-    }
-  });
-}
+// ============================================
+// SIGN IN / SIGN UP FORMS
+// ============================================
+document.getElementById('signInForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('signInEmail').value;
+  const password = document.getElementById('signInPassword').value;
+  const errorDiv = document.getElementById('signInError');
+  const button = document.getElementById('signInButton');
+
+  errorDiv.classList.remove('show');
+  button.disabled = true;
+  button.textContent = 'Signing in...';
+
+  try {
+    await signIn(email, password);
+    await checkUserRegistration();
+  } catch (error) {
+    errorDiv.textContent = error.message;
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Sign In';
+  }
+});
+
+document.getElementById('signUpForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('signUpName').value;
+  const email = document.getElementById('signUpEmail').value;
+  const password = document.getElementById('signUpPassword').value;
+  const errorDiv = document.getElementById('signUpError');
+  const button = document.getElementById('signUpButton');
+
+  errorDiv.classList.remove('show');
+  button.disabled = true;
+  button.textContent = 'Creating account...';
+
+  try {
+    await signUp(name, email, password);
+    await checkUserRegistration();
+  } catch (error) {
+    errorDiv.textContent = error.message;
+    errorDiv.classList.add('show');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Sign Up';
+  }
+});
+
+// Toggle sign in / sign up views
+document.getElementById('showSignUp').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('signInView').style.display = 'none';
+  document.getElementById('signUpView').style.display = '';
+});
+document.getElementById('showSignIn').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('signUpView').style.display = 'none';
+  document.getElementById('signInView').style.display = '';
+});
 
 // ============================================
 // USER REGISTRATION CHECK
@@ -102,13 +193,13 @@ async function checkUserRegistration() {
 
 function showRegistrationScreen() {
   document.getElementById('loginContainer').style.display = 'none';
-  document.getElementById('registerContainer').style.display = 'flex';
+  document.getElementById('registerContainer').style.display = '';
   document.getElementById('dashboardContainer').classList.remove('show');
 
-  // Pre-fill with Auth0 nickname if available
+  // Pre-fill with name if available
   const input = document.getElementById('usernameInput');
-  if (userProfile && userProfile.nickname) {
-    input.value = userProfile.nickname.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  if (userProfile && userProfile.name) {
+    input.value = userProfile.name.toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 30);
   }
 }
 
@@ -708,7 +799,6 @@ document.getElementById('sortSelect').addEventListener('change', filterAndDispla
 document.getElementById('filterSelect').addEventListener('change', filterAndDisplayMessages);
 document.getElementById('refreshBtn').addEventListener('click', loadMessages);
 document.getElementById('logoutBtn').addEventListener('click', logout);
-document.getElementById('loginBtn').addEventListener('click', login);
 document.getElementById('registerForm').addEventListener('submit', (e) => {
   e.preventDefault();
   registerUsername();
@@ -725,4 +815,4 @@ document.getElementById('importModal').addEventListener('click', (e) => {
 // ============================================
 // INITIALIZE
 // ============================================
-initAuth0();
+initAuth();
