@@ -40,6 +40,7 @@ async function initAuth() {
 }
 
 async function verifySession() {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') return false;
   try {
     const response = await fetch(`${NEON_AUTH_URL}/api/auth/get-session`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -55,12 +56,20 @@ async function verifySession() {
 }
 
 async function signIn(email, password) {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-in/email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    throw new Error('Invalid response from auth server. Please try again.');
+  }
   if (!response.ok) throw new Error(data.message || 'Invalid email or password');
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
@@ -69,12 +78,20 @@ async function signIn(email, password) {
 }
 
 async function signUp(name, email, password) {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-up/email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password })
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    throw new Error('Invalid response from auth server. Please try again.');
+  }
   if (!response.ok) throw new Error(data.message || 'Sign up failed');
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
