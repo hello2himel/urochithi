@@ -1,2 +1,4 @@
-# Netlify rewrites - serve static files first, then rewrite to index.html for username paths
+# Netlify rewrites for clean username URLs (domain.com/username → index.html)
+# Netlify automatically serves static files (.html, .css, .js) and
+# /.netlify/functions/* routes BEFORE applying this fallback rewrite.
 /*  /index.html  200

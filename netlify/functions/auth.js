@@ -12,7 +12,10 @@ export async function verifyToken(token) {
     }
   });
 
-  if (!response.ok) return null;
+  if (!response.ok) {
+    console.error('Auth verification failed:', response.status);
+    return null;
+  }
 
   const data = await response.json();
   if (!data.session || !data.user) return null;
