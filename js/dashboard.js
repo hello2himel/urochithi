@@ -13,12 +13,31 @@ let currentLetter = null;
 // Load site URL from config
 const AppConfig = (window.UROCHITHI_CONFIG && window.UROCHITHI_CONFIG.CONFIG) || {};
 const SITE_URL = AppConfig.siteUrl || window.location.origin;
-const NEON_AUTH_URL = AppConfig.neonAuthUrl;
+let NEON_AUTH_URL = AppConfig.neonAuthUrl;
+
+// ============================================
+// FETCH NEON AUTH URL FROM SERVER
+// ============================================
+async function fetchAuthConfig() {
+  try {
+    const response = await fetch('/.netlify/functions/get-auth-config');
+    if (!response.ok) throw new Error('Failed to fetch auth config');
+    const data = await response.json();
+    if (data.neonAuthUrl) {
+      NEON_AUTH_URL = data.neonAuthUrl;
+    }
+  } catch (e) {
+    console.warn('Could not fetch auth config from server:', e.message);
+  }
+}
 
 // ============================================
 // NEON AUTH - SESSION MANAGEMENT
 // ============================================
 async function initAuth() {
+  // Fetch Neon Auth URL from server environment variables
+  await fetchAuthConfig();
+
   // Check for existing session
   const stored = localStorage.getItem(SESSION_KEY);
   if (stored) {
@@ -40,8 +59,8 @@ async function initAuth() {
 }
 
 async function verifySession() {
-  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
-    console.warn('Neon Auth URL is not configured. Please set neonAuthUrl in js/config.js');
+  if (!NEON_AUTH_URL) {
+    console.warn('Neon Auth URL is not configured. Please set NEON_AUTH_URL in Netlify environment variables.');
     return false;
   }
   try {
@@ -59,8 +78,8 @@ async function verifySession() {
 }
 
 async function signIn(email, password) {
-  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
-    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  if (!NEON_AUTH_URL) {
+    throw new Error('Authentication is not configured. Please set NEON_AUTH_URL in Netlify environment variables.');
   }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-in/email`, {
     method: 'POST',
@@ -81,8 +100,8 @@ async function signIn(email, password) {
 }
 
 async function signUp(name, email, password) {
-  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
-    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  if (!NEON_AUTH_URL) {
+    throw new Error('Authentication is not configured. Please set NEON_AUTH_URL in Netlify environment variables.');
   }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-up/email`, {
     method: 'POST',
