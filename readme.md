@@ -103,7 +103,7 @@ urochithi/
 ├── onboard.html                    # Getting started guide for users
 ├── selfhost.html                   # Detailed self-hosting deployment guide
 ├── _redirects                      # Netlify rewrites for clean URLs
-├── package.json                    # Dependencies (Neon DB, jose)
+├── package.json                    # Dependencies (Neon DB)
 ├── css/
 │   ├── styles.css                  # Main styles (paper aesthetic)
 │   └── dashboard.css               # Dashboard styles
