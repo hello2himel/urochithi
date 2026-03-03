@@ -22,10 +22,11 @@ const CONFIG = {
   // Your live site URL (used for sharing, footer hook, etc.)
   siteUrl: "https://urochithi.netlify.app",
 
-  // reCAPTCHA v3 Site Key (public key - safe to expose)
-  // Get this from: https://www.google.com/recaptcha/admin/create
-  // This is the ONLY place you need to add it!
-  recaptchaSiteKey: "6LexmEAsAAAAACHpDnLBe-hy8XA9GuJd8lx0tYBc"
+  // Auth0 Configuration (public keys - safe to expose)
+  // Get these from: https://manage.auth0.com
+  auth0Domain: "YOUR_AUTH0_DOMAIN",
+  auth0ClientId: "YOUR_AUTH0_CLIENT_ID",
+  auth0Audience: "YOUR_AUTH0_AUDIENCE"
 };
 
 // ============================================

@@ -1,0 +1,2 @@
+# Netlify rewrites - serve static files first, then rewrite to index.html for username paths
+/*  /index.html  200

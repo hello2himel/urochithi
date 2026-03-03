@@ -1,7 +1,10 @@
 // ============================================
 // NETLIFY FUNCTION - GET MESSAGES
 // ============================================
-// Fetch all messages from Google Sheets
+// Fetch messages from Neon DB for authenticated user
+
+import { getDB, ensureSchema } from './db.js';
+import { verifyToken, extractToken } from './auth.js';
 
 export async function handler(event) {
   // Only accept GET requests
@@ -15,11 +18,10 @@ export async function handler(event) {
 
   try {
     // ============================================
-    // VERIFY AUTHENTICATION
+    // VERIFY AUTH0 TOKEN
     // ============================================
-    const authHeader = event.headers.authorization;
-    
-    if (!authHeader) {
+    const token = extractToken(event);
+    if (!token) {
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
@@ -27,57 +29,35 @@ export async function handler(event) {
       };
     }
 
-    try {
-      const authData = JSON.parse(authHeader);
-      
-      if (!authData.authenticated || !authData.timestamp) {
-        throw new Error('Invalid auth data');
-      }
-      
-      // Check if session is still valid (30 minutes)
-      const now = Date.now();
-      if (now - authData.timestamp > 30 * 60 * 1000) {
-        return {
-          statusCode: 401,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ error: "Session expired" })
-        };
-      }
-    } catch (e) {
+    const payload = await verifyToken(token);
+    const auth0Id = payload.sub;
+
+    const db = getDB();
+    await ensureSchema();
+
+    // ============================================
+    // GET USER'S USERNAME
+    // ============================================
+    const user = await db`SELECT username FROM users WHERE auth0_id = ${auth0Id}`;
+    if (user.length === 0) {
       return {
-        statusCode: 401,
+        statusCode: 200,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid authentication" })
+        body: JSON.stringify({ messages: [], count: 0, needsRegistration: true })
       };
     }
 
-    // ============================================
-    // CHECK ENVIRONMENT VARIABLE
-    // ============================================
-    if (!process.env.GSCRIPT_URL) {
-      console.error('GSCRIPT_URL environment variable not set');
-      return {
-        statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Server configuration error" })
-      };
-    }
+    const username = user[0].username;
 
     // ============================================
-    // FETCH FROM GOOGLE SHEETS
+    // FETCH FROM NEON DB
     // ============================================
-    console.log('Fetching messages from Google Sheets...');
-    
-    const response = await fetch(process.env.GSCRIPT_URL, {
-      method: "GET"
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google Sheets API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Fetched', data.messages?.length || 0, 'messages');
+    const messages = await db`
+      SELECT id, message, session_id, created_at
+      FROM messages
+      WHERE recipient = ${username}
+      ORDER BY created_at DESC
+    `;
 
     // ============================================
     // SUCCESS RESPONSE
@@ -89,8 +69,13 @@ export async function handler(event) {
         "Cache-Control": "no-cache, no-store, must-revalidate"
       },
       body: JSON.stringify({
-        messages: data.messages || [],
-        count: data.messages?.length || 0
+        messages: messages.map(m => ({
+          id: m.id,
+          message: m.message,
+          sessionId: m.session_id,
+          timestamp: m.created_at
+        })),
+        count: messages.length
       })
     };
 

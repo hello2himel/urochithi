@@ -14,11 +14,22 @@ const honeypot = document.getElementById("website");
 // Session ID storage
 let currentSessionId = null;
 
+// Recipient from URL param (?to=username) or config default
+let recipient = null;
+
 // ============================================
 // INITIALIZATION
 // ============================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Get recipient from URL path (domain.com/username) or config default
+  const path = window.location.pathname;
+  if (path.length > 1 && !path.includes('.') && !path.startsWith('/dashboard') && !path.startsWith('/onboard')) {
+    recipient = path.substring(1).toLowerCase().replace(/\/$/, '');
+  } else {
+    recipient = CONFIG.username;
+  }
+
   // Generate/retrieve session ID
   currentSessionId = getOrCreateSessionId();
   
@@ -53,7 +64,7 @@ function getOrCreateSessionId() {
 function updatePageConfig() {
   const usernameElement = document.querySelector('.urochithi-subtext:last-child');
   if (usernameElement) {
-    usernameElement.textContent = `to: @${CONFIG.username}`;
+    usernameElement.textContent = `to: @${recipient}`;
   }
 
   const siteNameElement = document.querySelector('.urochithi-title');
@@ -175,7 +186,8 @@ form.addEventListener("submit", async (e) => {
   try {
     const payload = {
       message: textarea.value.trim(),
-      sessionId: currentSessionId
+      sessionId: currentSessionId,
+      recipient: recipient
     };
     
     console.log('Sending payload:', payload);
