@@ -24,7 +24,7 @@ const CONFIG = {
 
   // Neon Auth URL (public - safe to expose)
   // Get this from Neon Console after enabling Auth
-  neonAuthUrl: "YOUR_NEON_AUTH_URL"
+  neonAuthUrl: "https://ep-raspy-dawn-a1k7l6nt.neonauth.ap-southeast-1.aws.neon.tech/neondb/auth"
 };
 
 // ============================================
