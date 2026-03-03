@@ -13,55 +13,109 @@
 <!-- ============================================ -->
 <!--         HOMEPAGE (shown at root /)           -->
 <!-- ============================================ -->
-<div id="homePage" class="container" style="display: none;">
-  <div class="stain stain1"></div>
-  <div class="stain stain2"></div>
-  <div class="stain stain3"></div>
-
-  <div class="urochithi-header">
-    <div class="urochithi-title">UROCHITHI</div>
-    <div class="urochithi-subtext">Anonymous Letters from the Heart</div>
-  </div>
-
-  <div class="home-hero">
-    <div class="home-icon">💌</div>
-    <h1 class="home-heading">Send & Receive Anonymous Letters</h1>
-    <p class="home-description">
-      A beautiful, open-source platform for receiving anonymous messages.
-      Sign up, pick a username, share your link — and let the letters arrive.
-    </p>
-  </div>
-
-  <div class="home-actions">
-    <a href="/dashboard.html" class="home-btn primary">📬 Open Your Letterbox</a>
-    <a href="/onboard.html" class="home-btn secondary">✏️ Get Started</a>
-  </div>
-
-  <div class="home-features">
-    <div class="home-feature">
-      <div class="feature-icon">🔒</div>
-      <div class="feature-title">Fully Anonymous</div>
-      <div class="feature-text">Senders don't need an account. No names, no emails, no tracking.</div>
+<div id="homePage" class="home-container" style="display: none;">
+  <!-- Hero Section - Full viewport centered -->
+  <section class="home-hero-section">
+    <div class="home-hero-content">
+      <div class="home-logo">📬</div>
+      <h1 class="home-title">UROCHITHI</h1>
+      <p class="home-tagline">Anonymous Letters from the Heart</p>
+      <p class="home-subtitle">A beautiful, open-source platform for sending and receiving anonymous messages. No tracking. No sign-up for senders. Just honest words.</p>
+      <div class="home-cta">
+        <a href="/dashboard.html" class="home-btn primary">📬 Open Your Letterbox</a>
+        <a href="/onboard.html" class="home-btn secondary">✏️ Get Started</a>
+      </div>
     </div>
-    <div class="home-feature">
-      <div class="feature-icon">👥</div>
-      <div class="feature-title">Multi-User</div>
-      <div class="feature-text">Everyone gets their own letterbox at a clean URL like <em>site.com/username</em>.</div>
-    </div>
-    <div class="home-feature">
-      <div class="feature-icon">🌍</div>
-      <div class="feature-title">Open Source</div>
-      <div class="feature-text">Free forever. Self-hostable. Built with vanilla HTML, CSS & JS.</div>
-    </div>
-  </div>
+    <div class="home-scroll-hint">↓</div>
+  </section>
 
-  <div class="home-footer">
-    <a href="https://github.com/hello2himel/urochithi" target="_blank" class="home-link">GitHub</a>
-    <span class="home-dot">·</span>
-    <a href="/onboard.html" class="home-link">Get Started</a>
-    <span class="home-dot">·</span>
-    <a href="/dashboard.html" class="home-link">Dashboard</a>
-  </div>
+  <!-- How It Works -->
+  <section class="home-section">
+    <h2 class="home-section-title">How It Works</h2>
+    <div class="home-steps">
+      <div class="home-step">
+        <div class="step-number">1</div>
+        <div class="step-emoji">✏️</div>
+        <h3 class="step-title">Sign Up</h3>
+        <p class="step-text">Create your free account and pick a unique username</p>
+      </div>
+      <div class="home-step">
+        <div class="step-number">2</div>
+        <div class="step-emoji">🔗</div>
+        <h3 class="step-title">Share Your Link</h3>
+        <p class="step-text">Get a clean URL like <em>site.com/username</em> to share anywhere</p>
+      </div>
+      <div class="home-step">
+        <div class="step-number">3</div>
+        <div class="step-emoji">💌</div>
+        <h3 class="step-title">Receive Letters</h3>
+        <p class="step-text">People send you anonymous letters — no sign-up required for them</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="home-section">
+    <h2 class="home-section-title">Why Urochithi?</h2>
+    <div class="home-features">
+      <div class="home-feature">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Fully Anonymous</div>
+        <div class="feature-text">No names, no emails, no IP tracking. Senders stay completely anonymous.</div>
+      </div>
+      <div class="home-feature">
+        <div class="feature-icon">👥</div>
+        <div class="feature-title">Multi-User</div>
+        <div class="feature-text">Everyone gets their own letterbox at a clean, shareable URL.</div>
+      </div>
+      <div class="home-feature">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Dashboard</div>
+        <div class="feature-text">Search, filter, sort, and manage all your letters in one place.</div>
+      </div>
+      <div class="home-feature">
+        <div class="feature-icon">🌍</div>
+        <div class="feature-title">Open Source</div>
+        <div class="feature-text">Free forever. Self-hostable. Built with vanilla HTML, CSS & JS.</div>
+      </div>
+      <div class="home-feature">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Mobile Friendly</div>
+        <div class="feature-text">Works perfectly on every device — phone, tablet, or desktop.</div>
+      </div>
+      <div class="home-feature">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Any Language</div>
+        <div class="feature-text">Write letters in any language — Bengali, English, Japanese, anything.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="home-section home-bottom-cta">
+    <div class="home-cta-card">
+      <h2 class="home-cta-title">Ready to open your letterbox?</h2>
+      <p class="home-cta-text">It takes less than a minute. Sign up, pick a username, and start receiving anonymous letters.</p>
+      <div class="home-cta">
+        <a href="/onboard.html" class="home-btn primary">✏️ Get Started Free</a>
+        <a href="https://github.com/hello2himel/urochithi" target="_blank" class="home-btn secondary">⭐ Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <div class="home-footer-links">
+      <a href="https://github.com/hello2himel/urochithi" target="_blank" class="home-link">GitHub</a>
+      <span class="home-dot">·</span>
+      <a href="/onboard.html" class="home-link">Get Started</a>
+      <span class="home-dot">·</span>
+      <a href="/dashboard.html" class="home-link">Dashboard</a>
+      <span class="home-dot">·</span>
+      <a href="/selfhost.html" class="home-link">Self-Host</a>
+    </div>
+    <p class="home-footer-credit">Made with ❤️ by <a href="https://github.com/hello2himel" target="_blank" class="home-link">@hello2himel</a></p>
+  </footer>
 </div>
 
 <!-- ============================================ -->
