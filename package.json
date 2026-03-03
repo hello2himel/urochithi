@@ -1,0 +1,9 @@
+{
+  "name": "urochithi",
+  "version": "2.0.0",
+  "description": "Anonymous letter platform with Neon Auth and Neon DB",
+  "private": true,
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}
