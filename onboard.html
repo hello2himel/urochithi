@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create Your Urochithi - Setup Guide</title>
+<title>Get Started - Urochithi</title>
 <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Dancing+Script:wght@400;500&family=Caveat:wght@300;400;500&family=Special+Elite&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <style>
@@ -286,10 +286,10 @@ body {
 <div class="doc-container">
   <!-- Header -->
   <div class="doc-header">
-    <h1 class="doc-title">Urochithi Setup Guide</h1>
+    <h1 class="doc-title">Get Started with Urochithi</h1>
     <p class="doc-subtitle">
-      Complete documentation to deploy your own anonymous letter platform. 
-      Follow these steps to set up Urochithi on Netlify, GitHub, and Google Sheets in under 15 minutes.
+      Create your own anonymous letterbox in under a minute. 
+      Sign up, pick a username, and start receiving anonymous letters from anyone.
     </p>
   </div>
 
@@ -297,329 +297,134 @@ body {
   <nav class="doc-nav">
     <div class="doc-nav-title">Quick Navigation</div>
     <ul class="doc-nav-list">
-      <li><a href="#prerequisites">Prerequisites</a></li>
-      <li><a href="#step1">1. Fork Repository</a></li>
-      <li><a href="#step2">2. Create Google Sheet</a></li>
-      <li><a href="#step3">3. Deploy Apps Script</a></li>
-      <li><a href="#step4">4. Customize Config</a></li>
-      <li><a href="#step5">5. Deploy to Netlify</a></li>
-      <li><a href="#step6">6. Environment Variables</a></li>
-      <li><a href="#step7">7. Test & Launch</a></li>
+      <li><a href="#step1">1. Sign Up</a></li>
+      <li><a href="#step2">2. Choose Your Username</a></li>
+      <li><a href="#step3">3. Share Your Link</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#import">Import from Google Sheets</a></li>
+      <li><a href="#selfhost">Self-Host Your Own</a></li>
     </ul>
   </nav>
 
-  <!-- Prerequisites -->
-  <section id="prerequisites" class="doc-section">
-    <div class="section-number">📋</div>
-    <h2 class="section-title">Prerequisites</h2>
-    <div class="section-content">
-      <p>Before you begin, make sure you have:</p>
-      <ul>
-        <li>A <strong>GitHub account</strong> (free)</li>
-        <li>A <strong>Google account</strong> for Google Sheets</li>
-        <li>A <strong>Netlify account</strong> (free, can sign up with GitHub)</li>
-        <li>Basic understanding of copy-pasting and following instructions</li>
-      </ul>
-      <div class="note-box">
-        <strong>💡 Note:</strong> No coding experience required! Just follow the steps carefully.
-      </div>
-    </div>
-  </section>
-
-  <!-- Step 1: Fork Repository -->
+  <!-- Step 1: Sign Up -->
   <section id="step1" class="doc-section">
     <div class="section-number">1</div>
-    <h2 class="section-title">Fork the Repository</h2>
+    <h2 class="section-title">Sign Up</h2>
     <div class="section-content">
-      <p>Start by creating your own copy of the Urochithi project on GitHub.</p>
+      <p>Create an account to get your own anonymous letterbox.</p>
       <ol>
-        <li>Visit the <a href="https://github.com/hello2himel/urochithi" target="_blank" class="doc-link">Urochithi GitHub Repository</a></li>
-        <li>Click the <strong>"Fork"</strong> button in the top-right corner</li>
-        <li>Select your account as the destination</li>
-        <li>Wait for GitHub to create your fork (takes ~10 seconds)</li>
+        <li>Go to the <a href="/dashboard.html" class="doc-link">Dashboard</a></li>
+        <li>Click <strong>"Sign Up"</strong></li>
+        <li>Enter your name, email, and choose a password</li>
+        <li>That's it — you're in!</li>
       </ol>
       <div class="info-box">
-        <strong>✓ Success:</strong> You now have your own copy at <span class="inline-code">github.com/YOUR_USERNAME/urochithi</span>
+        <strong>✓ Free forever:</strong> No credit card required. Up to 60,000 monthly active users supported on the free tier.
       </div>
-      <a href="https://github.com/hello2himel/urochithi/fork" target="_blank" class="action-button">Fork on GitHub →</a>
+      <a href="/dashboard.html" class="action-button">Go to Dashboard →</a>
     </div>
   </section>
 
-  <!-- Step 2: Create Google Sheet -->
+  <!-- Step 2: Choose Username -->
   <section id="step2" class="doc-section">
     <div class="section-number">2</div>
-    <h2 class="section-title">Create Google Sheet</h2>
+    <h2 class="section-title">Choose Your Username</h2>
     <div class="section-content">
-      <p>Set up a Google Sheet to store all incoming anonymous messages.</p>
-      <ol>
-        <li>Go to <a href="https://sheets.google.com" target="_blank" class="doc-link">Google Sheets</a></li>
-        <li>Click <strong>"Blank"</strong> to create a new spreadsheet</li>
-        <li>Name it something like "Urochithi Messages" or "Anonymous Letters"</li>
-        <li>Leave the sheet completely blank - don't add any headers yet</li>
-      </ol>
+      <p>After signing up, you'll be asked to pick a unique username. This becomes your letterbox address.</p>
+      <ul>
+        <li>Use letters, numbers, hyphens, or underscores</li>
+        <li>Must be 3-30 characters</li>
+        <li>Choose wisely — this is what people will see!</li>
+      </ul>
+      <p>Your letterbox URL will be:</p>
+      <div class="code-block" id="exampleUrl">urochithi.netlify.app/your-username</div>
       <div class="note-box">
-        <strong>💡 Important:</strong> The Apps Script will automatically create column headers (Timestamp, Message, Session ID) when the first message arrives. Keep the sheet empty!
+        <strong>💡 Tip:</strong> Pick something short and memorable — it's what you'll share with people!
       </div>
-      <a href="https://sheets.google.com/create" target="_blank" class="action-button">Create New Sheet →</a>
     </div>
   </section>
 
-  <!-- Step 3: Deploy Apps Script -->
+  <!-- Step 3: Share Your Link -->
   <section id="step3" class="doc-section">
     <div class="section-number">3</div>
-    <h2 class="section-title">Set Up & Deploy Apps Script</h2>
+    <h2 class="section-title">Share Your Link</h2>
     <div class="section-content">
-      <p>Configure the Google Apps Script to receive and store messages from your website.</p>
-      
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.1 Open Apps Script Editor</h3>
-      <ol>
-        <li>In your Google Sheet, click <strong>Extensions → Apps Script</strong></li>
-        <li>A new tab will open with the Apps Script editor</li>
-        <li>Delete any existing code in the editor</li>
-      </ol>
-
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.2 Paste the Script</h3>
-      <p>Copy and paste this entire code into the Apps Script editor:</p>
-      
-      <div class="code-block">function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSheet();
-    
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "Message", "Session ID"]);
-      const headerRange = sheet.getRange(1, 1, 1, 3);
-      headerRange.setFontWeight("bold");
-      headerRange.setBackground("#f0ede5");
-      headerRange.setHorizontalAlignment("center");
-      sheet.setColumnWidth(1, 180);
-      sheet.setColumnWidth(2, 400);
-      sheet.setColumnWidth(3, 200);
-    }
-    
-    const row = [
-      data.timestamp || new Date().toISOString(),
-      data.message || "",
-      data.sessionId || "N/A"
-    ];
-    
-    sheet.appendRow(row);
-    
-    const lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow, 2).setWrap(true);
-    
-    if (lastRow % 2 === 0) {
-      sheet.getRange(lastRow, 1, 1, 3).setBackground("#faf8f3");
-    }
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true }))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch (error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}</div>
-
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">3.3 Deploy as Web App</h3>
-      <ol>
-        <li>Click the <strong>💾 Save</strong> icon (or Ctrl+S / Cmd+S)</li>
-        <li>Click <strong>Deploy → New deployment</strong></li>
-        <li>Click the gear icon ⚙️ next to "Select type"</li>
-        <li>Choose <strong>Web app</strong></li>
-        <li>Configure settings:
-          <ul>
-            <li><strong>Description:</strong> "Urochithi message receiver" (or anything)</li>
-            <li><strong>Execute as:</strong> Select <strong>"Me"</strong></li>
-            <li><strong>Who has access:</strong> Select <strong>"Anyone"</strong></li>
-          </ul>
-        </li>
-        <li>Click <strong>Deploy</strong></li>
-        <li>You may need to authorize the script - click <strong>Authorize access</strong></li>
-        <li>Choose your Google account and click <strong>Allow</strong></li>
-      </ol>
-
-      <div class="warning-box">
-        <strong>⚠️ CRITICAL:</strong> Copy the <strong>Web app URL</strong> that appears after deployment. 
-        It looks like: <span class="inline-code">https://script.google.com/macros/s/ABC.../exec</span>
-        <br><br>
-        You'll need this URL in Step 6!
-      </div>
-    </div>
-  </section>
-
-  <!-- Step 4: Customize Config -->
-  <section id="step4" class="doc-section">
-    <div class="section-number">4</div>
-    <h2 class="section-title">Customize Your Site</h2>
-    <div class="section-content">
-      <p>Edit the configuration file to personalize your Urochithi instance.</p>
-      
-      <ol>
-        <li>Go to your forked repository on GitHub</li>
-        <li>Navigate to <span class="inline-code">js/config.js</span></li>
-        <li>Click the pencil icon ✏️ to edit</li>
-        <li>Update these values:</li>
-      </ol>
-
-      <div class="code-block">const CONFIG = {
-  username: "your_username",        // Your username or handle
-  siteName: "YOUR SITE NAME",       // Name of your letter site
-  siteTagline: "Your custom tagline", // Tagline below name
-  maxMessageLength: 2000,           // Maximum characters (keep as-is)
-  onboardingUrl: "/onboard.html"    // Keep as-is
-};</div>
-
-      <p>Example configuration:</p>
-      <div class="code-block">const CONFIG = {
-  username: "john_doe",
-  siteName: "JOHN'S INBOX",
-  siteTagline: "Send me your thoughts",
-  maxMessageLength: 2000,
-  onboardingUrl: "/onboard.html"
-};</div>
-
-      <ol start="5">
-        <li>Scroll down and click <strong>Commit changes</strong></li>
-        <li>Add a commit message like "Customize site config"</li>
-        <li>Click <strong>Commit changes</strong> again</li>
-      </ol>
-
+      <p>Once you have your username, share your letterbox URL anywhere:</p>
+      <ul>
+        <li>📱 Add it to your <strong>Instagram / Twitter / TikTok bio</strong></li>
+        <li>💬 Share it in <strong>group chats</strong></li>
+        <li>📧 Include it in your <strong>email signature</strong></li>
+        <li>🔗 Post it <strong>anywhere</strong> you want to receive anonymous messages</li>
+      </ul>
+      <p>Anyone who visits your link can send you an anonymous letter — no sign-up required for them!</p>
       <div class="info-box">
-        <strong>✓ Done:</strong> Your site is now personalized with your information!
+        <strong>📬 Check your letters:</strong> Visit the <a href="/dashboard.html" class="doc-link">Dashboard</a> anytime to read your anonymous letters, search through them, and manage your letterbox.
       </div>
     </div>
   </section>
 
-  <!-- Step 5: Deploy to Netlify -->
-  <section id="step5" class="doc-section">
-    <div class="section-number">5</div>
-    <h2 class="section-title">Deploy to Netlify</h2>
+  <!-- Features -->
+  <section id="features" class="doc-section">
+    <div class="section-number">✨</div>
+    <h2 class="section-title">What You Get</h2>
     <div class="section-content">
-      <p>Connect your GitHub repository to Netlify for automatic deployment.</p>
-      
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">5.1 Create Netlify Account (if needed)</h3>
-      <ol>
-        <li>Go to <a href="https://app.netlify.com" target="_blank" class="doc-link">Netlify</a></li>
-        <li>Click <strong>Sign up</strong> and choose <strong>Sign up with GitHub</strong></li>
-        <li>Authorize Netlify to access your GitHub account</li>
-      </ol>
-
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">5.2 Import Your Repository</h3>
-      <ol>
-        <li>On the Netlify dashboard, click <strong>Add new site → Import an existing project</strong></li>
-        <li>Click <strong>Deploy with GitHub</strong></li>
-        <li>Find and select your <span class="inline-code">urochithi</span> repository</li>
-        <li>Leave all build settings as default (empty)</li>
-        <li>Click <strong>Deploy [your-site-name]</strong></li>
-      </ol>
-
-      <p>Netlify will start deploying your site. This takes 1-2 minutes.</p>
-
-      <div class="info-box">
-        <strong>✓ Success:</strong> Your site will be live at <span class="inline-code">https://random-name-123.netlify.app</span>
-        <br>You can customize this URL later in Netlify settings.
-      </div>
-
-      <a href="https://app.netlify.com/start" target="_blank" class="action-button">Deploy on Netlify →</a>
+      <ul>
+        <li><strong>📬 Your own letterbox URL</strong> — clean, memorable link to share</li>
+        <li><strong>🔒 Completely anonymous</strong> — senders don't need to sign up, no names or emails collected</li>
+        <li><strong>📊 Dashboard</strong> — search, filter, and sort through your letters</li>
+        <li><strong>📋 Copy & Share</strong> — copy letter text or save as image</li>
+        <li><strong>📥 Import</strong> — bring in data from Google Sheets (CSV)</li>
+        <li><strong>📤 Export</strong> — download all your letters as CSV anytime</li>
+        <li><strong>🌍 Multi-language</strong> — write letters in any language</li>
+        <li><strong>📱 Mobile-friendly</strong> — works on all devices</li>
+        <li><strong>🎨 Beautiful design</strong> — vintage paper aesthetic</li>
+      </ul>
     </div>
   </section>
 
-  <!-- Step 6: Environment Variables -->
-  <section id="step6" class="doc-section">
-    <div class="section-number">6</div>
-    <h2 class="section-title">Configure Environment Variables</h2>
+  <!-- Import from Google Sheets -->
+  <section id="import" class="doc-section">
+    <div class="section-number">📦</div>
+    <h2 class="section-title">Import from Google Sheets</h2>
     <div class="section-content">
-      <p>Connect your site to the Google Apps Script by adding the deployment URL as an environment variable.</p>
-      
-      <ol>
-        <li>In your Netlify site dashboard, go to <strong>Site configuration</strong></li>
-        <li>Click <strong>Environment variables</strong> in the left sidebar</li>
-        <li>Click <strong>Add a variable → Add a single variable</strong></li>
-        <li>Fill in:
-          <ul>
-            <li><strong>Key:</strong> <span class="inline-code">GSCRIPT_URL</span> (exactly as written, case-sensitive!)</li>
-            <li><strong>Value:</strong> Your Google Apps Script Web App URL from Step 3</li>
-          </ul>
-        </li>
-        <li>Click <strong>Create variable</strong></li>
-      </ol>
+      <p>Coming from the old version? Bring your existing messages with you.</p>
 
-      <div class="warning-box">
-        <strong>⚠️ Important:</strong> After adding the environment variable, you MUST redeploy:
-        <ol style="margin-top: 0.5rem;">
-          <li>Go to <strong>Deploys</strong> tab</li>
-          <li>Click <strong>Trigger deploy → Deploy site</strong></li>
-          <li>Wait for the new deployment to finish (~1 minute)</li>
-        </ol>
-      </div>
+      <ol>
+        <li>Open your Google Sheet with the messages</li>
+        <li>Go to <strong>File → Download → Comma-separated values (.csv)</strong></li>
+        <li>Log into your <a href="/dashboard.html" class="doc-link">Dashboard</a></li>
+        <li>Click the <strong>📥 Import</strong> button</li>
+        <li>Select your CSV file and click <strong>Import</strong></li>
+      </ol>
 
       <div class="note-box">
-        <strong>💡 Troubleshooting:</strong> If you get errors later, double-check:
-        <ul style="margin-top: 0.5rem;">
-          <li>Variable name is exactly <span class="inline-code">GSCRIPT_URL</span> (all caps)</li>
-          <li>URL is the complete Apps Script deployment URL</li>
-          <li>You redeployed after adding the variable</li>
-        </ul>
+        <strong>💡 CSV Format:</strong> The importer automatically detects columns named "Timestamp", "Message", and "Session ID" (case-insensitive). As long as your CSV has at least a "Message" column, the import will work.
       </div>
+
+      <p>You can also export your data anytime using the <strong>📤 Export</strong> button in the dashboard.</p>
     </div>
   </section>
 
-  <!-- Step 7: Test & Launch -->
-  <section id="step7" class="doc-section">
-    <div class="section-number">7</div>
-    <h2 class="section-title">Test & Launch</h2>
+  <!-- Self-Host -->
+  <section id="selfhost" class="doc-section">
+    <div class="section-number">🛠️</div>
+    <h2 class="section-title">Self-Host Your Own</h2>
     <div class="section-content">
-      <p>Time to test your anonymous letter platform!</p>
-      
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.1 Send a Test Message</h3>
-      <ol>
-        <li>Visit your Netlify site URL</li>
-        <li>You should see your customized site name and username</li>
-        <li>Type a test message in the textarea</li>
-        <li>Click <strong>Send Letter</strong></li>
-        <li>You should see: "Your letter has been sent successfully!"</li>
-      </ol>
+      <p>Urochithi is fully open source and self-hostable. If you'd like to run your own instance with your own database and domain, you can deploy it for free on Netlify with a Neon database.</p>
 
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.2 Verify in Google Sheet</h3>
-      <ol>
-        <li>Go back to your Google Sheet</li>
-        <li>Refresh the page</li>
-        <li>You should see:
-          <ul>
-            <li>Column headers: Timestamp, Message, Session ID</li>
-            <li>Your test message in row 2</li>
-          </ul>
-        </li>
-      </ol>
+      <p>The GitHub repository has everything you need: source code, deployment instructions, and configuration guide.</p>
 
-      <div class="info-box">
-        <strong>🎉 Congratulations!</strong> Your anonymous letter platform is live and working!
-      </div>
-
-      <h3 style="color: #5d4037; margin: 2rem 0 1rem;">7.3 Share Your Site</h3>
-      <p>Share your Netlify URL with friends, add it to your social media bio, or wherever you want to receive anonymous messages!</p>
-
-      <div class="note-box">
-        <strong>💡 Pro Tips:</strong>
-        <ul style="margin-top: 0.5rem;">
-          <li>Customize your Netlify domain: Site settings → Domain management → Options → Edit site name</li>
-          <li>Add a custom domain if you have one</li>
-          <li>Check your Google Sheet regularly for new messages</li>
-          <li>Session IDs help you identify messages from the same person</li>
-        </ul>
-      </div>
+      <a href="https://github.com/hello2himel/urochithi" target="_blank" class="action-button">View on GitHub →</a>
+      <a href="/selfhost.html" class="action-button secondary">Self-Hosting Guide →</a>
     </div>
   </section>
 
   <!-- Footer -->
   <div class="doc-footer">
     <p class="footer-text">
-      Need help? Found a bug? Want to contribute?
+      Ready to get started?
     </p>
-    <a href="https://github.com/hello2himel/urochithi" target="_blank" class="action-button">View on GitHub</a>
+    <a href="/dashboard.html" class="action-button">Create Your Letterbox →</a>
     <a href="/" class="action-button secondary">← Back to Home</a>
   </div>
 </div>

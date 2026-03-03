@@ -482,3 +482,164 @@ button:disabled {
     display: none;
   }
 }
+
+/* ============================================ */
+/*         SITE LINKS (Footer Links)            */
+/* ============================================ */
+
+.site-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed rgba(139, 69, 19, 0.2);
+  flex-wrap: wrap;
+}
+
+.site-link {
+  color: #8d6e63;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(139, 69, 19, 0.2);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.site-link:hover {
+  background: rgba(139, 69, 19, 0.08);
+  border-color: #8d6e63;
+  color: #5d4037;
+}
+
+/* ============================================ */
+/*         HOMEPAGE STYLES                      */
+/* ============================================ */
+
+.home-hero {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.home-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.home-heading {
+  font-family: 'Amatic SC', cursive;
+  font-size: 2.2rem;
+  color: #5d4037;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.home-description {
+  font-family: 'Special Elite', monospace;
+  color: #6d4c41;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.home-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.home-btn {
+  font-family: 'Special Elite', monospace;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.home-btn.primary {
+  background: #8d6e63;
+  color: #faf8f3;
+  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.2);
+}
+
+.home-btn.primary:hover {
+  background: #6d4c41;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
+}
+
+.home-btn.secondary {
+  background: transparent;
+  color: #8d6e63;
+  border: 2px solid #8d6e63;
+}
+
+.home-btn.secondary:hover {
+  background: #8d6e63;
+  color: #faf8f3;
+}
+
+.home-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.home-feature {
+  text-align: center;
+  padding: 1.25rem 0.75rem;
+  border: 1px solid rgba(139, 69, 19, 0.15);
+  border-radius: 4px;
+  background: rgba(139, 69, 19, 0.02);
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-title {
+  font-family: 'Special Elite', monospace;
+  color: #5d4037;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.feature-text {
+  font-family: 'Special Elite', monospace;
+  color: #8d6e63;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.home-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed rgba(139, 69, 19, 0.2);
+}
+
+.home-link {
+  color: #8d6e63;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.home-link:hover {
+  color: #5d4037;
+}
+
+.home-dot {
+  color: rgba(139, 69, 19, 0.3);
+  margin: 0 0.5rem;
+}
+}

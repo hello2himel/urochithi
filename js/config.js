@@ -22,10 +22,9 @@ const CONFIG = {
   // Your live site URL (used for sharing, footer hook, etc.)
   siteUrl: "https://urochithi.netlify.app",
 
-  // reCAPTCHA v3 Site Key (public key - safe to expose)
-  // Get this from: https://www.google.com/recaptcha/admin/create
-  // This is the ONLY place you need to add it!
-  recaptchaSiteKey: "6LexmEAsAAAAACHpDnLBe-hy8XA9GuJd8lx0tYBc"
+  // Neon Auth URL (public - safe to expose)
+  // Get this from Neon Console after enabling Auth
+  neonAuthUrl: "YOUR_NEON_AUTH_URL"
 };
 
 // ============================================

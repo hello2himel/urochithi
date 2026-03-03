@@ -1,13 +1,19 @@
 // ============================================
-// NETLIFY FUNCTION - GET MESSAGES
+// NETLIFY FUNCTION - EXPORT CSV
 // ============================================
-// Fetch messages from Neon DB for authenticated user
 
 import { getDB, ensureSchema } from './db.js';
 import { verifyToken, extractToken } from './auth.js';
 
+function escapeCSVField(field) {
+  const str = String(field || '');
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
 export async function handler(event) {
-  // Only accept GET requests
   if (event.httpMethod !== "GET") {
     return {
       statusCode: 405,
@@ -17,9 +23,7 @@ export async function handler(event) {
   }
 
   try {
-    // ============================================
-    // VERIFY AUTH0 TOKEN
-    // ============================================
+    // Verify auth token
     const token = extractToken(event);
     if (!token) {
       return {
@@ -35,59 +39,54 @@ export async function handler(event) {
     const db = getDB();
     await ensureSchema();
 
-    // ============================================
-    // GET USER'S USERNAME
-    // ============================================
+    // Get user's username
     const user = await db`SELECT username FROM users WHERE auth_user_id = ${authUserId}`;
     if (user.length === 0) {
       return {
-        statusCode: 200,
+        statusCode: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [], count: 0, needsRegistration: true })
+        body: JSON.stringify({ error: "Please register a username first" })
       };
     }
 
     const username = user[0].username;
 
-    // ============================================
-    // FETCH FROM NEON DB
-    // ============================================
+    // Fetch all messages
     const messages = await db`
-      SELECT id, message, session_id, created_at
+      SELECT message, session_id, created_at
       FROM messages
       WHERE recipient = ${username}
-      ORDER BY created_at DESC
+      ORDER BY created_at ASC
     `;
 
-    // ============================================
-    // SUCCESS RESPONSE
-    // ============================================
+    // Build CSV
+    const header = 'Timestamp,Message,Session ID';
+    const rows = messages.map(m =>
+      [
+        escapeCSVField(m.created_at ? new Date(m.created_at).toISOString() : ''),
+        escapeCSVField(m.message),
+        escapeCSVField(m.session_id)
+      ].join(',')
+    );
+
+    const csv = [header, ...rows].join('\n');
+
     return {
       statusCode: 200,
       headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache, no-store, must-revalidate"
+        "Content-Type": "text/csv",
+        "Content-Disposition": `attachment; filename="urochithi-${username}-${new Date().toISOString().slice(0, 10)}.csv"`,
+        "Cache-Control": "no-cache"
       },
-      body: JSON.stringify({
-        messages: messages.map(m => ({
-          id: m.id,
-          message: m.message,
-          sessionId: m.session_id,
-          timestamp: m.created_at
-        })),
-        count: messages.length
-      })
+      body: csv
     };
 
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    console.error('Error in export-csv:', error);
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        error: "Failed to fetch messages",
-        details: error.message
-      })
+      body: JSON.stringify({ error: "Export failed" })
     };
   }
 }

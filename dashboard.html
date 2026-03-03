@@ -10,9 +10,9 @@
 <body>
 
   <!-- ============================================ -->
-  <!--              STEP 1: STATIC PIN              -->
+  <!--          SIGN IN / SIGN UP SCREEN            -->
   <!-- ============================================ -->
-  <div id="step1Container" class="auth-container">
+  <div id="loginContainer" class="auth-container">
     <div class="auth-card">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
@@ -20,54 +20,80 @@
       <div class="auth-header">
         <span class="auth-icon">🔐</span>
         <h1 class="auth-title">Letterbox Login</h1>
-        <p class="auth-subtitle">Enter your PIN to access your letters</p>
+        <p class="auth-subtitle">Sign in to access your anonymous letters</p>
       </div>
 
-      <form id="step1Form" class="auth-form">
-        <div class="form-group">
-          <label class="form-label">PIN</label>
-          <input type="password" id="staticPin" class="form-input" placeholder="••••" autocomplete="off" required>
+      <!-- Sign In Form -->
+      <div id="signInView">
+        <form id="signInForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="signInEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="signInPassword" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <div id="signInError" class="auth-error"></div>
+          <button type="submit" class="auth-button" id="signInButton">Sign In</button>
+        </form>
+        <div class="auth-switch">
+          Don't have an account? <a href="#" id="showSignUp">Sign Up</a>
         </div>
-        <div id="step1Error" class="auth-error"></div>
-        <button type="submit" class="auth-button" id="step1Button">Continue</button>
-      </form>
+      </div>
+
+      <!-- Sign Up Form -->
+      <div id="signUpView" style="display: none;">
+        <form id="signUpForm" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" id="signUpName" class="form-input" placeholder="Your name" autocomplete="name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="signUpEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="signUpPassword" class="form-input" placeholder="Min 8 characters" autocomplete="new-password" required minlength="8">
+          </div>
+          <div id="signUpError" class="auth-error"></div>
+          <button type="submit" class="auth-button" id="signUpButton">Sign Up</button>
+        </form>
+        <div class="auth-switch">
+          Already have an account? <a href="#" id="showSignIn">Sign In</a>
+        </div>
+      </div>
 
       <div style="margin-top: 1rem; text-align: center; font-size: 0.75rem; color: #8d6e63;">
-        Protected by reCAPTCHA
+        Powered by Neon Auth
       </div>
     </div>
   </div>
 
   <!-- ============================================ -->
-  <!--          STEP 2: TIME-BASED PIN              -->
+  <!--          USERNAME REGISTRATION               -->
   <!-- ============================================ -->
-  <div id="step2Container" class="auth-container" style="display: none;">
+  <div id="registerContainer" class="auth-container" style="display: none;">
     <div class="auth-card">
       <div class="stain stain1"></div>
       <div class="stain stain2"></div>
       
       <div class="auth-header">
-        <span class="auth-icon">⏰</span>
-        <h1 class="auth-title">Time Verification</h1>
-        <p class="auth-subtitle">Calculate the code using current time</p>
+        <span class="auth-icon">✍️</span>
+        <h1 class="auth-title">Choose Username</h1>
+        <p class="auth-subtitle">Pick a username for your letterbox. People will send letters to this name.</p>
       </div>
 
-      <div class="time-display">
-        <div class="time-label">Current UTC Time</div>
-        <div class="time-value" id="utcTime">--:--</div>
-      </div>
-
-      <form id="step2Form" class="auth-form">
+      <form id="registerForm" class="auth-form">
         <div class="form-group">
-          <label class="form-label">Time Code</label>
-          <input type="number" id="timePin" class="form-input" placeholder="000" autocomplete="off" required>
-          <div class="time-hint">Use the formula with current UTC time shown above</div>
+          <label class="form-label">Username</label>
+          <input type="text" id="usernameInput" class="form-input" placeholder="your-username" autocomplete="off" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_-]+">
+          <div style="font-size: 0.75rem; color: #8d6e63; margin-top: 0.25rem;">Letters, numbers, hyphens, underscores only (3-30 chars)</div>
         </div>
-        <div id="step2Error" class="auth-error"></div>
-        <button type="submit" class="auth-button" id="step2Button">Authenticate</button>
+        <div id="registerError" class="auth-error"></div>
+        <button type="submit" class="auth-button" id="registerButton">Claim Username</button>
       </form>
-
-      <div class="back-link" id="backToStep1">← Back to PIN</div>
     </div>
   </div>
 
@@ -84,11 +110,18 @@
           <div class="letterbox-info">
             <h1>YOUR LETTERBOX</h1>
             <p>Anonymous letters delivered with care</p>
+            <p class="user-display" id="userDisplayName"></p>
           </div>
         </div>
         <div class="header-actions">
           <button class="action-btn" id="refreshBtn">
             <span>↻</span> <span>Refresh</span>
+          </button>
+          <button class="action-btn" id="importBtn">
+            <span>📥</span> <span>Import</span>
+          </button>
+          <button class="action-btn" id="exportBtn">
+            <span>📤</span> <span>Export</span>
           </button>
           <a href="/" class="action-btn">
             <span>🏠</span> <span>Home</span>
@@ -97,6 +130,14 @@
             <span>🚪</span> <span>Logout</span>
           </button>
         </div>
+      </div>
+
+      <!-- Share URL -->
+      <div class="share-url-bar">
+        <span class="share-label">📎 Your letterbox URL:</span>
+        <input type="text" id="shareUrlInput" class="share-url-input" readonly>
+        <span id="shareUrl" style="display:none;"></span>
+        <button class="action-btn" id="copyUrlBtn">📋 Copy</button>
       </div>
 
       <!-- Stats as Postal Stamps -->
@@ -197,6 +238,39 @@
         <button class="modal-action-btn" id="shareBtn">
           <span>🔗</span> <span>Share</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!--             CSV IMPORT MODAL                 -->
+  <!-- ============================================ -->
+  <div id="importModal" class="letter-modal-overlay">
+    <div class="letter-modal" style="max-width: 500px;">
+      <button class="modal-close" id="closeImportModal">×</button>
+
+      <div class="modal-header">
+        <div class="modal-title">IMPORT DATA</div>
+        <div class="modal-subtitle">Import from Google Sheets CSV</div>
+      </div>
+
+      <div class="modal-content" style="text-align: left; padding: 1.5rem 0;">
+        <p style="color: #6d4c41; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6;">
+          Export your Google Sheet as CSV (File → Download → CSV) and upload it here. 
+          The CSV should have columns for Timestamp, Message, and Session ID.
+        </p>
+        <input type="file" id="csvFileInput" accept=".csv" style="
+          width: 100%;
+          padding: 0.75rem;
+          border: 2px dashed #8d6e63;
+          border-radius: 4px;
+          background: rgba(139, 69, 19, 0.04);
+          font-family: 'Special Elite', monospace;
+          color: #5d4037;
+          margin-bottom: 1rem;
+        ">
+        <div id="importStatus" class="import-status"></div>
+        <button class="auth-button" id="importButton" style="margin-top: 1rem;">Import</button>
       </div>
     </div>
   </div>
