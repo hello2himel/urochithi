@@ -40,6 +40,10 @@ async function initAuth() {
 }
 
 async function verifySession() {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    console.warn('Neon Auth URL is not configured. Please set neonAuthUrl in js/config.js');
+    return false;
+  }
   try {
     const response = await fetch(`${NEON_AUTH_URL}/api/auth/get-session`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -55,12 +59,20 @@ async function verifySession() {
 }
 
 async function signIn(email, password) {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-in/email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    throw new Error('Invalid response from auth server. Please try again.');
+  }
   if (!response.ok) throw new Error(data.message || 'Invalid email or password');
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
@@ -69,12 +81,20 @@ async function signIn(email, password) {
 }
 
 async function signUp(name, email, password) {
+  if (!NEON_AUTH_URL || NEON_AUTH_URL === 'YOUR_NEON_AUTH_URL') {
+    throw new Error('Authentication is not configured. Please set the Neon Auth URL.');
+  }
   const response = await fetch(`${NEON_AUTH_URL}/api/auth/sign-up/email`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password })
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    throw new Error('Invalid response from auth server. Please try again.');
+  }
   if (!response.ok) throw new Error(data.message || 'Sign up failed');
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
@@ -298,7 +318,7 @@ async function loadMessages() {
   } catch (error) {
     container.innerHTML = `
       <div class="empty-letterbox">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon"><i class="ri-inbox-line"></i></div>
         <div class="empty-title">Connection Error</div>
         <div class="empty-text">
           Unable to load your letters. Please check your connection and try again.
@@ -376,7 +396,7 @@ function displayLetterCards() {
   if (filteredMessages.length === 0) {
     container.innerHTML = `
       <div class="empty-letterbox">
-        <div class="empty-icon">📬</div>
+        <div class="empty-icon"><i class="ri-inbox-line"></i></div>
         <div class="empty-title">Your Letterbox is Empty</div>
         <div class="empty-text">
           ${messages.length === 0 
@@ -401,7 +421,7 @@ function displayLetterCards() {
             <div class="letter-date">${formatDate(letter.timestamp)}</div>
             <div class="letter-session">${escapeHtml(letter.sessionId)}</div>
           </div>
-          <div class="letter-icon">✉️</div>
+          <div class="letter-icon"><i class="ri-mail-line"></i></div>
         </div>
         <div class="letter-preview">${escapeHtml(preview)}</div>
         <div class="letter-footer">
@@ -466,7 +486,7 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     await navigator.clipboard.writeText(currentLetter.message);
     const btn = document.getElementById('copyBtn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<span>✓</span> <span>Copied!</span>';
+    btn.innerHTML = '<span><i class="ri-check-line"></i></span> <span>Copied!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
   } catch (err) {
     alert('Copy failed. Please try again.');
@@ -509,7 +529,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
     const btn = document.getElementById('saveBtn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<span>✓</span> <span>Saved!</span>';
+    btn.innerHTML = '<span><i class="ri-check-line"></i></span> <span>Saved!</span>';
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
     
   } catch (err) {
@@ -597,7 +617,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
             align-items: center;
             gap: 1rem;
           ">
-            <span style="font-size: 1.5rem;">💬</span> <span>Share on WhatsApp</span>
+            <span style="font-size: 1.5rem;"><i class="ri-chat-3-line"></i></span> <span>Share on WhatsApp</span>
           </a>
           <button id="copyShareText" style="
             padding: 1rem 1.5rem;
@@ -611,7 +631,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
             gap: 1rem;
             cursor: pointer;
           ">
-            <span style="font-size: 1.5rem;">📋</span> <span>Copy Text</span>
+            <span style="font-size: 1.5rem;"><i class="ri-clipboard-line"></i></span> <span>Copy Text</span>
           </button>
         </div>
         <button id="closeShareModal" style="
@@ -638,7 +658,7 @@ document.getElementById('shareBtn').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(shareText);
       const btn = document.getElementById('copyShareText');
-      btn.innerHTML = '<span style="font-size: 1.5rem;">✓</span> <span>Copied!</span>';
+      btn.innerHTML = '<span style="font-size: 1.5rem;"><i class="ri-check-line"></i></span> <span>Copied!</span>';
       setTimeout(() => {
         document.getElementById('shareModal').remove();
       }, 1500);
@@ -752,9 +772,9 @@ function copyShareUrl() {
   if (input) {
     navigator.clipboard.writeText(input.value).then(() => {
       const btn = document.getElementById('copyUrlBtn');
-      const orig = btn.textContent;
-      btn.textContent = '✓ Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="ri-check-line"></i> Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
     }).catch(() => {
       input.select();
       document.execCommand('copy');
