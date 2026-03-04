@@ -200,7 +200,7 @@ document.getElementById('signUpForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('signUpEmail').value;
   const password = document.getElementById('signUpPassword').value;
-  const username = document.getElementById('signUpUsername').value.trim().toLowerCase();
+  const username = document.getElementById('signUpUsername').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
   const errorDiv = document.getElementById('signUpError');
   const button = document.getElementById('signUpButton');
 
@@ -993,7 +993,7 @@ document.getElementById('saveNameBtn').addEventListener('click', async () => {
 });
 
 document.getElementById('saveUsernameBtn').addEventListener('click', async () => {
-  const username = document.getElementById('settingsUsername').value.trim().toLowerCase();
+  const username = document.getElementById('settingsUsername').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
   if (!username || username.length < 3) { showSettingsStatus('Username must be at least 3 characters', true); return; }
   const result = await updateSetting('update-username', { username }, document.getElementById('saveUsernameBtn'));
   if (result && result.username) {
