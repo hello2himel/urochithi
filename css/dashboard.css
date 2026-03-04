@@ -1051,3 +1051,46 @@ body {
   color: var(--color-text);
   border-bottom-color: var(--color-text);
 }
+
+/* ============================================ */
+/*           SETTINGS MODAL STYLES             */
+/* ============================================ */
+
+.settings-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.settings-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0.5rem;
+}
+
+.settings-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.settings-row .form-input {
+  flex: 1;
+}
+
+.settings-save-btn {
+  padding: 0.6rem 1.2rem !important;
+  font-size: 0.8rem !important;
+  white-space: nowrap;
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.settings-success {
+  color: #2e7d32;
+  background: rgba(46, 125, 50, 0.08);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}

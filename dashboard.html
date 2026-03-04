@@ -28,8 +28,8 @@
       <div id="signInView">
         <form id="signInForm" class="auth-form">
           <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="signInEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
+            <label class="form-label">Username or Email</label>
+            <input type="text" id="signInIdentifier" class="form-input" placeholder="username or you@example.com" autocomplete="username" required>
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
@@ -47,16 +47,17 @@
       <div id="signUpView" style="display: none;">
         <form id="signUpForm" class="auth-form">
           <div class="form-group">
-            <label class="form-label">Name</label>
-            <input type="text" id="signUpName" class="form-input" placeholder="Your name" autocomplete="name" required>
-          </div>
-          <div class="form-group">
             <label class="form-label">Email</label>
             <input type="email" id="signUpEmail" class="form-input" placeholder="you@example.com" autocomplete="email" required>
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
             <input type="password" id="signUpPassword" class="form-input" placeholder="Min 8 characters" autocomplete="new-password" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="signUpUsername" class="form-input" placeholder="your-username" autocomplete="off" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_-]+">
+            <div style="font-size: 0.75rem; color: #8d6e63; margin-top: 0.25rem;">Letters, numbers, hyphens, underscores only (3-30 chars)</div>
           </div>
           <div id="signUpError" class="auth-error"></div>
           <button type="submit" class="auth-button" id="signUpButton">Sign Up</button>
@@ -123,6 +124,9 @@
           </button>
           <button class="action-btn" id="exportBtn">
             <span>📤</span> <span>Export</span>
+          </button>
+          <button class="action-btn" id="settingsBtn">
+            <span>⚙️</span> <span>Settings</span>
           </button>
           <a href="/" class="action-btn">
             <span>🏠</span> <span>Home</span>
@@ -272,6 +276,62 @@
         ">
         <div id="importStatus" class="import-status"></div>
         <button class="auth-button" id="importButton" style="margin-top: 1rem;">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!--           ACCOUNT SETTINGS MODAL             -->
+  <!-- ============================================ -->
+  <div id="settingsModal" class="letter-modal-overlay">
+    <div class="letter-modal" style="max-width: 520px;">
+      <button class="modal-close" id="closeSettingsModal" aria-label="Close settings">×</button>
+
+      <div class="modal-header">
+        <div class="modal-title">ACCOUNT SETTINGS</div>
+        <div class="modal-subtitle">Manage your profile</div>
+      </div>
+
+      <div class="modal-content" style="text-align: left; padding: 1.5rem 0;">
+        <!-- Update Name -->
+        <div class="settings-section">
+          <label class="form-label">Name</label>
+          <div class="settings-row">
+            <input type="text" id="settingsName" class="form-input" placeholder="Your display name">
+            <button class="auth-button settings-save-btn" id="saveNameBtn">Save</button>
+          </div>
+        </div>
+
+        <!-- Update Username -->
+        <div class="settings-section">
+          <label class="form-label">Username</label>
+          <div class="settings-row">
+            <input type="text" id="settingsUsername" class="form-input" placeholder="your-username" minlength="3" maxlength="30" pattern="[a-zA-Z0-9_-]+">
+            <button class="auth-button settings-save-btn" id="saveUsernameBtn">Save</button>
+          </div>
+          <div style="font-size: 0.75rem; color: #8d6e63; margin-top: 0.25rem;">Changing username will update your letterbox URL</div>
+        </div>
+
+        <!-- Update Email -->
+        <div class="settings-section">
+          <label class="form-label">Email</label>
+          <div class="settings-row">
+            <input type="email" id="settingsEmail" class="form-input" placeholder="you@example.com">
+            <button class="auth-button settings-save-btn" id="saveEmailBtn">Save</button>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-section">
+          <label class="form-label">Change Password</label>
+          <input type="password" id="settingsCurrentPassword" class="form-input" placeholder="Current password" style="margin-bottom: 0.5rem;">
+          <div class="settings-row">
+            <input type="password" id="settingsNewPassword" class="form-input" placeholder="New password (min 8 chars)" minlength="8">
+            <button class="auth-button settings-save-btn" id="savePasswordBtn">Save</button>
+          </div>
+        </div>
+
+        <div id="settingsStatus" class="auth-error"></div>
       </div>
     </div>
   </div>

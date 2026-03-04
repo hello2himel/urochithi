@@ -61,6 +61,18 @@ export async function handler(event) {
       };
     }
 
+    // Check if email is already registered
+    if (payload.email) {
+      const existingEmail = await db`SELECT id FROM users WHERE email = ${payload.email}`;
+      if (existingEmail.length > 0) {
+        return {
+          statusCode: 409,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ error: "An account with this email already exists" })
+        };
+      }
+    }
+
     // Check if user already has a username
     const existingUser = await db`SELECT username FROM users WHERE auth_user_id = ${authUserId}`;
     if (existingUser.length > 0) {

@@ -159,7 +159,7 @@ async function logout() {
 // ============================================
 document.getElementById('signInForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = document.getElementById('signInEmail').value;
+  const identifier = document.getElementById('signInIdentifier').value.trim();
   const password = document.getElementById('signInPassword').value;
   const errorDiv = document.getElementById('signInError');
   const button = document.getElementById('signInButton');
@@ -169,6 +169,22 @@ document.getElementById('signInForm').addEventListener('submit', async (e) => {
   button.textContent = 'Signing in...';
 
   try {
+    let email = identifier;
+
+    // If identifier doesn't look like an email, look up the email by username
+    if (!identifier.includes('@')) {
+      const lookupRes = await fetch('/.netlify/functions/lookup-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: identifier })
+      });
+      const lookupData = await lookupRes.json();
+      if (!lookupRes.ok) {
+        throw new Error(lookupData.error || 'Username not found');
+      }
+      email = lookupData.email;
+    }
+
     await signIn(email, password);
     await checkUserRegistration();
   } catch (error) {
@@ -182,9 +198,9 @@ document.getElementById('signInForm').addEventListener('submit', async (e) => {
 
 document.getElementById('signUpForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = document.getElementById('signUpName').value;
   const email = document.getElementById('signUpEmail').value;
   const password = document.getElementById('signUpPassword').value;
+  const username = document.getElementById('signUpUsername').value.trim().toLowerCase();
   const errorDiv = document.getElementById('signUpError');
   const button = document.getElementById('signUpButton');
 
@@ -193,8 +209,28 @@ document.getElementById('signUpForm').addEventListener('submit', async (e) => {
   button.textContent = 'Creating account...';
 
   try {
-    await signUp(name, email, password);
-    await checkUserRegistration();
+    // Use the username as the display name for the auth account
+    await signUp(username, email, password);
+
+    // Immediately register the username
+    const regResponse = await fetch('/.netlify/functions/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ username })
+    });
+
+    const regData = await regResponse.json();
+
+    if (!regResponse.ok) {
+      throw new Error(regData.error || 'Username registration failed');
+    }
+
+    currentUsername = regData.username;
+    showDashboard();
+    loadMessages();
   } catch (error) {
     errorDiv.textContent = error.message;
     errorDiv.classList.add('show');
@@ -499,8 +535,12 @@ document.getElementById('letterModal').addEventListener('click', (e) => {
 
 // ESC key to close
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.getElementById('letterModal').classList.contains('show')) {
-    closeLetterModal();
+  if (e.key === 'Escape') {
+    if (document.getElementById('letterModal').classList.contains('show')) {
+      closeLetterModal();
+    } else if (document.getElementById('settingsModal').classList.contains('show')) {
+      closeSettingsModal();
+    }
   }
 });
 
@@ -868,6 +908,120 @@ document.getElementById('importButton').addEventListener('click', handleCSVImpor
 document.getElementById('copyUrlBtn').addEventListener('click', copyShareUrl);
 document.getElementById('importModal').addEventListener('click', (e) => {
   if (e.target.id === 'importModal') closeImportModal();
+});
+
+// ============================================
+// ACCOUNT SETTINGS
+// ============================================
+function showSettingsModal() {
+  // Pre-fill current values
+  document.getElementById('settingsName').value = (userProfile && userProfile.name) || '';
+  document.getElementById('settingsUsername').value = currentUsername || '';
+  document.getElementById('settingsEmail').value = (userProfile && userProfile.email) || '';
+  document.getElementById('settingsCurrentPassword').value = '';
+  document.getElementById('settingsNewPassword').value = '';
+  document.getElementById('settingsStatus').classList.remove('show');
+  document.getElementById('settingsStatus').className = 'auth-error';
+
+  document.getElementById('settingsModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSettingsModal() {
+  document.getElementById('settingsModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function showSettingsStatus(message, isError) {
+  const statusDiv = document.getElementById('settingsStatus');
+  statusDiv.textContent = message;
+  statusDiv.className = isError ? 'auth-error show' : 'settings-success';
+  statusDiv.classList.add('show');
+  if (!isError) {
+    setTimeout(() => { statusDiv.classList.remove('show'); }, 3000);
+  }
+}
+
+async function updateSetting(action, body, button) {
+  const origText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Saving...';
+
+  try {
+    const response = await fetch('/.netlify/functions/update-settings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ action, ...body })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showSettingsStatus(data.error || 'Update failed', true);
+      return false;
+    }
+
+    showSettingsStatus(data.message || 'Updated successfully', false);
+    return data;
+  } catch (error) {
+    showSettingsStatus('Connection error. Please try again.', true);
+    return false;
+  } finally {
+    button.disabled = false;
+    button.textContent = origText;
+  }
+}
+
+document.getElementById('settingsBtn').addEventListener('click', showSettingsModal);
+document.getElementById('closeSettingsModal').addEventListener('click', closeSettingsModal);
+document.getElementById('settingsModal').addEventListener('click', (e) => {
+  if (e.target.id === 'settingsModal') closeSettingsModal();
+});
+
+document.getElementById('saveNameBtn').addEventListener('click', async () => {
+  const name = document.getElementById('settingsName').value.trim();
+  if (!name) { showSettingsStatus('Name is required', true); return; }
+  const result = await updateSetting('update-name', { name }, document.getElementById('saveNameBtn'));
+  if (result) {
+    userProfile.name = name;
+    const userInfoEl = document.getElementById('userDisplayName');
+    if (userInfoEl) userInfoEl.textContent = name;
+  }
+});
+
+document.getElementById('saveUsernameBtn').addEventListener('click', async () => {
+  const username = document.getElementById('settingsUsername').value.trim().toLowerCase();
+  if (!username || username.length < 3) { showSettingsStatus('Username must be at least 3 characters', true); return; }
+  const result = await updateSetting('update-username', { username }, document.getElementById('saveUsernameBtn'));
+  if (result && result.username) {
+    currentUsername = result.username;
+    document.getElementById('settingsUsername').value = currentUsername;
+    showDashboard();
+  }
+});
+
+document.getElementById('saveEmailBtn').addEventListener('click', async () => {
+  const newEmail = document.getElementById('settingsEmail').value.trim();
+  if (!newEmail || !newEmail.includes('@')) { showSettingsStatus('Valid email is required', true); return; }
+  const result = await updateSetting('update-email', { newEmail }, document.getElementById('saveEmailBtn'));
+  if (result) {
+    userProfile.email = newEmail;
+  }
+});
+
+document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+  const currentPassword = document.getElementById('settingsCurrentPassword').value;
+  const newPassword = document.getElementById('settingsNewPassword').value;
+  if (!currentPassword || !newPassword) { showSettingsStatus('Both current and new passwords are required', true); return; }
+  if (newPassword.length < 8) { showSettingsStatus('New password must be at least 8 characters', true); return; }
+  const result = await updateSetting('change-password', { currentPassword, newPassword }, document.getElementById('savePasswordBtn'));
+  if (result) {
+    document.getElementById('settingsCurrentPassword').value = '';
+    document.getElementById('settingsNewPassword').value = '';
+  }
 });
 
 // ============================================
