@@ -23,7 +23,6 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 ### 🔐 Neon Auth (Better Auth)
 - **Secure login** via Neon Auth with email/password sign-in
 - **Session verification** — server-side session validation
-- **Secure login** — email/password authentication via Neon Auth
 
 ### 📊 Dashboard Features
 - **Statistics** — total messages, today's count, unique sessions, weekly stats
