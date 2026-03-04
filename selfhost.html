@@ -313,7 +313,6 @@ body {
       <li><a href="#step7">7. Redeploy</a></li>
       <li><a href="#step8">8. Test Everything</a></li>
       <li><a href="#step9">9. Custom Domain (Optional)</a></li>
-      <li><a href="#migration">Migrating from v1 (Google Sheets)</a></li>
       <li><a href="#troubleshooting">Troubleshooting</a></li>
     </ul>
   </nav>
@@ -726,51 +725,6 @@ NEON_AUTH_URL = https://ep-cool-name-12345.auth.neon.tech</div>
 
       <div class="note-box">
         <strong>💡 Remember:</strong> After changing your domain, update <span class="inline-code">siteUrl</span> in <span class="inline-code">js/config.js</span> to match the new URL, then commit and redeploy.
-      </div>
-    </div>
-  </section>
-
-  <!-- Migration from v1 -->
-  <section id="migration" class="doc-section">
-    <div class="section-number"><i class="ri-archive-line"></i></div>
-    <h2 class="section-title">Migrating from v1 (Google Sheets)</h2>
-    <div class="section-content">
-      <p>If you were using the previous version of Urochithi with Google Sheets and time-based PINs, follow these steps to migrate your data.</p>
-
-      <h3>Export from Google Sheets</h3>
-      <ol>
-        <li>Open your Google Sheet that contains the messages</li>
-        <li>Go to <strong>File → Download → Comma-separated values (.csv)</strong></li>
-        <li>Save the <span class="inline-code">.csv</span> file to your computer</li>
-      </ol>
-
-      <h3>Import into Urochithi v2</h3>
-      <ol>
-        <li>Log into your new dashboard at <span class="inline-code">/dashboard.html</span></li>
-        <li>Click the <strong>📥 Import</strong> button in the header</li>
-        <li>Click <strong>"Choose File"</strong> and select the CSV you downloaded</li>
-        <li>Click <strong>"Import"</strong></li>
-        <li>You'll see a status message showing how many messages were imported</li>
-      </ol>
-
-      <div class="note-box">
-        <strong>💡 CSV Format:</strong> The importer automatically detects columns named "Timestamp", "Message", and "Session ID" (case-insensitive). As long as your CSV has at least a "Message" column, the import will work. Original timestamps are preserved.
-      </div>
-
-      <h3>Export your data anytime</h3>
-      <p>Click the <strong>📤 Export</strong> button in the dashboard header to download all your messages as a CSV file at any time.</p>
-
-      <h3>Clean up old environment variables</h3>
-      <p>These v1 variables are no longer needed and can be safely removed from Netlify:</p>
-      <ul>
-        <li><span class="inline-code">GSCRIPT_URL</span></li>
-        <li><span class="inline-code">DASHBOARD_PIN</span></li>
-        <li><span class="inline-code">TIME_PIN_ALGORITHM</span></li>
-        <li><span class="inline-code">RECAPTCHA_SECRET_KEY</span></li>
-      </ul>
-
-      <div class="info-box">
-        <strong>✓ No data lost:</strong> All your messages from Google Sheets are now safely stored in Neon PostgreSQL.
       </div>
     </div>
   </section>

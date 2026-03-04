@@ -552,7 +552,16 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     setTimeout(() => { btn.innerHTML = orig; }, 2000);
     
   } catch (err) {
-    alert('Failed to save. Please try again.');
+    console.error('Save as image failed:', err);
+    // Fallback: copy text to clipboard
+    if (currentLetter) {
+      try {
+        await navigator.clipboard.writeText(currentLetter.message);
+        alert('Image save failed (browser restriction). Message copied to clipboard instead!');
+      } catch (clipErr) {
+        alert('Image save failed. Please try again.');
+      }
+    }
   } finally {
     card.classList.remove('capture-mode');
     wrapper.style.cssText = origWrapperStyle;

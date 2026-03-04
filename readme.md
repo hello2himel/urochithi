@@ -23,7 +23,7 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 ### 🔐 Neon Auth (Better Auth)
 - **Secure login** via Neon Auth with email/password sign-in
 - **Session verification** — server-side session validation
-- **No more PINs** — replaced the old static + time-based PIN system
+- **Secure login** — email/password authentication via Neon Auth
 
 ### 📊 Dashboard Features
 - **Statistics** — total messages, today's count, unique sessions, weekly stats
@@ -31,7 +31,7 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 - **Sort options** — newest/oldest first
 - **Time filters** — today, this week, this month, or all
 - **Real-time refresh** — reload messages anytime
-- **CSV Import** — migrate data from the old Google Sheets version
+- **CSV Import** — import messages from CSV files
 - **CSV Export** — download all your messages as CSV
 
 ### 🎨 Beautiful Design
@@ -136,29 +136,6 @@ Set these in **Netlify → Site configuration → Environment variables**:
 |----------|----------|-------------|---------|
 | `DATABASE_URL` | Yes | Neon PostgreSQL connection string | `postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require` |
 | `NEON_AUTH_URL` | Yes | Neon Auth URL from the Auth tab | `https://your-project-id.auth.neon.tech` |
-
----
-
-## 🔄 Migrating from v1 (Google Sheets)
-
-If you were using the previous version with Google Sheets and time-based PINs:
-
-### Import Your Data
-1. Open your Google Sheet
-2. **File → Download → Comma-separated values (.csv)**
-3. Log into your new dashboard
-4. Click **📥 Import** → select your CSV → click **Import**
-5. All messages are imported with original timestamps!
-
-### Export Your Data
-Click **📤 Export** in the dashboard header to download all messages as CSV at any time.
-
-### Old Environment Variables
-These are no longer needed and can be removed:
-- `GSCRIPT_URL`
-- `DASHBOARD_PIN`
-- `TIME_PIN_ALGORITHM`
-- `RECAPTCHA_SECRET_KEY`
 
 ---
 

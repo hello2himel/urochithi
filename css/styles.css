@@ -443,11 +443,11 @@ button:disabled {
   }
   
   textarea {
-    height: 180px;
+    height: 280px;
     padding: 1.5rem;
     margin: 0;
     width: 100%;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     margin-top: 1rem;
   }
   
