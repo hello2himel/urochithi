@@ -88,11 +88,16 @@ async function signIn(email, password) {
   });
   let data;
   try {
-    data = await response.json();
+    const text = await response.text();
+    data = text ? JSON.parse(text) : {};
   } catch (e) {
+    console.error('Failed to parse auth response:', e);
     throw new Error('Invalid response from auth server. Please try again.');
   }
-  if (!response.ok) throw new Error(data.message || 'Invalid email or password');
+  if (!response.ok) {
+    const msg = data.message || (typeof data.error === 'string' ? data.error : data.error?.message) || 'Invalid email or password';
+    throw new Error(msg);
+  }
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
   localStorage.setItem(SESSION_KEY, JSON.stringify({ token: accessToken, user: userProfile }));
@@ -110,11 +115,16 @@ async function signUp(name, email, password) {
   });
   let data;
   try {
-    data = await response.json();
+    const text = await response.text();
+    data = text ? JSON.parse(text) : {};
   } catch (e) {
+    console.error('Failed to parse auth response:', e);
     throw new Error('Invalid response from auth server. Please try again.');
   }
-  if (!response.ok) throw new Error(data.message || 'Sign up failed');
+  if (!response.ok) {
+    const msg = data.message || (typeof data.error === 'string' ? data.error : data.error?.message) || 'Sign up failed';
+    throw new Error(msg);
+  }
   accessToken = data.session?.token || data.token;
   userProfile = data.user;
   localStorage.setItem(SESSION_KEY, JSON.stringify({ token: accessToken, user: userProfile }));
