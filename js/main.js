@@ -191,9 +191,7 @@ function initLetterForm() {
 function getOrCreateSessionId() {
   let sessionId = localStorage.getItem(STORAGE_KEYS.sessionId);
   if (!sessionId) {
-    const timestamp = Date.now().toString(36);
-    const randomPart = Math.random().toString(36).substr(2, 9);
-    sessionId = `${timestamp}-${randomPart}`;
+    sessionId = crypto.randomUUID();
     localStorage.setItem(STORAGE_KEYS.sessionId, sessionId);
   }
   return sessionId;
