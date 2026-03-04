@@ -1,7 +1,7 @@
 // ============================================
 // NETLIFY FUNCTION - IMPORT CSV
 // ============================================
-// Import messages from a Google Sheets CSV export
+// Import messages from a CSV file
 
 import { getDB, ensureSchema } from './db.js';
 import { verifyToken, extractToken } from './auth.js';
