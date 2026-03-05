@@ -878,7 +878,7 @@ body {
 /* ============================================ */
 
 @media (max-width: 768px) {
-  /* Make header non-sticky on mobile so content is visible */
+  /* Override sticky → static on mobile so letter content isn't hidden behind header */
   .dashboard-header {
     position: static;
     padding: 1.25rem;
