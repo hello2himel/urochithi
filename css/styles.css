@@ -31,6 +31,7 @@ body {
   box-shadow: 
     0 4px 15px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
+  /* Torn paper right edge */
   clip-path: polygon(
     0% 0%, 
     95% 0%, 
@@ -51,6 +52,7 @@ body {
   );
 }
 
+/* Red margin line like a real notebook/letter */
 .container::before {
   content: '';
   position: absolute;
@@ -62,6 +64,7 @@ body {
   pointer-events: none;
 }
 
+/* Positioned top-right like a real letter header */
 .urochithi-header {
   position: absolute;
   top: 40px;
@@ -77,7 +80,7 @@ body {
   font-weight: 700;
   color: #5d4037;
   letter-spacing: 3px;
-  transform: rotate(0deg);
+  transform: rotate(-1deg);
 }
 
 .urochithi-subtext {
@@ -86,7 +89,7 @@ body {
   color: #5d4037;
   font-weight: 400;
   letter-spacing: 1px;
-  transform: rotate(0deg);
+  transform: rotate(-0.5deg);
 }
 
 .session-id {
@@ -100,6 +103,7 @@ body {
   font-style: normal;
 }
 
+/* Inner border like old paper */
 .container::after {
   content: '';
   position: absolute;
@@ -111,7 +115,7 @@ body {
   pointer-events: none;
 }
 
-/* Postage Stamp */
+/* Postage Stamp - top-left like a real letter */
 .postage-stamp {
   position: absolute;
   top: 40px;
@@ -124,7 +128,7 @@ body {
 }
 
 .postage-stamp:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) rotate(-2deg);
   filter: brightness(1.05);
 }
 
@@ -137,7 +141,7 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* Perforated edges */
+/* Perforated edges on stamp */
 .stamp-border::before {
   content: '';
   position: absolute;
@@ -209,7 +213,7 @@ textarea {
   border: none;
   background: transparent;
   font-size: 1.6rem;
-  font-family: 'Caveat', cursive;
+  font-family: 'Caveat', 'Atma', cursive;
   font-weight: 400;
   resize: none;
   outline: none;
@@ -390,6 +394,10 @@ button:disabled {
   transform: rotate(15deg);
 }
 
+/* ============================================ */
+/*         RESPONSIVE - VINTAGE MOBILE          */
+/* ============================================ */
+
 @media (max-width: 768px) {
   body {
     background: #f4f1e8;
@@ -469,7 +477,7 @@ button:disabled {
     font-size: 1rem;
     margin-left: 0;
   }
-  
+
   .response {
     margin-left: 0;
   }

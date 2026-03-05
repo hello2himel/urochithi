@@ -4,6 +4,99 @@
 // ============================================
 
 import { checkRateLimit, getClientIP, resetRateLimit } from './rate-limiter.js';
+import crypto from 'crypto';
+
+// ============================================
+// SAFE ARITHMETIC EVALUATOR
+// ============================================
+// Replaces Function() eval with a tokenizer + parser
+// that only supports: +, -, *, /, %, (, ), and numeric values
+function safeEvalArithmetic(expression, hour, minute) {
+  const expr = expression
+    .replace(/hour/g, String(hour))
+    .replace(/minute/g, String(minute));
+
+  // Validate: only allow digits, whitespace, and arithmetic operators
+  if (!/^[\d\s+\-*/%().]+$/.test(expr)) {
+    throw new Error('Expression contains disallowed characters');
+  }
+
+  // Tokenize
+  const tokens = [];
+  let i = 0;
+  while (i < expr.length) {
+    if (/\s/.test(expr[i])) { i++; continue; }
+    if (/\d/.test(expr[i]) || (expr[i] === '.' && i + 1 < expr.length && /\d/.test(expr[i + 1]))) {
+      let num = '';
+      while (i < expr.length && (/\d/.test(expr[i]) || expr[i] === '.')) {
+        num += expr[i++];
+      }
+      tokens.push({ type: 'number', value: parseFloat(num) });
+    } else if ('+-*/%()'.includes(expr[i])) {
+      tokens.push({ type: 'op', value: expr[i] });
+      i++;
+    } else {
+      throw new Error(`Unexpected character: ${expr[i]}`);
+    }
+  }
+
+  // Recursive descent parser
+  let pos = 0;
+  function peek() { return pos < tokens.length ? tokens[pos] : null; }
+  function consume() { return tokens[pos++]; }
+
+  function parseExpr() {
+    let left = parseTerm();
+    while (peek() && (peek().value === '+' || peek().value === '-')) {
+      const op = consume().value;
+      const right = parseTerm();
+      left = op === '+' ? left + right : left - right;
+    }
+    return left;
+  }
+
+  function parseTerm() {
+    let left = parseFactor();
+    while (peek() && (peek().value === '*' || peek().value === '/' || peek().value === '%')) {
+      const op = consume().value;
+      const right = parseFactor();
+      if (op === '*') left = left * right;
+      else if (op === '/') {
+        if (right === 0) throw new Error('Division by zero');
+        left = left / right;
+      }
+      else left = left % right;
+    }
+    return left;
+  }
+
+  function parseFactor() {
+    const t = peek();
+    if (!t) throw new Error('Unexpected end of expression');
+    if (t.type === 'number') { consume(); return t.value; }
+    if (t.value === '(') {
+      consume();
+      const val = parseExpr();
+      if (!peek() || peek().value !== ')') throw new Error('Missing closing parenthesis');
+      consume();
+      return val;
+    }
+    // Handle unary minus
+    if (t.value === '-') {
+      consume();
+      return -parseFactor();
+    }
+    if (t.value === '+') {
+      consume();
+      return parseFactor();
+    }
+    throw new Error(`Unexpected token: ${t.value}`);
+  }
+
+  const result = parseExpr();
+  if (pos < tokens.length) throw new Error('Unexpected tokens after expression');
+  return Math.floor(result);
+}
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
@@ -15,7 +108,6 @@ export async function handler(event) {
   }
 
   const clientIP = getClientIP(event);
-  console.log('Time PIN verification from IP:', clientIP);
 
   try {
     const { staticPin, timePin } = JSON.parse(event.body);
@@ -26,7 +118,6 @@ export async function handler(event) {
     const rateCheck = checkRateLimit(clientIP);
     
     if (!rateCheck.allowed) {
-      console.warn('Rate limit exceeded for IP:', clientIP);
       return {
         statusCode: 429,
         headers: { 
@@ -56,7 +147,6 @@ export async function handler(event) {
     }
 
     if (staticPin !== correctStaticPin) {
-      console.warn('Static PIN mismatch in Step 2 from IP:', clientIP);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
@@ -79,18 +169,11 @@ export async function handler(event) {
     const hour = now.getUTCHours();
     const minute = now.getUTCMinutes();
     
-    // Evaluate the algorithm
-    // Security: Only allow simple arithmetic operations
-    const cleanAlgo = algorithm
-      .replace(/hour/g, hour)
-      .replace(/minute/g, minute);
-    
     let correctTimePin;
     try {
-      // Safe eval alternative - only allow numbers and basic math
-      correctTimePin = Function('"use strict"; return (' + cleanAlgo + ')')();
+      correctTimePin = safeEvalArithmetic(algorithm, hour, minute);
     } catch (e) {
-      console.error('Invalid algorithm:', e);
+      console.error('Invalid algorithm:', e.message);
       return {
         statusCode: 500,
         headers: { "Content-Type": "application/json" },
@@ -101,24 +184,15 @@ export async function handler(event) {
     // Also calculate for previous and next minute (3-minute window)
     const prevMinute = minute === 0 ? 59 : minute - 1;
     const prevHour = minute === 0 ? (hour === 0 ? 23 : hour - 1) : hour;
-    const prevAlgo = algorithm
-      .replace(/hour/g, prevHour)
-      .replace(/minute/g, prevMinute);
-    const prevTimePin = Function('"use strict"; return (' + prevAlgo + ')')();
+    const prevTimePin = safeEvalArithmetic(algorithm, prevHour, prevMinute);
     
     const nextMinute = minute === 59 ? 0 : minute + 1;
     const nextHour = minute === 59 ? (hour === 23 ? 0 : hour + 1) : hour;
-    const nextAlgo = algorithm
-      .replace(/hour/g, nextHour)
-      .replace(/minute/g, nextMinute);
-    const nextTimePin = Function('"use strict"; return (' + nextAlgo + ')')();
+    const nextTimePin = safeEvalArithmetic(algorithm, nextHour, nextMinute);
     
     const timePinNum = parseInt(timePin, 10);
     
     if (timePinNum !== correctTimePin && timePinNum !== prevTimePin && timePinNum !== nextTimePin) {
-      console.warn('Invalid time-based PIN from IP:', clientIP);
-      console.log('UTC time:', hour + ':' + minute);
-      console.log('Expected:', correctTimePin, 'Got:', timePinNum);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
@@ -131,17 +205,29 @@ export async function handler(event) {
     }
 
     // ============================================
-    // SUCCESS - RESET RATE LIMIT
+    // SUCCESS - RESET RATE LIMIT & GENERATE TOKEN
     // ============================================
-    console.log('Successful login from IP:', clientIP);
     resetRateLimit(clientIP);
+
+    // Generate HMAC-signed auth token
+    const secret = process.env.DASHBOARD_PIN;
+    const payload = Buffer.from(JSON.stringify({
+      authenticated: true,
+      timestamp: Date.now()
+    })).toString('base64url');
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('base64url');
+    const authToken = `${payload}.${signature}`;
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         authenticated: true,
-        message: "Authentication successful"
+        message: "Authentication successful",
+        token: authToken
       })
     };
 
