@@ -63,7 +63,7 @@ function checkAuth() {
   if (auth) {
     const authData = JSON.parse(auth);
     const now = Date.now();
-    if (now - authData.timestamp < SESSION_TIMEOUT) {
+    if (authData.token && now - authData.timestamp < SESSION_TIMEOUT) {
       lastActivity = now;
       showDashboard();
       loadMessages();
@@ -211,7 +211,8 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     // Success
     localStorage.setItem(AUTH_KEY, JSON.stringify({
       authenticated: true,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      token: data.token
     }));
     showDashboard();
     loadMessages();
@@ -252,9 +253,10 @@ async function loadMessages() {
     </div>`;
 
   try {
+    const authData = JSON.parse(localStorage.getItem(AUTH_KEY));
     const response = await fetch('/.netlify/functions/get-messages', {
       headers: {
-        'Authorization': JSON.stringify(JSON.parse(localStorage.getItem(AUTH_KEY)))
+        'Authorization': authData.token || ''
       }
     });
 
@@ -368,8 +370,8 @@ function displayLetterCards() {
       <div class="letter-card" data-index="${index}">
         <div class="letter-header">
           <div class="letter-meta">
-            <div class="letter-date">${formatDate(letter.timestamp)}</div>
-            <div class="letter-session">${letter.sessionId}</div>
+            <div class="letter-date">${escapeHtml(formatDate(letter.timestamp))}</div>
+            <div class="letter-session">${escapeHtml(letter.sessionId)}</div>
           </div>
           <div class="letter-icon">✉️</div>
         </div>

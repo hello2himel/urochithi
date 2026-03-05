@@ -58,9 +58,11 @@ body {
   padding: clamp(2.5rem, 5vw, 3.5rem);
   position: relative;
   box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.6);
+  /* Torn paper edge */
   clip-path: polygon(0% 0%, 95% 0%, 100% 8%, 98% 15%, 100% 22%, 96% 30%, 100% 38%, 97% 45%, 100% 55%, 95% 62%, 100% 70%, 98% 78%, 100% 85%, 97% 92%, 100% 100%, 0% 100%);
 }
 
+/* Red margin line */
 .auth-card::before {
   content: '';
   position: absolute;
@@ -200,6 +202,7 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
   transform: rotate(-0.5deg);
+  font-family: 'Special Elite', monospace;
 }
 
 .auth-button:hover:not(:disabled) {
@@ -323,6 +326,7 @@ body {
   gap: 0.5rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6);
   letter-spacing: 1px;
+  font-family: 'Special Elite', monospace;
 }
 
 .action-btn:hover {
@@ -356,7 +360,7 @@ body {
   transition: var(--transition);
 }
 
-/* Perforated edges */
+/* Perforated edges on stamps */
 .postal-stamp::before {
   content: '';
   position: absolute;
@@ -418,6 +422,7 @@ body {
   position: relative;
 }
 
+/* Red margin line on controls */
 .letterbox-controls::before {
   content: '';
   position: absolute;
@@ -524,6 +529,7 @@ body {
   overflow: hidden;
 }
 
+/* Red margin line on letter cards */
 .letter-card::before {
   content: '';
   position: absolute;
@@ -578,7 +584,7 @@ body {
 }
 
 .letter-preview {
-  font-family: 'Caveat', cursive;
+  font-family: 'Caveat', 'Atma', cursive;
   font-size: 1.2rem;
   line-height: 1.6;
   color: var(--color-text);
@@ -631,7 +637,6 @@ body {
     linear-gradient(rgba(139, 69, 19, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
   border: 2px dashed var(--color-border-strong);
-  border-radius: 8px;
 }
 
 .empty-icon {
@@ -717,23 +722,13 @@ body {
   padding: 3.5rem 3rem;
   position: relative;
   box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+  /* Torn paper edge */
   clip-path: polygon(0% 0%, 95% 0%, 100% 8%, 98% 15%, 100% 22%, 96% 30%, 100% 38%, 97% 45%, 100% 55%, 95% 62%, 100% 70%, 98% 78%, 100% 85%, 97% 92%, 100% 100%, 0% 100%);
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Red margin line on modal */
 .letter-modal::before {
   content: '';
   position: absolute;
@@ -775,6 +770,7 @@ body {
   transform: rotate(90deg) scale(1.05);
 }
 
+/* Positioned top-right like a real letter header */
 .modal-header {
   position: absolute;
   top: 40px;
@@ -812,7 +808,7 @@ body {
 }
 
 .modal-letter-text {
-  font-family: 'Caveat', cursive;
+  font-family: 'Caveat', 'Atma', cursive;
   font-size: 1.8rem;
   line-height: 1.9;
   color: #4a4a4a;
@@ -853,6 +849,7 @@ body {
   align-items: center;
   gap: 0.6rem;
   letter-spacing: 0.5px;
+  font-family: 'Special Elite', monospace;
 }
 
 .modal-action-btn:hover {
@@ -881,6 +878,12 @@ body {
 /* ============================================ */
 
 @media (max-width: 768px) {
+  /* Override sticky → static on mobile so letter content isn't hidden behind header */
+  .dashboard-header {
+    position: static;
+    padding: 1.25rem;
+  }
+
   .header-top {
     flex-direction: column;
     align-items: flex-start;
@@ -912,6 +915,10 @@ body {
     width: 100%;
   }
 
+  .search-box {
+    min-width: unset;
+  }
+
   .filter-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -922,6 +929,7 @@ body {
     gap: 1.5rem;
   }
 
+  /* Remove torn edge + left margin on mobile for readability */
   .letter-modal,
   .auth-card {
     clip-path: none;
@@ -931,6 +939,10 @@ body {
   .letter-modal::before,
   .auth-card::before {
     left: 40px;
+  }
+
+  .letter-modal-overlay {
+    padding: 0.5rem;
   }
 
   .modal-header {
@@ -944,6 +956,10 @@ body {
   .modal-actions {
     margin-left: 0;
     padding: 1.2rem;
+  }
+
+  .modal-footer {
+    margin-left: 0;
   }
 
   .modal-letter-text {
@@ -960,7 +976,7 @@ body {
 
 @media (max-width: 480px) {
   .postal-stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .filter-group {

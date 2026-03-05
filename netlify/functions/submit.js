@@ -15,7 +15,7 @@ export async function handler(event) {
   try {
     const data = JSON.parse(event.body);
 
-    console.log('Received data:', data);
+    console.log('Received submission');
 
     // ============================================
     // HONEYPOT CHECK (Spam Prevention)
@@ -77,8 +77,8 @@ export async function handler(event) {
       sessionId: data.sessionId
     };
 
-    console.log('Sending to Google Sheets:', payload);
-    console.log('GSCRIPT_URL:', process.env.GSCRIPT_URL);
+    console.log('Sending to Google Sheets');
+    console.log('GSCRIPT_URL configured:', !!process.env.GSCRIPT_URL);
 
     // ============================================
     // SEND TO GOOGLE SHEETS
@@ -127,8 +127,7 @@ export async function handler(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ 
-        error: "Failed to deliver letter",
-        details: error.message
+        error: "Failed to deliver letter"
       })
     };
   }

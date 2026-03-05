@@ -3,6 +3,47 @@
 // ============================================
 // Fetch all messages from Google Sheets
 
+import crypto from 'crypto';
+
+function verifyAuthToken(token) {
+  const secret = process.env.DASHBOARD_PIN;
+  if (!secret) return { valid: false, error: 'Server configuration error' };
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 2) return { valid: false, error: 'Invalid token format' };
+
+    const [payload, signature] = parts;
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+
+    if (!data.authenticated || !data.timestamp) {
+      return { valid: false, error: 'Invalid token data' };
+    }
+
+    // Check if session is still valid (30 minutes)
+    const now = Date.now();
+    if (now - data.timestamp > 30 * 60 * 1000) {
+      return { valid: false, error: 'Session expired' };
+    }
+
+    // Verify HMAC signature
+    const expectedSig = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('base64url');
+
+    const sigBuf = Buffer.from(signature);
+    const expectedBuf = Buffer.from(expectedSig);
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+      return { valid: false, error: 'Invalid signature' };
+    }
+
+    return { valid: true };
+  } catch (e) {
+    return { valid: false, error: 'Invalid authentication' };
+  }
+}
+
 export async function handler(event) {
   // Only accept GET requests
   if (event.httpMethod !== "GET") {
@@ -27,27 +68,12 @@ export async function handler(event) {
       };
     }
 
-    try {
-      const authData = JSON.parse(authHeader);
-      
-      if (!authData.authenticated || !authData.timestamp) {
-        throw new Error('Invalid auth data');
-      }
-      
-      // Check if session is still valid (30 minutes)
-      const now = Date.now();
-      if (now - authData.timestamp > 30 * 60 * 1000) {
-        return {
-          statusCode: 401,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ error: "Session expired" })
-        };
-      }
-    } catch (e) {
+    const authResult = verifyAuthToken(authHeader);
+    if (!authResult.valid) {
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid authentication" })
+        body: JSON.stringify({ error: authResult.error })
       };
     }
 
@@ -66,8 +92,6 @@ export async function handler(event) {
     // ============================================
     // FETCH FROM GOOGLE SHEETS
     // ============================================
-    console.log('Fetching messages from Google Sheets...');
-    
     const response = await fetch(process.env.GSCRIPT_URL, {
       method: "GET"
     });
@@ -77,7 +101,6 @@ export async function handler(event) {
     }
 
     const data = await response.json();
-    console.log('Fetched', data.messages?.length || 0, 'messages');
 
     // ============================================
     // SUCCESS RESPONSE
@@ -99,10 +122,7 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        error: "Failed to fetch messages",
-        details: error.message
-      })
+      body: JSON.stringify({ error: "Failed to fetch messages" })
     };
   }
 }
