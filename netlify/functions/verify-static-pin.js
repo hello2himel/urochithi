@@ -16,7 +16,6 @@ export async function handler(event) {
   }
 
   const clientIP = getClientIP(event);
-  console.log('Login attempt from IP:', clientIP);
 
   try {
     const { staticPin, recaptchaToken } = JSON.parse(event.body);
@@ -27,7 +26,6 @@ export async function handler(event) {
     const rateCheck = checkRateLimit(clientIP);
     
     if (!rateCheck.allowed) {
-      console.warn('Rate limit exceeded for IP:', clientIP);
       return {
         statusCode: 429,
         headers: { 
@@ -48,7 +46,6 @@ export async function handler(event) {
     const recaptchaResult = await verifyRecaptcha(recaptchaToken, 'dashboard_login');
     
     if (!recaptchaResult.success) {
-      console.warn('reCAPTCHA verification failed for IP:', clientIP);
       return {
         statusCode: 403,
         headers: { "Content-Type": "application/json" },
@@ -59,7 +56,7 @@ export async function handler(event) {
       };
     }
 
-    console.log('reCAPTCHA passed with score:', recaptchaResult.score);
+    console.log('reCAPTCHA passed');
 
     // ============================================
     // VERIFY STATIC PIN
@@ -76,7 +73,6 @@ export async function handler(event) {
     }
 
     if (staticPin !== correctStaticPin) {
-      console.warn('Invalid PIN attempt from IP:', clientIP);
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
@@ -91,8 +87,6 @@ export async function handler(event) {
     // ============================================
     // SUCCESS - Don't reset rate limit yet, wait for Step 2
     // ============================================
-    console.log('Step 1 successful for IP:', clientIP);
-    
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },

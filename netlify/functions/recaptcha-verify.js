@@ -45,12 +45,7 @@ export async function verifyRecaptcha(token, expectedAction = 'dashboard_login')
 
     const data = await response.json();
     
-    console.log('reCAPTCHA response:', {
-      success: data.success,
-      score: data.score,
-      action: data.action,
-      hostname: data.hostname
-    });
+    console.log('reCAPTCHA verification result:', { success: data.success, score: data.score });
 
     // Check if verification succeeded
     if (!data.success) {
