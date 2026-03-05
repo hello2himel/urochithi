@@ -61,7 +61,10 @@ function safeEvalArithmetic(expression, hour, minute) {
       const op = consume().value;
       const right = parseFactor();
       if (op === '*') left = left * right;
-      else if (op === '/') left = right !== 0 ? left / right : 0;
+      else if (op === '/') {
+        if (right === 0) throw new Error('Division by zero');
+        left = left / right;
+      }
       else left = left % right;
     }
     return left;
