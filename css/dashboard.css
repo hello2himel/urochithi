@@ -584,7 +584,7 @@ body {
 }
 
 .letter-preview {
-  font-family: 'Caveat', 'Galada', cursive;
+  font-family: 'Caveat', 'Atma', cursive;
   font-size: 1.2rem;
   line-height: 1.6;
   color: var(--color-text);
@@ -808,7 +808,7 @@ body {
 }
 
 .modal-letter-text {
-  font-family: 'Caveat', 'Galada', cursive;
+  font-family: 'Caveat', 'Atma', cursive;
   font-size: 1.8rem;
   line-height: 1.9;
   color: #4a4a4a;
