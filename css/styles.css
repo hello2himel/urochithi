@@ -31,44 +31,19 @@ body {
   box-shadow: 
     0 4px 15px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
-  clip-path: polygon(
-    0% 0%, 
-    95% 0%, 
-    100% 8%, 
-    98% 15%, 
-    100% 22%, 
-    96% 30%, 
-    100% 38%, 
-    97% 45%, 
-    100% 55%, 
-    95% 62%, 
-    100% 70%, 
-    98% 78%, 
-    100% 85%, 
-    97% 92%, 
-    100% 100%, 
-    0% 100%
-  );
+  border-radius: 16px;
+  border: 1px solid rgba(139, 69, 19, 0.12);
 }
 
 .container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 80px;
-  right: 0;
-  height: 100%;
-  border-left: 2px solid rgba(255, 0, 0, 0.3);
-  pointer-events: none;
+  display: none;
 }
 
 .urochithi-header {
-  position: absolute;
-  top: 40px;
-  right: 40px;
-  z-index: 10;
-  text-align: end;
-  border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid rgba(139, 69, 19, 0.15);
+  padding-bottom: 1rem;
 }
 
 .urochithi-title {
@@ -101,23 +76,15 @@ body {
 }
 
 .container::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
-  border: 1px solid rgba(139, 69, 19, 0.05);
-  pointer-events: none;
+  display: none;
 }
 
 /* Postage Stamp */
 .postage-stamp {
-  position: absolute;
-  top: 40px;
-  left: 40px;
+  display: block;
   width: 70px;
   height: 85px;
+  margin: 0 auto 1.5rem;
   text-decoration: none;
   z-index: 10;
   transition: all 0.3s ease;
@@ -135,25 +102,12 @@ body {
   padding: 3px;
   position: relative;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
 }
 
-/* Perforated edges */
+/* Perforated edges - removed for cleaner look */
 .stamp-border::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle, transparent 40%, #e8dcc8 40%),
-    radial-gradient(circle, transparent 40%, #e8dcc8 40%),
-    radial-gradient(circle, transparent 40%, #e8dcc8 40%),
-    radial-gradient(circle, transparent 40%, #e8dcc8 40%);
-  background-size: 8px 8px, 8px 8px, 8px 8px, 8px 8px;
-  background-position: 0 0, 0 100%, 0 0, 100% 0;
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  pointer-events: none;
+  display: none;
 }
 
 .stamp-content {
@@ -167,6 +121,7 @@ body {
   justify-content: center;
   gap: 4px;
   padding: 8px;
+  border-radius: 4px;
 }
 
 .stamp-icon {
@@ -201,11 +156,8 @@ h1 {
 textarea {
   width: 100%;
   height: 220px;
-  padding: 1.2rem 1.8rem 1.8rem 1.5rem;
-  margin-left: 85px;
-  margin-top: 140px;
-  margin-right: 20px;
-  width: calc(100% - 105px);
+  padding: 1.2rem 1.5rem;
+  margin-top: 0.5rem;
   border: none;
   background: transparent;
   font-size: 1.6rem;
@@ -249,8 +201,7 @@ textarea::placeholder {
 }
 
 button {
-  margin-top: 2rem;
-  margin-left: 85px;
+  margin-top: 1.5rem;
   padding: 1rem 2.8rem;
   border: 2px solid #8d6e63;
   background: #f5f5dc;
@@ -265,19 +216,21 @@ button {
     0 2px 4px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
   position: relative;
-  transform: rotate(-0.5deg);
+  border-radius: 10px;
+  display: block;
+  width: 100%;
 }
 
 button:hover {
   background: #f0ede5;
-  transform: rotate(0deg) translateY(-1px);
+  transform: translateY(-1px);
   box-shadow: 
     0 4px 8px rgba(0,0,0,0.15),
     inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
 button:active {
-  transform: rotate(0deg) translateY(0);
+  transform: translateY(0);
   box-shadow: 
     0 1px 2px rgba(0,0,0,0.1),
     inset 0 1px 0 rgba(255,255,255,0.6);
@@ -286,7 +239,6 @@ button:active {
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: rotate(-0.5deg);
 }
 
 /* Button skeleton loading */
@@ -304,12 +256,12 @@ button:disabled {
 
 /* Character counter */
 .char-counter {
-  margin-left: 85px;
   margin-top: 0.5rem;
   font-size: 0.85rem;
   color: #8d6e63;
   font-family: 'Special Elite', monospace;
   transition: color 0.3s ease;
+  text-align: right;
 }
 
 .char-counter.warning {
@@ -318,15 +270,15 @@ button:disabled {
 }
 
 .response {
-  margin-top: 1.8rem;
-  margin-left: 85px;
-  font-size: 1.1rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
   font-family: 'Special Elite', monospace;
-  padding: 1.2rem;
-  border-radius: 4px;
+  padding: 1rem;
+  border-radius: 10px;
   opacity: 0;
   transition: opacity 0.4s ease;
   font-weight: 500;
+  text-align: center;
 }
 
 .response.show {
@@ -337,12 +289,14 @@ button:disabled {
   background: rgba(76, 175, 80, 0.1);
   color: #2e7d32;
   border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 10px;
 }
 
 .error { 
   background: rgba(244, 67, 54, 0.1);
   color: #c62828;
   border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 10px;
 }
 
 .loading {
@@ -415,32 +369,20 @@ button:disabled {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    clip-path: none;
+    border-radius: 0;
     text-align: center;
-  }
-  
-  .container::before {
-    left: 30px;
-  }
-  
-  .container::after {
-    display: none;
   }
   
   .urochithi-header {
-    position: static;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     text-align: center;
-    border: none;
   }
   
   .urochithi-title {
     font-size: 1.4rem;
-    transform: rotate(0deg);
   }
   
   .postage-stamp {
-    position: static;
     margin: 0 auto 1.5rem;
     display: block;
     width: 70px;
@@ -461,21 +403,12 @@ button:disabled {
     margin: 0;
     width: 100%;
     font-size: 1.1rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
   
   button {
     padding: 0.9rem 2.2rem;
     font-size: 1rem;
-    margin-left: 0;
-  }
-  
-  .response {
-    margin-left: 0;
-  }
-
-  .char-counter {
-    margin-left: 0;
   }
   
   .stain {
