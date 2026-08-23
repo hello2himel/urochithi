@@ -87,12 +87,19 @@ export async function handler(event) {
     // ============================================
     // SUCCESS - Don't reset rate limit yet, wait for Step 2
     // ============================================
+    // TIME_PIN_ALGORITHM is optional. If it isn't set, the time-based PIN
+    // step is skipped entirely (single-factor login with just DASHBOARD_PIN).
+    const timePinRequired = !!process.env.TIME_PIN_ALGORITHM;
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         valid: true,
-        message: "PIN verified. Please proceed to time verification."
+        timePinRequired,
+        message: timePinRequired
+          ? "PIN verified. Please proceed to time verification."
+          : "PIN verified."
       })
     };
 

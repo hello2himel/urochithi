@@ -158,50 +158,54 @@ export async function handler(event) {
     }
 
     // ============================================
-    // GET ALGORITHM FROM ENV VAR
+    // TIME-BASED PIN CHECK (skipped if TIME_PIN_ALGORITHM unset)
     // ============================================
-    const algorithm = process.env.TIME_PIN_ALGORITHM || "(hour * 7) + (minute % 10)";
-    
-    // ============================================
-    // CALCULATE TIME-BASED PIN
-    // ============================================
-    const now = new Date();
-    const hour = now.getUTCHours();
-    const minute = now.getUTCMinutes();
-    
-    let correctTimePin;
-    try {
-      correctTimePin = safeEvalArithmetic(algorithm, hour, minute);
-    } catch (e) {
-      console.error('Invalid algorithm:', e.message);
-      return {
-        statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid algorithm configuration" })
-      };
-    }
-    
-    // Also calculate for previous and next minute (3-minute window)
-    const prevMinute = minute === 0 ? 59 : minute - 1;
-    const prevHour = minute === 0 ? (hour === 0 ? 23 : hour - 1) : hour;
-    const prevTimePin = safeEvalArithmetic(algorithm, prevHour, prevMinute);
-    
-    const nextMinute = minute === 59 ? 0 : minute + 1;
-    const nextHour = minute === 59 ? (hour === 23 ? 0 : hour + 1) : hour;
-    const nextTimePin = safeEvalArithmetic(algorithm, nextHour, nextMinute);
-    
-    const timePinNum = parseInt(timePin, 10);
-    
-    if (timePinNum !== correctTimePin && timePinNum !== prevTimePin && timePinNum !== nextTimePin) {
-      return {
-        statusCode: 401,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          authenticated: false,
-          error: "Invalid time-based code",
-          attemptsLeft: rateCheck.attemptsLeft
-        })
-      };
+    // TIME_PIN_ALGORITHM is optional. When it isn't configured, the
+    // time-based PIN factor is skipped entirely - only DASHBOARD_PIN
+    // (already verified above) is required to authenticate.
+    const algorithm = process.env.TIME_PIN_ALGORITHM;
+
+    if (algorithm) {
+      const now = new Date();
+      const hour = now.getUTCHours();
+      const minute = now.getUTCMinutes();
+
+      let correctTimePin;
+      try {
+        correctTimePin = safeEvalArithmetic(algorithm, hour, minute);
+      } catch (e) {
+        console.error('Invalid algorithm:', e.message);
+        return {
+          statusCode: 500,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ error: "Invalid algorithm configuration" })
+        };
+      }
+
+      // Also calculate for previous and next minute (3-minute window)
+      const prevMinute = minute === 0 ? 59 : minute - 1;
+      const prevHour = minute === 0 ? (hour === 0 ? 23 : hour - 1) : hour;
+      const prevTimePin = safeEvalArithmetic(algorithm, prevHour, prevMinute);
+
+      const nextMinute = minute === 59 ? 0 : minute + 1;
+      const nextHour = minute === 59 ? (hour === 23 ? 0 : hour + 1) : hour;
+      const nextTimePin = safeEvalArithmetic(algorithm, nextHour, nextMinute);
+
+      const timePinNum = parseInt(timePin, 10);
+
+      if (timePinNum !== correctTimePin && timePinNum !== prevTimePin && timePinNum !== nextTimePin) {
+        return {
+          statusCode: 401,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            authenticated: false,
+            error: "Invalid time-based code",
+            attemptsLeft: rateCheck.attemptsLeft
+          })
+        };
+      }
+    } else {
+      console.log('TIME_PIN_ALGORITHM not set - skipping time-based PIN check');
     }
 
     // ============================================

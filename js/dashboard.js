@@ -140,8 +140,17 @@ document.getElementById('step1Form').addEventListener('submit', async (e) => {
       return;
     }
 
-    // Success - go to step 2
+    // Success
     staticPinValue = staticPin;
+
+    if (!data.timePinRequired) {
+      // TIME_PIN_ALGORITHM isn't configured server-side - skip step 2
+      // entirely and authenticate with just the static PIN.
+      await submitTimePin('');
+      return;
+    }
+
+    // Go to step 2
     document.getElementById('step1Container').style.display = 'none';
     document.getElementById('step2Container').style.display = 'block';
     
@@ -164,15 +173,20 @@ document.getElementById('backToStep1').addEventListener('click', () => {
 // ============================================
 // STEP 2: TIME-BASED PIN
 // ============================================
-document.getElementById('step2Form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const timePin = document.getElementById('timePin').value;
+// Shared by the manual step 2 form and by the auto-skip path in step 1
+// (when TIME_PIN_ALGORITHM isn't configured server-side).
+async function submitTimePin(timePin) {
   const errorDiv = document.getElementById('step2Error');
   const button = document.getElementById('step2Button');
+  const step1Button = document.getElementById('step1Button');
 
   errorDiv.classList.remove('show');
   button.disabled = true;
   button.textContent = 'Authenticating...';
+  if (step1Button) {
+    step1Button.disabled = true;
+    step1Button.textContent = 'Authenticating...';
+  }
 
   try {
     const response = await fetch('/.netlify/functions/verify-time-pin', {
@@ -185,13 +199,22 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
 
     if (response.status === 429) {
       const minutes = Math.ceil((data.retryAfter || 1800) / 60);
-      errorDiv.textContent = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
+      const msg = data.error || `Too many attempts. Try again in ${minutes} minutes.`;
+      errorDiv.textContent = msg;
       errorDiv.classList.add('show');
       button.disabled = true;
       button.textContent = `Locked (${minutes}m)`;
+      if (step1Button) {
+        step1Button.disabled = true;
+        step1Button.textContent = `Locked (${minutes}m)`;
+      }
       setTimeout(() => {
         button.disabled = false;
         button.textContent = 'Authenticate';
+        if (step1Button) {
+          step1Button.disabled = false;
+          step1Button.textContent = 'Continue';
+        }
       }, data.retryAfter * 1000);
       return;
     }
@@ -205,6 +228,16 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
       errorDiv.classList.add('show');
       button.disabled = false;
       button.textContent = 'Authenticate';
+      if (step1Button) {
+        step1Button.disabled = false;
+        step1Button.textContent = 'Continue';
+        // If we were auto-skipping step 2, fall back to showing it manually
+        // so the user isn't stuck with no visible way to retry.
+        if (document.getElementById('step2Container').style.display !== 'block') {
+          document.getElementById('step1Container').style.display = 'none';
+          document.getElementById('step2Container').style.display = 'block';
+        }
+      }
       return;
     }
 
@@ -222,7 +255,17 @@ document.getElementById('step2Form').addEventListener('submit', async (e) => {
     errorDiv.classList.add('show');
     button.disabled = false;
     button.textContent = 'Authenticate';
+    if (step1Button) {
+      step1Button.disabled = false;
+      step1Button.textContent = 'Continue';
+    }
   }
+}
+
+document.getElementById('step2Form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const timePin = document.getElementById('timePin').value;
+  await submitTimePin(timePin);
 });
 
 // ============================================

@@ -22,9 +22,9 @@ A beautiful, privacy-focused anonymous letter platform with a vintage paper aest
 - **Custom postage stamp** - Link to create your own instance
 
 ### 🔐 Secure Dashboard
-- **Two-factor authentication**:
-  - Static PIN (set by you)
-  - Time-based PIN (changes every minute)
+- **Authentication**:
+  - Static PIN (set by you, required)
+  - Time-based PIN (optional second factor - only active if you set `TIME_PIN_ALGORITHM`)
 - **Session management** - Auto-logout after 30 minutes
 - **Protected data access** - All API calls require authentication
 
@@ -67,9 +67,10 @@ In Netlify, go to **Site configuration → Environment variables** and add:
 
 ```
 DASHBOARD_PIN = <yourPassword>
-TIME_PIN_ALGORITHM = <See algorithm examples below>
 GSCRIPT_URL = <https://script.google.com/macros/s/.../exec>
 ```
+
+These two are the only environment variables required for the site to work. Everything else (like the time-PIN algorithm) has a working default baked into the code.
 
 ### 5. Customize Your Site
 Edit `js/config.js`:
@@ -121,20 +122,29 @@ urochithi/
 2. **Paste This Code**
 
 ```javascript
+// ============================================
+// GOOGLE APPS SCRIPT - READ MESSAGES
+// ============================================
+// Add this function to your existing Apps Script
+// This allows the dashboard to read messages
+
 function doGet(e) {
   try {
     const sheet = SpreadsheetApp.getActiveSheet();
     const lastRow = sheet.getLastRow();
     
+    // If no data, return empty array
     if (lastRow <= 1) {
       return ContentService
         .createTextOutput(JSON.stringify({ messages: [] }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
+    // Get all data (skip header row)
     const range = sheet.getRange(2, 1, lastRow - 1, 3);
     const values = range.getValues();
     
+    // Transform to JSON
     const messages = values.map(row => ({
       timestamp: row[0] ? new Date(row[0]).toISOString() : new Date().toISOString(),
       message: row[1] || "",
@@ -147,12 +157,17 @@ function doGet(e) {
       
   } catch (error) {
     Logger.log("Error in doGet: " + error.toString());
+    
     return ContentService
-      .createTextOutput(JSON.stringify({ messages: [], error: error.toString() }))
+      .createTextOutput(JSON.stringify({ 
+        messages: [],
+        error: error.toString() 
+      }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
+// Keep your existing doPost function below
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
@@ -190,8 +205,12 @@ function doPost(e) {
       
   } catch (error) {
     Logger.log("Error in doPost: " + error.toString());
+    
     return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
+      .createTextOutput(JSON.stringify({ 
+        ok: false, 
+        error: error.toString()
+      }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -209,15 +228,15 @@ function doPost(e) {
 
 ## 🔐 Dashboard Authentication
 
-Your dashboard uses **two-factor authentication** for security:
-
 ### Step 1: Static PIN
 A password you set in the `DASHBOARD_PIN` environment variable.
 
 Example: `mySecretPassword123`
 
-### Step 2: Time-based PIN
-A code that changes every minute, calculated from the current UTC time.
+### Step 2: Time-based PIN (Optional second factor)
+If you set a `TIME_PIN_ALGORITHM` environment variable, login becomes **two-factor**: after the static PIN, you'll also be asked for a code that changes every minute, calculated from the current UTC time.
+
+If `TIME_PIN_ALGORITHM` is **not set**, this step is skipped entirely - logging in with just the static PIN is enough.
 
 **Example Formula:** `(hour × 7) + (minute % 10)`
 
@@ -228,16 +247,16 @@ A code that changes every minute, calculated from the current UTC time.
 = 102
 ```
 
-### Custom Algorithms
+### Custom Algorithms (Optional)
 
-You can customize the formula by changing the `TIME_PIN_ALGORITHM` environment variable:
+Enable the time-based PIN step by setting a `TIME_PIN_ALGORITHM` environment variable:
 
 **Simple:**
 ```
 TIME_PIN_ALGORITHM = (hour + minute)
 ```
 
-**Medium (default):**
+**Medium:**
 ```
 TIME_PIN_ALGORITHM = (hour * 7) + (minute % 10)
 ```
@@ -260,9 +279,12 @@ Set these in **Netlify → Site configuration → Environment variables**:
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `DASHBOARD_PIN` | Yes | Static password for dashboard | `mySecretPass123` |
-| `TIME_PIN_ALGORITHM` | Yes | Formula for time-based code | `(hour * 7) + (minute % 10)` |
-| `GSCRIPT_URL` | Yes | Google Apps Script deployment URL | `https://script.google.com/...` |
+| `DASHBOARD_PIN` | **Yes** | Static password for dashboard | `mySecretPass123` |
+| `GSCRIPT_URL` | **Yes** | Google Apps Script deployment URL | `https://script.google.com/...` |
+| `TIME_PIN_ALGORITHM` | No | Formula for time-based code. If unset, the time-PIN step is **skipped entirely** (single-factor login) | `(hour * 7) + (minute % 10)` |
+| `RECAPTCHA_SECRET_KEY` | No | Server-side key for reCAPTCHA v3 verification on dashboard login. If unset, reCAPTCHA verification is skipped automatically - it doesn't block login | `6Lc...` |
+
+Only `DASHBOARD_PIN` and `GSCRIPT_URL` are required for the app to run. Everything else is skipped gracefully when not set.
 
 ---
 

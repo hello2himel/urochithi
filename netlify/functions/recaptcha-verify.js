@@ -17,12 +17,15 @@ export async function verifyRecaptcha(token, expectedAction = 'dashboard_login')
   }
 
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  
+
+  // RECAPTCHA_SECRET_KEY is optional. If it isn't set, skip verification
+  // instead of blocking dashboard login - only GSCRIPT_URL and DASHBOARD_PIN
+  // are required for this app to function.
   if (!secretKey) {
-    console.error('RECAPTCHA_SECRET_KEY not configured');
-    return { 
-      success: false, 
-      error: 'reCAPTCHA not configured' 
+    console.warn('RECAPTCHA_SECRET_KEY not configured - skipping reCAPTCHA verification');
+    return {
+      success: true,
+      skipped: true
     };
   }
 
